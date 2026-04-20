@@ -1,0 +1,43 @@
+:root {
+  /* Backgrounds */
+  --bg:      #0A0A0A;
+  --bg2:     #111111;
+  --bg3:     #181818;
+  --card:    #141414;
+  --card2:   #1C1C1C;
+
+  /* Borders */
+  --border:  #2A2A2A;
+  --border2: #3A3A2A;
+
+  /* Brand */
+  --gold:    #C9A84C;
+  --gold2:   #E8C96A;
+  --gold3:   #A07830;
+
+  /* Status */
+  --ok:      #22C55E;
+  --warn:    #F59E0B;
+  --err:     #EF4444;
+  --info:    #60A5FA;
+  --purple:  #A855F7;
+
+  /* Text */
+  --t:       #F5F0E8;
+  --t2:      #9A9080;
+  --t3:      #5A5048;
+  --t4:      #2A2520;
+
+  /* Fonts */
+  --font-main:  'DM Sans', sans-serif;
+  --font-head:  'Syne', sans-serif;
+  --font-mono:  'Space Mono', monospace;
+
+  /* Spacing */
+  --radius:   10px;
+  --radius-sm: 6px;
+  --radius-lg: 16px;
+
+  /* Navbar */
+  --navbar-h: 56px;
+}

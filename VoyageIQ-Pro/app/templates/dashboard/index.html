@@ -1,0 +1,87 @@
+{% extends "base/base.html" %}
+{% block title %}Tableau de bord{% endblock %}
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/dashboard.css') }}">
+{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title"><i class="fas fa-th-large"></i> Tableau de bord</h1>
+      <p class="page-sub">Vue d'ensemble — KPIs des 30 derniers jours</p>
+    </div>
+    <div class="page-header-right">
+      <span class="role-badge {{ current_user.role }}">{{ current_user.role_label() }}</span>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--cc:#C9A84C">
+      <div class="kpi-label">Recettes totales</div>
+      <div class="kpi-value">{{ '{:,.0f}'.format(kpis.get('recettes',0)) }} F</div>
+      <div class="kpi-sub">FCFA — 30 jours</div>
+      <div class="kpi-icon">◈</div>
+    </div>
+    <div class="kpi-card" style="--cc:#22C55E">
+      <div class="kpi-label">Marge brute</div>
+      <div class="kpi-value">{{ '{:,.0f}'.format(kpis.get('marge',0)) }} F</div>
+      <div class="kpi-sub">{{ kpis.get('taux_marge',0) }}% de marge</div>
+      <div class="kpi-icon">◉</div>
+    </div>
+    <div class="kpi-card" style="--cc:#60A5FA">
+      <div class="kpi-label">Voyages effectués</div>
+      <div class="kpi-value">{{ kpis.get('voyages',0) }}</div>
+      <div class="kpi-sub">{{ kpis.get('passagers',0) }} passagers</div>
+      <div class="kpi-icon">🚌</div>
+    </div>
+    <div class="kpi-card" style="--cc:#F59E0B">
+      <div class="kpi-label">Taux de remplissage</div>
+      <div class="kpi-value">{{ kpis.get('taux_remplissage',0) }}%</div>
+      <div class="kpi-sub">Objectif : 80%</div>
+      <div class="kpi-icon">📊</div>
+    </div>
+    <div class="kpi-card" style="--cc:#A855F7">
+      <div class="kpi-label">NPS moyen</div>
+      <div class="kpi-value">{{ kpis.get('nps_moyen',0) }}</div>
+      <div class="kpi-sub">Score satisfaction</div>
+      <div class="kpi-icon">⭐</div>
+    </div>
+  </div>
+
+  <!-- Alertes récentes -->
+  {% if alertes %}
+  <div class="section-card">
+    <div class="section-header">
+      <h3><i class="fas fa-bell"></i> Alertes actives</h3>
+      <a href="{{ url_for('alertes.index') }}" class="btn btn-sm">Voir tout</a>
+    </div>
+    {% for a in alertes[:5] %}
+    <div class="alert-item alert-{{ a.niveau }}">
+      <i class="fas fa-{% if a.niveau == 'critical' %}exclamation-circle{% elif a.niveau == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+      <span>{{ a.titre }}</span>
+      <span class="alert-date">{{ a.created_at.strftime('%d/%m %H:%M') }}</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Pas encore de données -->
+  {% if kpis.get('nb_saisies', 0) == 0 %}
+  <div class="empty-state">
+    <div class="empty-icon">📋</div>
+    <h3>Aucune donnée pour le moment</h3>
+    <p>Commencez par effectuer une saisie journalière pour voir vos KPIs.</p>
+    {% if current_user.can_access('saisie') %}
+    <a href="{{ url_for('saisie.index') }}" class="btn btn-gold">
+      <i class="fas fa-edit"></i> Faire une saisie
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/modules/dashboard.js') }}"></script>
+{% endblock %}

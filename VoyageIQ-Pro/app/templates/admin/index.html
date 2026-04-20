@@ -1,0 +1,39 @@
+{% extends "base/base.html" %}
+{% block title %}Administration{% endblock %}
+{% block content %}
+<div class="page-container">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fas fa-cog"></i> Administration</h1>
+    <p class="page-sub">Gestion des utilisateurs et du système</p>
+  </div>
+  <div class="section-card">
+    <div class="section-header">
+      <h3><i class="fas fa-users"></i> Utilisateurs ({{ users|length }})</h3>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr><th>ID</th><th>Nom</th><th>Rôle</th><th>Agence</th><th>Statut</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td><code>{{ u.identifiant }}</code></td>
+          <td>{{ u.nom }}</td>
+          <td><span class="role-badge {{ u.role }}">{{ u.role_label() }}</span></td>
+          <td>{{ u.agence or '—' }}</td>
+          <td><span class="badge-status {% if u.actif %}ok{% else %}err{% endif %}">
+            {{ 'Actif' if u.actif else 'Inactif' }}</span></td>
+          <td>
+            <form method="POST" action="{{ url_for('admin.supprimer_utilisateur', uid=u.id) }}"
+                  onsubmit="return confirm('Supprimer {{ u.nom }} ?')">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="btn btn-sm btn-err" type="submit">Supprimer</button>
+            </form>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
