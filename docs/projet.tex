@@ -1,0 +1,458 @@
+\documentclass[12pt,a4paper]{report}
+
+% ── Encodage & langue ─────────────────────────────────────────
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ── Mise en page ──────────────────────────────────────────────
+\usepackage[top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ── Typographie & couleurs ────────────────────────────────────
+\usepackage{xcolor}
+\usepackage{lmodern}
+\definecolor{gold}{RGB}{201,168,76}
+\definecolor{darkbg}{RGB}{20,20,20}
+\definecolor{graytext}{RGB}{100,95,88}
+
+% ── Graphiques & tableaux ─────────────────────────────────────
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+
+% ── Code source ───────────────────────────────────────────────
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{gray!10},
+    frame=single,
+    rulecolor=\color{gray!40},
+    breaklines=true,
+    captionpos=b,
+    keywordstyle=\color{blue!70},
+    commentstyle=\color{green!60!black},
+    stringstyle=\color{orange!80!black},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+}
+
+% ── Liens & PDF ───────────────────────────────────────────────
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=gold,
+    urlcolor=blue!70,
+    citecolor=gold,
+    pdftitle={VoyageIQ-Pro — Rapport de Projet},
+    pdfauthor={Équipe VoyageIQ-Pro — ESTLC},
+    pdfsubject={Système ERP de gestion de transport interurbain},
+}
+
+% ── Divers ────────────────────────────────────────────────────
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{amsmath}
+
+% ── En-têtes & pieds de page ──────────────────────────────────
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{graytext}{VoyageIQ-Pro}}
+\fancyhead[R]{\small\textcolor{graytext}{ESTLC — 2025-2026}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ── Style des titres de chapitres ─────────────────────────────
+\titleformat{\chapter}[display]
+  {\normalfont\Large\bfseries\color{gold}}
+  {\chaptertitlename\ \thechapter}{10pt}{\huge}
+
+% ═════════════════════════════════════════════════════════════
+\begin{document}
+
+% ── Page de titre ─────────────────────────────────────────────
+\begin{titlepage}
+    \centering
+    \vspace*{1.5cm}
+
+    {\Large\textbf{ESTLC}}\\[0.3cm]
+    {\large École Supérieure de Transport et de Logistique du Cameroun}\\[0.2cm]
+    {\normalsize Département Transport \& Logistique}\\[1cm]
+
+    \rule{\linewidth}{1.5pt}\\[0.4cm]
+    {\Huge\bfseries\color{gold} VoyageIQ-Pro}\\[0.3cm]
+    {\Large Système ERP de Gestion de Transport Interurbain}\\[0.2cm]
+    \rule{\linewidth}{1.5pt}\\[1cm]
+
+    {\large\textit{Rapport de Projet Professionnel}}\\[0.2cm]
+    {\normalsize Année académique 2025--2026}\\[1.5cm]
+
+    % Équipe
+    \begin{minipage}{0.48\textwidth}
+        \centering
+        \textbf{Équipe Projet}\\[0.3cm]
+        \begin{tabular}{ll}
+            \toprule
+            \textbf{Nom \& Prénom} & \textbf{Département} \\
+            \midrule
+            Membre 1 (Transport)   & Transport \& Logistique \\
+            Membre 2 (Transport)   & Transport \& Logistique \\
+            Membre 3 (Transport)   & Transport \& Logistique \\
+            Membre 4 (Transport)   & Transport \& Logistique \\
+            Membre 5 (Transport)   & Transport \& Logistique \\
+            \textbf{Masse Masse Paul-Basthylle} & Informatique \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+    \hfill
+    \begin{minipage}{0.45\textwidth}
+        \centering
+        \textbf{Encadrement}\\[0.3cm]
+        \begin{tabular}{l}
+            \toprule
+            \textbf{Encadreur académique} \\
+            \midrule
+            Dr. Prosper \\
+            Département Transport \& Logistique\\
+            ESTLC \\
+            \bottomrule
+        \end{tabular}
+    \end{minipage}
+
+    \vfill
+    {\normalsize Yaoundé, Cameroun --- \today}
+\end{titlepage}
+
+% ── Table des matières ────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Introduction Générale}
+% ─────────────────────────────────────────────────────────────
+
+\section{Contexte}
+
+Le secteur du transport interurbain au Cameroun constitue un pilier essentiel de
+l'économie nationale, assurant la mobilité des personnes et des biens entre les
+principales agglomérations du pays. Malgré son importance stratégique, ce secteur
+souffre encore d'un déficit notable en matière de digitalisation et de centralisation
+des données opérationnelles.
+
+La majorité des agences de transport gèrent encore leurs opérations quotidiennes
+via des registres papier ou des tableurs non connectés, rendant impossible le suivi
+en temps réel de la performance et la prise de décision rapide.
+
+\section{Problématique}
+
+Face à ce constat, la question centrale de notre projet est la suivante :
+
+\begin{tcolorbox}[colback=gray!10, colframe=gold, title=Question centrale]
+\textit{Comment concevoir et déployer une plateforme web intégrée permettant à
+une agence de transport interurbain de centraliser ses données opérationnelles,
+financières et humaines, tout en offrant des indicateurs de performance exploitables
+en temps réel ?}
+\end{tcolorbox}
+
+\section{Objectifs du Projet}
+
+\subsection{Objectif général}
+Développer \textbf{VoyageIQ-Pro}, un système ERP web complet adapté aux besoins
+spécifiques du transport interurbain camerounais.
+
+\subsection{Objectifs spécifiques}
+\begin{itemize}[leftmargin=1.5cm]
+    \item Digitaliser la saisie quotidienne des rapports d'exploitation par ligne.
+    \item Automatiser le suivi de la maintenance et des documents de la flotte.
+    \item Analyser la rentabilité financière par ligne de transport.
+    \item Intégrer un espace personnel pour les chauffeurs (courses, stats, localisation).
+    \item Évaluer la satisfaction clientèle via un système d'avis et le NPS.
+    \item Générer des rapports PDF et les diffuser par email et WhatsApp.
+    \item Offrir une vitrine publique professionnelle pour l'agence.
+\end{itemize}
+
+\section{Périmètre et Limites}
+
+Ce projet couvre la conception et le développement d'une application web accessible
+via navigateur. La version actuelle (v2.0) ne comprend pas d'application mobile native,
+bien que l'intégration d'une API REST permette une extension future dans ce sens.
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Analyse du Système}
+% ─────────────────────────────────────────────────────────────
+
+\section{Identification des Acteurs}
+
+Le système identifie trois grandes catégories d'acteurs :
+
+\begin{table}[h!]
+\centering
+\caption{Acteurs du système VoyageIQ-Pro}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Acteur} & \textbf{Espace} & \textbf{Rôle principal} \\
+\midrule
+Visiteur / Client   & Public      & Consultation de la vitrine, avis \\
+Personnel (5 rôles) & Admin       & Gestion ERP complète selon niveau \\
+Chauffeur           & Chauffeur   & Suivi personnel, courses, localisation \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Hiérarchie des Rôles Administratifs}
+
+\begin{table}[h!]
+\centering
+\caption{Niveaux d'accès dans l'espace administratif}
+\begin{tabular}{clll}
+\toprule
+\textbf{Niveau} & \textbf{Rôle} & \textbf{Accès} & \textbf{Auth} \\
+\midrule
+5 & Administrateur      & Complet (configuration, utilisateurs) & Téléphone + MDP \\
+4 & Direction Générale  & Finance, analytique, KPI globaux      & Téléphone + MDP \\
+3 & Chef d'Agence       & Flotte, saisie, rapports agence       & Téléphone + MDP \\
+2 & Superviseur Terrain & Saisie des données, opérations        & Téléphone + MDP \\
+1 & Auditeur            & Consultation rapports et alertes      & Téléphone + MDP \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Modèle de Données}
+
+Le système repose sur sept entités principales :
+
+\begin{description}[leftmargin=2cm, style=nextline]
+    \item[\texttt{Utilisateur}]
+        Gère l'authentification par téléphone, le contrôle d'accès basé sur les
+        rôles (RBAC), le profil enrichi (photo, matricule, coordonnées, WhatsApp).
+    \item[\texttt{Chauffeur}]
+        Acteur externe pouvant s'inscrire et accéder à un espace personnel.
+        Suit un cycle de validation administrateur avant activation.
+    \item[\texttt{CourseChauffeur}]
+        Association Chauffeur $\leftrightarrow$ Saisie/Voyage, permettant le suivi
+        individuel des performances de chaque chauffeur.
+    \item[\texttt{Vehicule}]
+        Suivi des caractéristiques techniques, kilométrage, échéances de
+        maintenance, assurance et visite technique.
+    \item[\texttt{Ligne}]
+        Définition des itinéraires, paramètres tarifaires et fréquences de passage.
+    \item[\texttt{Saisie}]
+        Cœur du système. Enregistre les données quotidiennes : voyages, recettes,
+        dépenses, incidents, qualité, NPS.
+    \item[\texttt{Alerte}]
+        Notifications proactives générées automatiquement par le moteur de règles.
+\end{description}
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Architecture et Implémentation}
+% ─────────────────────────────────────────────────────────────
+
+\section{Choix Technologiques}
+
+\begin{table}[h!]
+\centering
+\caption{Stack technologique VoyageIQ-Pro}
+\begin{tabularx}{\textwidth}{llX}
+\toprule
+\textbf{Couche} & \textbf{Technologie} & \textbf{Justification} \\
+\midrule
+Backend    & Python 3.10+ / Flask    & Micro-framework flexible, écosystème riche \\
+ORM        & SQLAlchemy              & Abstraction BDD, migrations, sécurité \\
+Base de données & SQLite (dev) / PostgreSQL (prod) & Légèreté en dev, robustesse en prod \\
+Auth       & Flask-Login + Werkzeug  & Gestion sessions, hachage PBKDF2 \\
+Sécurité   & Flask-WTF (CSRF)        & Protection formulaires \\
+Frontend   & Jinja2 + CSS + JS       & Templates serveur, design custom \\
+Rapports   & jsPDF / WeasyPrint      & Génération PDF côté client/serveur \\
+Cartographie & Leaflet.js + OpenStreetMap & Localisation chauffeurs (open source) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Structure du Projet}
+
+\begin{lstlisting}[language=bash, caption=Arborescence principale VoyageIQ-Pro]
+VoyageIQ-Pro/
+├── app/
+│   ├── blueprints/        # Modules routes (bp_<module>.py)
+│   ├── models/            # Entités SQLAlchemy
+│   ├── services/          # Logique métier (KPI, alertes)
+│   ├── static/            # CSS, JS, images, fonts
+│   │   ├── css/base/      # Variables, reset, animations
+│   │   ├── css/components/# Sidebar, navbar, cards...
+│   │   └── css/pages/     # Styles par page
+│   ├── templates/
+│   │   ├── admin/         # Pages espace administratif
+│   │   ├── chauffeur/     # Pages espace chauffeur
+│   │   ├── public/        # Vitrine publique
+│   │   ├── base/          # Templates de base (héritage Jinja2)
+│   │   └── components/    # Composants réutilisables
+│   └── utils/             # Décorateurs, helpers
+├── config/settings.py     # Configuration multi-environnements
+├── database/seeds/        # Initialisation BDD
+└── run.py                 # Point d'entrée
+\end{lstlisting}
+
+\section{Organisation des Blueprints}
+
+Chaque module fonctionnel est encapsulé dans un fichier \texttt{bp\_<module>.py}
+indépendant, enregistré dans \texttt{app/\_\_init\_\_.py} avec son préfixe d'URL.
+Cette structure plate (sans sous-dossiers) améliore la lisibilité et simplifie
+les imports.
+
+\section{Services Métier}
+
+\begin{description}[leftmargin=2cm]
+    \item[\texttt{kpi\_service.py}]
+        Centralise les calculs complexes : taux de remplissage, marge d'exploitation,
+        consommation aux 100 km, NPS agrégé.
+    \item[\texttt{alerte\_service.py}]
+        Moteur de règles analysant l'état de la flotte pour générer automatiquement
+        des alertes de maintenance, d'expiration de documents et d'anomalies financières.
+\end{description}
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Fonctionnalités Développées}
+% ─────────────────────────────────────────────────────────────
+
+\section{Espace Public (Vitrine)}
+La page d'accueil présente l'agence avec des statistiques dynamiques,
+les lignes desservies, les modules de la plateforme, un formulaire de contact
+et les mentions légales. Un bouton \og Administration \fg{} donne accès
+au login sans exposer l'interface interne.
+
+\section{Authentification par Téléphone}
+L'identifiant de connexion est le numéro de téléphone (format \texttt{+237XXXXXXXXX}
+ou \texttt{XXXXXXXXX}). Le système accepte les deux formats de manière transparente.
+Les chauffeurs disposent d'une page de connexion dédiée (\texttt{/chauffeur/login}).
+
+\section{Espace Administratif}
+Dix modules accessibles selon le niveau hiérarchique :
+Dashboard, Saisie, Flotte, Lignes, Finance, Opérations, Clientèle, Analytique,
+Alertes, Rapports. Les admins accèdent en plus à la gestion des utilisateurs et chauffeurs.
+
+\section{Espace Chauffeur}
+Les chauffeurs accèdent à un espace personnel après inscription et validation :
+dashboard personnel, historique des courses, statistiques de performance,
+suivi des maintenances, carte de localisation en temps réel, et modification du profil.
+
+\section{Génération de Rapports}
+Les rapports (exploitation journalière, finance mensuelle, bilan flotte) sont
+générables en PDF et envoyables par email et/ou WhatsApp selon les préférences
+de notification de chaque utilisateur.
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Gestion de la Sécurité}
+% ─────────────────────────────────────────────────────────────
+
+La sécurité est articulée autour de quatre axes :
+
+\begin{enumerate}[leftmargin=1.5cm]
+    \item \textbf{Hachage des mots de passe} : Algorithme PBKDF2 via Werkzeug.
+    \item \textbf{Protection CSRF} : Intégrée à tous les formulaires via Flask-WTF.
+    \item \textbf{Contrôle d'accès par rôle (RBAC)} : Décorateurs Flask restreignant
+          les routes selon le niveau hiérarchique (\texttt{niveau 1} à \texttt{5}).
+    \item \textbf{Séparation des sessions} : Les Chauffeurs et les Utilisateurs admin
+          utilisent des préfixes d'identifiant distincts dans Flask-Login
+          (\texttt{c-\{id\}} pour les chauffeurs).
+\end{enumerate}
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Perspectives d'Évolution}
+% ─────────────────────────────────────────────────────────────
+
+\begin{itemize}[leftmargin=1.5cm]
+    \item \textbf{Application mobile} pour les chauffeurs (iOS / Android) via l'API REST.
+    \item \textbf{Géolocalisation en temps réel} des véhicules (WebSocket + Leaflet.js).
+    \item \textbf{Intégration Mobile Money} (MTN MoMo, Orange Money) pour les recettes digitales.
+    \item \textbf{Module RH} : gestion des congés, contrats et fiches de paie des chauffeurs.
+    \item \textbf{Tableau de bord exécutif} avec export Excel et rapports automatisés périodiques.
+    \item \textbf{Migration PostgreSQL} pour l'environnement de production multi-utilisateurs.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────
+\chapter{Conclusion}
+% ─────────────────────────────────────────────────────────────
+
+\textbf{VoyageIQ-Pro} constitue une réponse concrète et opérationnelle aux défis
+de digitalisation du transport interurbain camerounais. En centralisant les données
+opérationnelles, financières et humaines dans une seule plateforme, le système
+permet aux décideurs d'agir sur la base d'informations fiables et en temps réel.
+
+La conception modulaire (blueprints, services découplés, modèles enrichis) garantit
+une maintenabilité optimale et une capacité d'évolution progressive. L'intégration
+d'un espace dédié aux chauffeurs, d'un système de notifications multicanal et d'une
+vitrine publique professionnelle place VoyageIQ-Pro au-delà d'un simple outil de
+saisie, en faisant une véritable plateforme de pilotage d'agence.
+
+Ce projet, mené en équipe pluridisciplinaire (Transport \& Informatique) sous
+l'encadrement du Dr.~Prosper, illustre la complémentarité entre expertise métier
+et compétences techniques dans la construction de solutions numériques adaptées
+au contexte africain.
+
+% ─────────────────────────────────────────────────────────────
+% Annexes
+% ─────────────────────────────────────────────────────────────
+\appendix
+
+\chapter{Comptes de Démonstration}
+
+\begin{table}[h!]
+\centering
+\caption{Accès de démonstration — Espace Admin}
+\begin{tabular}{lll}
+\toprule
+\textbf{Téléphone} & \textbf{Mot de passe} & \textbf{Rôle} \\
+\midrule
++237690000001 & Admin@VIQ2026  & Administrateur \\
++237677000010 & DG@VIQ2026     & Direction Générale (Mbarga J-P) \\
++237655000100 & Chef1@VIQ2026  & Chef d'Agence Yaoundé (Biyong P.) \\
++237666000200 & Chef2@VIQ2026  & Chef d'Agence Douala (Ngom B.) \\
++237655001001 & Sup1@VIQ2026   & Superviseur Yaoundé (Ateba R.) \\
++237677002001 & Audit1@VIQ2026 & Auditeur (Nkolo F.) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h!]
+\centering
+\caption{Accès de démonstration — Espace Chauffeur}
+\begin{tabular}{lll}
+\toprule
+\textbf{Téléphone} & \textbf{Mot de passe} & \textbf{Chauffeur} \\
+\midrule
++237677100001 & Chauf1@VIQ2026 & Tsafack Hervé (validé) \\
++237655100002 & Chauf2@VIQ2026 & Nganou Alphonse (validé) \\
++237699100003 & Chauf3@VIQ2026 & Kamga Rodrigue (validé) \\
++237677200004 & Fouda@2026     & Fouda Serge (en attente) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\chapter{Lignes de Transport Configurées}
+
+\begin{table}[h!]
+\centering
+\caption{Lignes de démonstration}
+\begin{tabular}{llrrl}
+\toprule
+\textbf{Code} & \textbf{Trajet} & \textbf{Km} & \textbf{Tarif (FCFA)} & \textbf{Fréq./jour} \\
+\midrule
+L01 & Yaoundé — Douala    & 250 & 3\,500 & 8 \\
+L02 & Yaoundé — Bafoussam & 310 & 4\,000 & 6 \\
+L03 & Douala — Kribi      & 195 & 2\,500 & 5 \\
+L04 & Yaoundé — Bertoua   & 350 & 4\,500 & 4 \\
+L05 & Douala — Bafoussam  & 375 & 4\,500 & 4 \\
+L06 & Yaoundé — Ebolowa   & 160 & 2\,000 & 4 \\
+L07 & Douala — Limbé      &  70 & 1\,000 & 10 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\end{document}
