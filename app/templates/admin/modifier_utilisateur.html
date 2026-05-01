@@ -1,0 +1,84 @@
+{% extends "base/base_admin.html" %}
+{% block title %}Modifier Utilisateur — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fas fa-user-cog"></i> Modifier l'utilisateur : {{ user.nom }}</h1>
+    <a href="{{ url_for('admin.utilisateurs') }}" class="btn btn-secondary">Retour à la liste</a>
+  </div>
+
+  <div class="section-card">
+    <form action="{{ url_for('admin.modifier_utilisateur', user_id=user.id) }}" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nom</label>
+          <input type="text" name="nom" class="form-input" value="{{ user.nom }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prénom</label>
+          <input type="text" name="prenom" class="form-input" value="{{ user.prenom or '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Identifiant (Téléphone)</label>
+          <input type="text" name="identifiant" class="form-input" value="{{ user.identifiant }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Rôle</label>
+          <select name="role" class="form-select" required>
+            <option value="admin" {{ 'selected' if user.role == 'admin' }}>Administrateur</option>
+            <option value="dg" {{ 'selected' if user.role == 'dg' }}>Direction Générale</option>
+            <option value="chef" {{ 'selected' if user.role == 'chef' }}>Chef d'agence</option>
+            <option value="superviseur" {{ 'selected' if user.role == 'superviseur' }}>Superviseur</option>
+            <option value="auditeur" {{ 'selected' if user.role == 'auditeur' }}>Auditeur</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Agence</label>
+          <input type="text" name="agence" class="form-input" value="{{ user.agence or '' }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Statut</label>
+          <select name="actif" class="form-select">
+            <option value="1" {{ 'selected' if user.actif }}>Actif</option>
+            <option value="0" {{ 'selected' if not user.actif }}>Inactif</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">Nouveau mot de passe (laisser vide pour ne pas changer)</label>
+        <input type="password" name="password" class="form-input" placeholder="••••••••">
+      </div>
+
+      <div class="form-row" style="margin-top:20px;">
+        <label class="checkbox-label">
+          <input type="checkbox" name="notif_email" {{ 'checked' if user.notif_email }}>
+          Notifications par Email
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" name="notif_whatsapp" {{ 'checked' if user.notif_whatsapp }}>
+          Notifications WhatsApp
+        </label>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 15px;">
+        <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+        {% if user.id != current_user.id %}
+        <button type="button" class="btn btn-danger" onclick="confirmDelete()">Supprimer l'utilisateur</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function confirmDelete() {
+    if (confirm("Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.")) {
+        window.location.href = "{{ url_for('admin.supprimer_utilisateur', user_id=user.id) }}";
+    }
+}
+</script>
+{% endblock %}

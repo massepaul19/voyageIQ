@@ -1,0 +1,91 @@
+{% extends "base/base_public.html" %}
+{% block title %}À Propos — VoyageIQ Transport{% endblock %}
+
+{% block content %}
+<section class="page-hero page-hero--about">
+  <div class="container">
+    <div class="page-hero__content">
+      <div class="section__tag">Notre histoire</div>
+      <h1 class="page-hero__title">À Propos de VoyageIQ Transport</h1>
+      <p class="page-hero__subtitle">
+        Une équipe dédiée à la qualité du transport interurbain au Cameroun.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="about-grid">
+
+      <div class="about-text">
+        <h2>Notre Mission</h2>
+        <p>
+          VoyageIQ Transport s'est donné pour mission de moderniser et professionnaliser
+          le transport interurbain au Cameroun. Nous connectons les grandes villes avec
+          des liaisons fiables, confortables et accessibles.
+        </p>
+        <p>
+          Grâce à notre plateforme numérique intégrée, nous suivons chaque trajet,
+          chaque véhicule et chaque opération en temps réel pour garantir la meilleure
+          expérience à nos passagers.
+        </p>
+
+        <h2 style="margin-top:2rem">Nos Valeurs</h2>
+        <div class="values-list">
+          {% for icon_path, val in [
+            ('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>', 'Sécurité avant tout'),
+            ('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>', 'Ponctualité'),
+            ('<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>', 'Transparence'),
+            ('<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>', 'Service client'),
+          ] %}
+          <div class="value-item">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              {{ icon_path | safe }}
+            </svg>
+            <span>{{ val }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="about-stats">
+        {% for val, label in [
+          ('7+', 'Lignes desservies'),
+          ('8', 'Véhicules en flotte'),
+          ('5', 'Agences'),
+          ('94%', 'Satisfaction client'),
+        ] %}
+        <div class="about-stat-card">
+          <span class="about-stat-value">{{ val }}</span>
+          <span class="about-stat-label">{{ label }}</span>
+        </div>
+        {% endfor %}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- Équipe -->
+<section class="section section--dark">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">L'équipe</div>
+      <h2 class="section__title section__title--light">Derrière VoyageIQ</h2>
+      <p class="section__subtitle" style="color:var(--dark-300)">
+        Ce projet est développé par une équipe pluridisciplinaire à l'ESTLC,
+        alliant expertise en transport et en informatique.
+      </p>
+    </div>
+    <div class="team-note">
+      <div class="team-note__icon">🎓</div>
+      <div>
+        <strong>Projet Professionnel — ESTLC 2025-2026</strong>
+        <p>Département Transport & Logistique × Département Informatique</p>
+        <p>Encadreur : Dr. Prosper</p>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription Chauffeur — VoyageIQ</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- CSS système -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/reset.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/animations.css') }}">
+
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+
+  <style>
+    /* ── Layout page ─────────────────────────────────────── */
+    body {
+      background: var(--bg);
+      min-height: 100vh;
+      font-family: var(--font-main);
+      color: var(--t);
+      padding: 32px 16px 72px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .ins-wrap {
+      width: 100%;
+      max-width: 620px;
+    }
+
+    /* ── Header ──────────────────────────────────────────── */
+    .ins-header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ins-logo {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      margin-bottom: 20px;
+    }
+    .ins-logo img {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+    .ins-logo-name {
+      font-family: var(--font-head);
+      font-weight: 800;
+      font-size: 20px;
+      color: var(--gold);
+    }
+    .ins-logo-tag {
+      display: block;
+      font-size: 9px;
+      letter-spacing: .14em;
+      color: var(--t3);
+      text-transform: uppercase;
+    }
+    .ins-header h1 {
+      font-family: var(--font-head);
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--t);
+      margin-bottom: 8px;
+    }
+    .ins-header p {
+      font-size: 13px;
+      color: var(--t3);
+      line-height: 1.6;
+    }
+
+    /* ── Indicateur d'étapes ─────────────────────────────── */
+    .ins-steps {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 28px;
+    }
+    .ins-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: default;
+    }
+    .ins-step__num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--bg3);
+      border: 1px solid var(--border);
+      color: var(--t3);
+      transition: all .25s;
+    }
+    .ins-step--done .ins-step__num {
+      background: var(--eco-bg);
+      border-color: var(--ok);
+      color: var(--ok);
+    }
+    .ins-step--active .ins-step__num {
+      background: var(--gold-bg);
+      border-color: var(--gold);
+      color: var(--gold);
+      box-shadow: var(--gold-glow);
+    }
+    .ins-step__label {
+      font-size: 10px;
+      color: var(--t3);
+      white-space: nowrap;
+    }
+    .ins-step--active .ins-step__label { color: var(--gold); }
+    .ins-step--done  .ins-step__label  { color: var(--ok); }
+    .ins-step__line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+      margin: 0 8px;
+      margin-bottom: 14px;
+      min-width: 24px;
+      max-width: 60px;
+    }
+
+    /* ── Flash messages ──────────────────────────────────── */
+    .flash-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 11px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+    .flash-msg--danger, .flash-msg--error {
+      background: rgba(239,68,68,.1);
+      color: #F87171;
+      border: 1px solid rgba(239,68,68,.25);
+    }
+    .flash-msg--success {
+      background: rgba(34,197,94,.08);
+      color: var(--ok);
+      border: 1px solid rgba(34,197,94,.2);
+    }
+    .flash-msg--warning {
+      background: rgba(245,158,11,.08);
+      color: var(--warn);
+      border: 1px solid rgba(245,158,11,.2);
+    }
+    .flash-msg--info {
+      background: rgba(96,165,250,.08);
+      color: var(--info);
+      border: 1px solid rgba(96,165,250,.2);
+    }
+
+    /* ── Section formulaire ──────────────────────────────── */
+    .ins-section {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 12px;
+    }
+    .ins-section-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-bottom: 18px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .ins-section-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gold-bg);
+      border: 1px solid var(--gold3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    /* ── Grille champs ───────────────────────────────────── */
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .form-grid-2 .span-2 { grid-column: 1 / -1; }
+    @media (max-width: 520px) {
+      .form-grid-2 { grid-template-columns: 1fr; }
+      .form-grid-2 .span-2 { grid-column: 1; }
+    }
+
+    /* ── Form elements ───────────────────────────────────── */
+    .fgroup { display: flex; flex-direction: column; gap: 5px; }
+    .flabel {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--t2);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    .flabel .req { color: var(--gold); margin-left: 2px; }
+    .flabel .opt { color: var(--t3); font-weight: 400; text-transform: none; font-size: 10px; margin-left: 4px; }
+
+    .finput, .fselect {
+      height: 40px;
+      padding: 0 12px;
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--t);
+      font-family: var(--font-main);
+      font-size: 13px;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .finput::placeholder { color: var(--t3); font-size: 12px; }
+    .finput:focus, .fselect:focus {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.12);
+    }
+    .finput.error { border-color: var(--err); }
+    .fselect { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235A5048' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 32px; }
+    .fhint { font-size: 10px; color: var(--t3); }
+
+    /* Password wrapper */
+    .fpwd-wrap { position: relative; }
+    .fpwd-wrap .finput { padding-right: 40px; }
+    .fpwd-toggle {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--t3);
+      padding: 4px;
+      display: flex;
+      line-height: 0;
+    }
+    .fpwd-toggle:hover { color: var(--t2); }
+
+    /* ── Photo upload ────────────────────────────────────── */
+    .photo-zone {
+      border: 2px dashed var(--border2);
+      border-radius: var(--radius);
+      padding: 22px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .2s, background .2s;
+      background: var(--bg2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      position: relative;
+    }
+    .photo-zone:hover, .photo-zone.drag { border-color: var(--gold); background: var(--gold-bg); }
+    .photo-zone__icon { color: var(--t3); }
+    .photo-zone__main { font-size: 12px; color: var(--t2); font-weight: 500; }
+    .photo-zone__hint { font-size: 10px; color: var(--t3); }
+    .photo-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+
+    .photo-preview {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .photo-preview.show { display: flex; }
+    .photo-preview img {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--gold);
+    }
+    .photo-preview-remove {
+      font-size: 11px;
+      color: var(--err);
+      background: none;
+      border: 1px solid rgba(239,68,68,.3);
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+    .photo-preview-remove:hover { background: rgba(239,68,68,.1); }
+
+    /* ── Note info ───────────────────────────────────────── */
+    .ins-note {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      background: rgba(96,165,250,.06);
+      border: 1px solid rgba(96,165,250,.15);
+      border-radius: var(--radius-sm);
+      padding: 12px 14px;
+      font-size: 12px;
+      color: var(--info);
+      line-height: 1.55;
+      margin-top: 14px;
+    }
+    .ins-note svg { flex-shrink: 0; margin-top: 1px; }
+
+    /* ── Actions ─────────────────────────────────────────── */
+    .ins-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 0 20px;
+      height: 42px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      transition: all .2s;
+      white-space: nowrap;
+    }
+    .btn--gold {
+      background: var(--gold);
+      color: #0a0a0a;
+    }
+    .btn--gold:hover { background: var(--gold2); box-shadow: var(--gold-glow); }
+    .btn--ghost {
+      background: transparent;
+      border: 1px solid var(--border2);
+      color: var(--t2);
+    }
+    .btn--ghost:hover { border-color: var(--gold3); color: var(--t); }
+    .btn--full { width: 100%; justify-content: center; }
+    .btn--lg { height: 48px; font-size: 14px; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<div class="ins-wrap">
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <div class="ins-header">
+    <a href="{{ url_for('public.index') }}" class="ins-logo">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VIQ">
+      <div>
+        <span class="ins-logo-name">VoyageIQ</span>
+        <span class="ins-logo-tag">Transport Pro</span>
+      </div>
+    </a>
+    <h1>Rejoindre le réseau</h1>
+    <p>Remplissez le formulaire ci-dessous. Votre dossier sera<br>
+       examiné et validé par un administrateur.</p>
+  </div>
+
+  <!-- ── Étapes ──────────────────────────────────────────── -->
+  <div class="ins-steps">
+    <div class="ins-step ins-step--active">
+      <span class="ins-step__num">1</span>
+      <span class="ins-step__label">Identité</span>
+    </div>
+    <div class="ins-step__line"></div>
+    <div class="ins-step">
+      <span class="ins-step__num">2</span>
+      <span class="ins-step__label">Contact</span>
+    </div>
+    <div class="ins-step__line"></div>
+    <div class="ins-step">
+      <span class="ins-step__num">3</span>
+      <span class="ins-step__label">Documents</span>
+    </div>
+    <div class="ins-step__line"></div>
+    <div class="ins-step">
+      <span class="ins-step__num">4</span>
+      <span class="ins-step__label">Compte</span>
+    </div>
+  </div>
+
+  <!-- ── Flash messages ──────────────────────────────────── -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="margin-bottom:16px">
+      {% for category, message in messages %}
+      <div class="flash-msg flash-msg--{{ category }}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px">
+          {% if category == 'success' %}<polyline points="20 6 9 17 4 12"/>
+          {% elif category in ['danger','error'] %}<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          {% else %}<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/>{% endif %}
+        </svg>
+        <span>{{ message }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ══════════════════════════════════════════════════════
+       FORMULAIRE
+  ══════════════════════════════════════════════════════ -->
+  <form method="POST" action="{{ url_for('chauffeur.inscription') }}"
+        enctype="multipart/form-data" id="formInscription" novalidate>
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <!-- ── Section 1 : Identité ──────────────────────────── -->
+    <div class="ins-section">
+      <div class="ins-section-title">
+        <span class="ins-section-num">1</span>
+        Identité personnelle
+      </div>
+      <div class="form-grid-2">
+        <div class="fgroup">
+          <label class="flabel" for="prenom">Prénom <span class="req">*</span></label>
+          <input type="text" id="prenom" name="prenom" class="finput"
+                 placeholder="Ex : Hervé"
+                 value="{{ request.form.get('prenom','') }}" required autocomplete="given-name">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="nom">Nom <span class="req">*</span></label>
+          <input type="text" id="nom" name="nom" class="finput"
+                 placeholder="Ex : Tsafack"
+                 value="{{ request.form.get('nom','') }}" required autocomplete="family-name">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="sexe">Sexe</label>
+          <select id="sexe" name="sexe" class="fselect">
+            <option value="M" {% if request.form.get('sexe','M')=='M' %}selected{% endif %}>Masculin</option>
+            <option value="F" {% if request.form.get('sexe')=='F'    %}selected{% endif %}>Féminin</option>
+          </select>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="annees_exp">Années d'expérience</label>
+          <input type="number" id="annees_exp" name="annees_exp" class="finput"
+                 placeholder="Ex : 5" min="0" max="50"
+                 value="{{ request.form.get('annees_exp','0') }}">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="date_naissance">Date de naissance</label>
+          <input type="date" id="date_naissance" name="date_naissance" class="finput"
+                 value="{{ request.form.get('date_naissance','') }}">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="lieu_naissance">Lieu de naissance</label>
+          <input type="text" id="lieu_naissance" name="lieu_naissance" class="finput"
+                 placeholder="Ex : Bafoussam"
+                 value="{{ request.form.get('lieu_naissance','') }}">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="num_cni">N° CNI</label>
+          <input type="text" id="num_cni" name="num_cni" class="finput"
+                 placeholder="Ex : 123456789"
+                 value="{{ request.form.get('num_cni','') }}">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 2 : Contact ───────────────────────────── -->
+    <div class="ins-section">
+      <div class="ins-section-title">
+        <span class="ins-section-num">2</span>
+        Contact
+      </div>
+      <div class="form-grid-2">
+        <div class="fgroup">
+          <label class="flabel" for="telephone">Téléphone <span class="req">*</span></label>
+          <input type="tel" id="telephone" name="telephone" class="finput"
+                 placeholder="Ex : 677100001 ou +237677100001"
+                 value="{{ request.form.get('telephone','') }}" required autocomplete="tel">
+          <span class="fhint">Utilisé pour la connexion — format 9 chiffres ou +237XXXXXXXXX</span>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="telephone_urgence">Tél. urgence <span class="opt">(optionnel)</span></label>
+          <input type="tel" id="telephone_urgence" name="telephone_urgence" class="finput"
+                 placeholder="Ex : 655001001"
+                 value="{{ request.form.get('telephone_urgence','') }}">
+        </div>
+        <div class="fgroup span-2">
+          <label class="flabel" for="email">Email <span class="opt">(optionnel)</span></label>
+          <input type="email" id="email" name="email" class="finput"
+                 placeholder="Ex : herve.tsafack@gmail.com"
+                 value="{{ request.form.get('email','') }}" autocomplete="email">
+        </div>
+        <div class="fgroup span-2">
+          <label class="flabel" for="adresse">Adresse</label>
+          <input type="text" id="adresse" name="adresse" class="finput"
+                 placeholder="Ex : Quartier Melen, Yaoundé"
+                 value="{{ request.form.get('adresse','') }}">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="ville">Ville</label>
+          <select id="ville" name="ville" class="fselect">
+            <option value="">— Sélectionner —</option>
+            {% for v in ['Yaoundé','Douala','Bafoussam','Bamenda','Garoua','Maroua','Ngaoundéré','Bertoua','Ebolowa','Kribi'] %}
+            <option value="{{ v }}" {% if request.form.get('ville')==v %}selected{% endif %}>{{ v }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="agence">Agence souhaitée</label>
+          <select id="agence" name="agence" class="fselect">
+            <option value="">— Agence —</option>
+            {% for ag in ['Yaoundé','Douala','Bafoussam','Bamenda','Garoua','Maroua'] %}
+            <option value="{{ ag }}" {% if request.form.get('agence')==ag %}selected{% endif %}>{{ ag }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 3 : Documents ─────────────────────────── -->
+    <div class="ins-section">
+      <div class="ins-section-title">
+        <span class="ins-section-num">3</span>
+        Permis de conduire & Documents
+      </div>
+      <div class="form-grid-2">
+        <div class="fgroup">
+          <label class="flabel" for="num_permis">N° Permis de conduire</label>
+          <input type="text" id="num_permis" name="num_permis" class="finput"
+                 placeholder="Ex : CM-B-2019-00412"
+                 value="{{ request.form.get('num_permis','') }}">
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="categorie_permis">Catégorie permis</label>
+          <select id="categorie_permis" name="categorie_permis" class="fselect">
+            <option value="">— Catégorie —</option>
+            {% for cat in ['A','B','C','D','E','F'] %}
+            <option value="{{ cat }}" {% if request.form.get('categorie_permis')==cat %}selected{% endif %}>
+              Catégorie {{ cat }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="fgroup">
+          <label class="flabel" for="exp_permis">Expiration du permis</label>
+          <input type="date" id="exp_permis" name="exp_permis" class="finput"
+                 value="{{ request.form.get('exp_permis','') }}">
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Section 4 : Compte ────────────────────────────── -->
+    <div class="ins-section">
+      <div class="ins-section-title">
+        <span class="ins-section-num">4</span>
+        Identifiants de connexion
+      </div>
+      <div class="form-grid-2">
+
+        <div class="fgroup span-2">
+          <label class="flabel" for="username">Nom d'utilisateur <span class="req">*</span></label>
+          <input type="text" id="username" name="username" class="finput"
+                 placeholder="Ex : c.tsafack"
+                 value="{{ request.form.get('username','') }}" required
+                 autocomplete="username" style="text-transform:lowercase">
+          <span class="fhint">Minuscules et points uniquement — Ex : c.herve, c.mbarga</span>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="password">Mot de passe <span class="req">*</span></label>
+          <div class="fpwd-wrap">
+            <input type="password" id="password" name="password" class="finput"
+                   placeholder="Minimum 6 caractères" required autocomplete="new-password">
+            <button type="button" class="fpwd-toggle" id="togglePwd1" tabindex="-1">
+              <svg id="eye1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="fgroup">
+          <label class="flabel" for="password2">Confirmer <span class="req">*</span></label>
+          <div class="fpwd-wrap">
+            <input type="password" id="password2" name="password2" class="finput"
+                   placeholder="Répéter le mot de passe" required autocomplete="new-password">
+            <button type="button" class="fpwd-toggle" id="togglePwd2" tabindex="-1">
+              <svg id="eye2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </button>
+          </div>
+          <span class="fhint" id="pwd2Hint" style="display:none;color:var(--err)">Les mots de passe ne correspondent pas</span>
+        </div>
+
+        <!-- Photo profil -->
+        <div class="fgroup span-2" style="margin-top:6px">
+          <label class="flabel">Photo de profil <span class="opt">(optionnel)</span></label>
+
+          <div class="photo-zone" id="photoZone">
+            <svg class="photo-zone__icon" width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <span class="photo-zone__main">Cliquer ou glisser-déposer une photo</span>
+            <span class="photo-zone__hint">JPG, PNG, WEBP — Max 5 Mo</span>
+            <input type="file" name="photo" id="photoInput"
+                   accept="image/png,image/jpeg,image/jpg,image/webp">
+          </div>
+
+          <div class="photo-preview" id="photoPreview">
+            <img id="photoPreviewImg" src="" alt="Aperçu photo">
+            <button type="button" class="photo-preview-remove" id="photoRemove">
+              × Supprimer la photo
+            </button>
+          </div>
+
+          <div id="photoErr" style="display:none;font-size:11px;color:var(--err);margin-top:4px"></div>
+        </div>
+
+      </div>
+
+      <!-- Note -->
+      <div class="ins-note">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Votre compte sera examiné par un administrateur avant activation. Vous serez notifié(e) par SMS à l'adresse fournie.
+      </div>
+    </div>
+
+    <!-- ── Actions ────────────────────────────────────────── -->
+    <div class="ins-actions">
+      <a href="{{ url_for('chauffeur.login') }}" class="btn btn--ghost">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        J'ai déjà un compte
+      </a>
+      <button type="submit" class="btn btn--gold btn--lg">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Soumettre ma demande
+      </button>
+    </div>
+
+  </form>
+</div>
+
+<script>
+/* ── Toggle mots de passe ────────────────────────────── */
+function togglePwd(inputId, eyeId) {
+  const inp = document.getElementById(inputId);
+  const eye = document.getElementById(eyeId);
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    eye.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    inp.type = 'password';
+    eye.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+document.getElementById('togglePwd1').addEventListener('click', () => togglePwd('password',  'eye1'));
+document.getElementById('togglePwd2').addEventListener('click', () => togglePwd('password2', 'eye2'));
+
+/* ── Validation confirmation mot de passe en temps réel ─ */
+document.getElementById('password2').addEventListener('input', function () {
+  const pwd1 = document.getElementById('password').value;
+  const hint = document.getElementById('pwd2Hint');
+  if (this.value && this.value !== pwd1) {
+    this.style.borderColor = 'var(--err)';
+    hint.style.display = 'block';
+  } else {
+    this.style.borderColor = '';
+    hint.style.display = 'none';
+  }
+});
+
+/* Validation à la soumission */
+document.getElementById('formInscription').addEventListener('submit', function (e) {
+  const pwd  = document.getElementById('password').value;
+  const pwd2 = document.getElementById('password2').value;
+  if (pwd !== pwd2) {
+    e.preventDefault();
+    document.getElementById('pwd2Hint').style.display = 'block';
+    document.getElementById('password2').focus();
+  }
+});
+
+/* ── Photo upload ────────────────────────────────────── */
+const photoInput   = document.getElementById('photoInput');
+const photoZone    = document.getElementById('photoZone');
+const photoPreview = document.getElementById('photoPreview');
+const photoImg     = document.getElementById('photoPreviewImg');
+const photoRemove  = document.getElementById('photoRemove');
+const photoErr     = document.getElementById('photoErr');
+
+/* Déclencher le file picker en cliquant sur la zone
+   (l'input file est à l'intérieur donc ça marche nativement,
+    mais on empêche la propagation pour éviter double déclenchement) */
+photoInput.addEventListener('click', e => e.stopPropagation());
+
+photoInput.addEventListener('change', function () {
+  handlePhoto(this.files[0]);
+});
+
+/* Drag & drop */
+['dragenter', 'dragover'].forEach(ev => {
+  photoZone.addEventListener(ev, e => { e.preventDefault(); photoZone.classList.add('drag'); });
+});
+['dragleave', 'drop'].forEach(ev => {
+  photoZone.addEventListener(ev, e => { e.preventDefault(); photoZone.classList.remove('drag'); });
+});
+photoZone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    photoInput.files = dt.files;
+    handlePhoto(file);
+  }
+});
+
+function handlePhoto(file) {
+  photoErr.style.display = 'none';
+  if (!file) return;
+
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    photoErr.textContent = 'Format non accepté. Utilisez JPG, PNG ou WEBP.';
+    photoErr.style.display = 'block';
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    photoErr.textContent = 'Fichier trop volumineux (max 5 Mo).';
+    photoErr.style.display = 'block';
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoImg.src = ev.target.result;
+    photoZone.style.display   = 'none';
+    photoPreview.style.display = 'flex';
+    photoPreview.classList.add('show');
+  };
+  reader.readAsDataURL(file);
+}
+
+photoRemove.addEventListener('click', () => {
+  photoInput.value = '';
+  photoImg.src     = '';
+  photoZone.style.display    = '';
+  photoPreview.style.display = 'none';
+  photoPreview.classList.remove('show');
+  photoErr.style.display = 'none';
+});
+
+/* ── Indicateur étapes dynamique ────────────────────── */
+/* Met à jour les steps quand on scroll vers une section */
+const sections = document.querySelectorAll('.ins-section');
+const steps    = document.querySelectorAll('.ins-step');
+
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(sections).indexOf(entry.target);
+      steps.forEach((s, i) => {
+        s.classList.remove('ins-step--active', 'ins-step--done');
+        if (i < idx)  s.classList.add('ins-step--done');
+        if (i === idx) s.classList.add('ins-step--active');
+      });
+    }
+  });
+}, { threshold: 0.4 });
+
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

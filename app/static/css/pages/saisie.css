@@ -1,2 +1,570 @@
-/* Styles spécifiques au module : saisie */
-/* Complétez selon les besoins du module */
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Page : Saisie
+═══════════════════════════════════════════════════════════ */
+
+/* ── Layout saisie ──────────────────────────────────────── */
+.saisie-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ── Header saisie ──────────────────────────────────────── */
+.saisie-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.saisie-title {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--t);
+  margin: 0;
+}
+
+.saisie-subtitle {
+  font-size: 12px;
+  color: var(--t3);
+  margin: 4px 0 0 0;
+}
+
+/* ── Form container ─────────────────────────────────────── */
+.saisie-form-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.saisie-form__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 20px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saisie-form__title::before {
+  content: "📝";
+  font-size: 20px;
+}
+
+/* ── Form grid ──────────────────────────────────────────── */
+.saisie-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.saisie-form-row {
+  display: contents;
+}
+
+/* ── Special inputs ─────────────────────────────────────── */
+.saisie-date-input {
+  position: relative;
+}
+
+.saisie-date-input input {
+  padding-right: 40px;
+}
+
+.saisie-date-input::after {
+  content: "📅";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+/* ── Sections ───────────────────────────────────────────── */
+.saisie-section {
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border2);
+}
+
+.saisie-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.saisie-section__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.saisie-section__title::before {
+  content: "▸";
+  font-size: 12px;
+}
+
+/* ── Recent entries ─────────────────────────────────────── */
+.saisie-recent {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.saisie-recent__header {
+  padding: 16px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.saisie-recent__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.saisie-recent__title::before {
+  content: "📋";
+  font-size: 18px;
+}
+
+.saisie-recent__table {
+  width: 100%;
+}
+
+.saisie-recent__table th,
+.saisie-recent__table td {
+  padding: 12px 20px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.saisie-recent__table th {
+  background: var(--bg2);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.saisie-recent__table td {
+  font-size: 13px;
+  color: var(--t);
+}
+
+.saisie-recent__table tr:last-child td {
+  border-bottom: none;
+}
+
+/* ── Status indicators ──────────────────────────────────── */
+.saisie-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.saisie-status--valid {
+  background: rgba(34,197,94,.1);
+  color: var(--ok);
+}
+
+.saisie-status--pending {
+  background: rgba(245,158,11,.1);
+  color: var(--warn);
+}
+
+.saisie-status--error {
+  background: rgba(239,68,68,.1);
+  color: var(--err);
+}
+
+/* ── Actions ────────────────────────────────────────────── */
+.saisie-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border2);
+}
+
+/* ── Indicateur de marge ────────────────────────────────── */
+.marge-indicator {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-top: 8px;
+}
+
+.marge-indicator.positive {
+  background: rgba(34,197,94,.1);
+  color: var(--ok);
+}
+
+.marge-indicator.negative {
+  background: rgba(239,68,68,.1);
+  color: var(--err);
+}
+
+.marge-indicator.neutral {
+  background: rgba(107,114,128,.1);
+  color: var(--t3);
+}
+
+/* ── Notifications ─────────────────────────────────────── */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 1000;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all .3s var(--ease);
+  max-width: 300px;
+  word-wrap: break-word;
+}
+
+.notification.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification--success {
+  background: rgba(34,197,94,.9);
+  color: white;
+  border-left: 4px solid var(--ok);
+}
+
+.notification--error {
+  background: rgba(239,68,68,.9);
+  color: white;
+  border-left: 4px solid var(--err);
+}
+
+.notification--warning {
+  background: rgba(245,158,11,.9);
+  color: white;
+  border-left: 4px solid var(--warn);
+}
+
+.notification--info {
+  background: rgba(59,130,246,.9);
+  color: white;
+  border-left: 4px solid var(--info);
+}
+
+/* ── Spinner ───────────────────────────────────────────── */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Erreurs de formulaire ─────────────────────────────── */
+.error {
+  background: rgba(239,68,68,.1);
+  color: var(--err);
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--err);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.error:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .saisie-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .saisie-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .saisie-actions {
+    flex-direction: column;
+  }
+
+  .saisie-recent__table th,
+  .saisie-recent__table td {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .notification {
+    left: 20px;
+    right: 20px;
+    max-width: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLÉMENT — Classes manquantes admin_saisie.html
+═══════════════════════════════════════════════════════════ */
+
+/* ── Saisies list ───────────────────────────────────────── */
+.saisies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.saisies-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── Saisie card ────────────────────────────────────────── */
+.saisie-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast);
+}
+
+.saisie-card:hover {
+  border-color: var(--gold3);
+  box-shadow: var(--shadow-md);
+}
+
+.saisie-card .saisie-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+}
+
+.saisie-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--gold-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.saisie-info { flex: 1; min-width: 0; }
+
+.saisie-titre {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 3px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.saisie-type {
+  font-size: 10px;
+  color: var(--gold);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.saisie-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.saisie-date,
+.saisie-auteur {
+  font-size: 11px;
+  color: var(--t3);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.saisie-date i, .saisie-auteur i { font-size: 10px; }
+
+.saisie-content {
+  padding: 16px 20px;
+}
+
+.saisie-description {
+  font-size: 13px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+/* ── Données grid ───────────────────────────────────────── */
+.saisie-donnees {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+}
+
+.donnees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+}
+
+.donnee-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+}
+
+.donnee-label {
+  font-size: 10px;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  margin-bottom: 4px;
+}
+
+.donnee-value {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t);
+  font-family: var(--font-mono);
+}
+
+/* ── Saisie actions footer ──────────────────────────────── */
+.saisie-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  flex-wrap: wrap;
+}
+
+/* ── Summary card ───────────────────────────────────────── */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.summary-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--gold-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.summary-content { flex: 1; }
+.summary-value {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--t);
+}
+.summary-label {
+  font-size: 11px;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+/* ── Status badges saisie ───────────────────────────────── */
+.saisie-card.pending { border-left: 3px solid var(--warn); }
+.saisie-card.rejected { border-left: 3px solid var(--err); }
+
+.saisie-commentaires {
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--t2);
+  background: rgba(255,255,255,.01);
+}
+
+.dynamic-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border);
+}
+
+/* ── Details grid ───────────────────────────────────────── */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}

@@ -1,0 +1,743 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Localisation — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-map-marker-alt"></i>
+      Gestion de la Localisation
+    </h1>
+    <p class="page-subtitle">Suivi en temps réel des véhicules et chauffeurs</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="page-actions">
+    <button class="btn btn-primary" onclick="centrerCarte()">
+      <i class="fas fa-crosshairs"></i>
+      Centrer carte
+    </button>
+    <button class="btn btn-secondary" onclick="actualiserPositions()">
+      <i class="fas fa-sync"></i>
+      Actualiser
+    </button>
+    <button class="btn btn-info" onclick="configurerLocalisation()">
+      <i class="fas fa-cog"></i>
+      Configuration
+    </button>
+  </div>
+
+  <!-- Résumé localisation -->
+  <div class="localisation-summary">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon active">
+          <i class="fas fa-play-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ localisation.actifs }}</div>
+          <div class="summary-label">Véhicules actifs</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon stopped">
+          <i class="fas fa-stop-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ localisation.arretes }}</div>
+          <div class="summary-label">Véhicules arrêtés</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon offline">
+          <i class="fas fa-pause-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ localisation.hors_ligne }}</div>
+          <div class="summary-label">Hors ligne</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon alerts">
+          <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ localisation.alertes }}</div>
+          <div class="summary-label">Alertes position</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenu principal -->
+  <div class="localisation-content">
+    <!-- Panneau latéral -->
+    <div class="localisation-sidebar">
+      <!-- Filtres -->
+      <div class="sidebar-section">
+        <h4>Filtres</h4>
+        <div class="filter-group">
+          <label class="filter-label">Statut</label>
+          <select class="filter-select" id="status-filter">
+            <option value="">Tous</option>
+            <option value="actif">Actif</option>
+            <option value="arrete">Arrêté</option>
+            <option value="hors_ligne">Hors ligne</option>
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Ligne</label>
+          <select class="filter-select" id="ligne-filter">
+            <option value="">Toutes</option>
+            {% for ligne in lignes %}
+              <option value="{{ ligne.id }}">{{ ligne.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="filter-group">
+          <label class="filter-label">Zone</label>
+          <select class="filter-select" id="zone-filter">
+            <option value="">Toutes</option>
+            <option value="centre">Centre-ville</option>
+            <option value="nord">Nord</option>
+            <option value="sud">Sud</option>
+            <option value="est">Est</option>
+            <option value="ouest">Ouest</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Liste des véhicules -->
+      <div class="sidebar-section">
+        <h4>Véhicules actifs</h4>
+        <div class="vehicules-list" id="vehicules-list">
+          {% for vehicule in vehicules_actifs %}
+          <div class="vehicule-item status-{{ vehicule.statut }}" data-vehicule-id="{{ vehicule.id }}">
+            <div class="vehicule-icon">
+              <i class="fas {{ vehicule.icon }}"></i>
+            </div>
+            <div class="vehicule-info">
+              <div class="vehicule-immat">{{ vehicule.immatriculation }}</div>
+              <div class="vehicule-details">
+                <span class="vehicule-chauffeur">{{ vehicule.chauffeur_nom }}</span>
+                <span class="vehicule-ligne">{{ vehicule.ligne_nom }}</span>
+              </div>
+              <div class="vehicule-position">
+                <small>{{ vehicule.derniere_position }}</small>
+              </div>
+            </div>
+            <div class="vehicule-actions">
+              <button class="action-btn" onclick="centrerVehicule({{ vehicule.id }})" title="Centrer sur véhicule">
+                <i class="fas fa-crosshairs"></i>
+              </button>
+              <button class="action-btn" onclick="voirDetailsVehicule({{ vehicule.id }})" title="Détails">
+                <i class="fas fa-info-circle"></i>
+              </button>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Statistiques temps réel -->
+      <div class="sidebar-section">
+        <h4>Statistiques temps réel</h4>
+        <div class="stats-realtime">
+          <div class="stat-item">
+            <span class="stat-label">Vitesse moyenne</span>
+            <span class="stat-value">{{ localisation.vitesse_moyenne }} km/h</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Courses en cours</span>
+            <span class="stat-value">{{ localisation.courses_en_cours }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Temps d'arrêt moyen</span>
+            <span class="stat-value">{{ localisation.temps_arret_moyen }}</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-label">Zones couvertes</span>
+            <span class="stat-value">{{ localisation.zones_couvertes }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Carte -->
+    <div class="localisation-map">
+      <div id="map-container" class="map-container">
+        <!-- La carte sera chargée ici -->
+        <div class="map-placeholder">
+          <i class="fas fa-map-marked-alt"></i>
+          <p>Chargement de la carte...</p>
+        </div>
+      </div>
+
+      <!-- Contrôles de carte -->
+      <div class="map-controls">
+        <button class="map-control-btn" onclick="toggleTraffic()" title="Trafic">
+          <i class="fas fa-car"></i>
+        </button>
+        <button class="map-control-btn" onclick="toggleSatellites()" title="Vue satellite">
+          <i class="fas fa-satellite"></i>
+        </button>
+        <button class="map-control-btn" onclick="toggleClusters()" title="Clusters">
+          <i class="fas fa-layer-group"></i>
+        </button>
+        <button class="map-control-btn" onclick="fullscreenMap()" title="Plein écran">
+          <i class="fas fa-expand"></i>
+        </button>
+      </div>
+
+      <!-- Légende -->
+      <div class="map-legend">
+        <div class="legend-item">
+          <div class="legend-icon actif"></div>
+          <span>Actif</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-icon arrete"></div>
+          <span>Arrêté</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-icon hors-ligne"></div>
+          <span>Hors ligne</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-icon alerte"></div>
+          <span>Alerte</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal détails véhicule -->
+<div id="vehicule-modal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="vehicule-modal-title">Détails du véhicule</h3>
+      <button class="modal-close" onclick="closeVehiculeModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="vehicule-details">
+      <!-- Les détails seront chargés dynamiquement -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal configuration -->
+<div id="config-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Configuration de la localisation</h3>
+      <button class="modal-close" onclick="closeConfigModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="config-form" method="post">
+      <div class="config-section">
+        <h4>Paramètres de suivi</h4>
+        <div class="config-options">
+          <label class="checkbox-label">
+            <input type="checkbox" name="suivi_reel" checked>
+            Suivi en temps réel
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="alertes_position" checked>
+            Alertes de position
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="historique_positions">
+            Historique des positions
+          </label>
+        </div>
+      </div>
+      <div class="config-section">
+        <h4>Fréquence de mise à jour</h4>
+        <select class="form-select" name="frequence_maj">
+          <option value="30">30 secondes</option>
+          <option value="60" selected>1 minute</option>
+          <option value="300">5 minutes</option>
+          <option value="600">10 minutes</option>
+        </select>
+      </div>
+      <div class="config-section">
+        <h4>Zones de surveillance</h4>
+        <div class="config-options">
+          <label class="checkbox-label">
+            <input type="checkbox" name="zone_centre" checked>
+            Centre-ville
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="zone_peripherie" checked>
+            Périphérie
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="zone_gares">
+            Gares routières
+          </label>
+        </div>
+      </div>
+      <div class="config-section">
+        <h4>Alertes</h4>
+        <div class="config-options">
+          <label class="checkbox-label">
+            <input type="checkbox" name="alerte_hors_zone" checked>
+            Véhicule hors zone autorisée
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="alerte_arret_prolonge">
+            Arrêt prolongé
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" name="alerte_vitesse" checked>
+            Excès de vitesse
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeConfigModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal historique -->
+<div id="historique-modal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3>Historique des positions</h3>
+      <button class="modal-close" onclick="closeHistoriqueModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="historique-controls">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Véhicule</label>
+          <select class="form-select" id="historique-vehicule">
+            {% for vehicule in vehicules %}
+              <option value="{{ vehicule.id }}">{{ vehicule.immatriculation }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Date</label>
+          <input type="date" class="form-input" id="historique-date" value="{{ today }}">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure début</label>
+          <input type="time" class="form-input" id="historique-heure-debut" value="00:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure fin</label>
+          <input type="time" class="form-input" id="historique-heure-fin" value="23:59">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="chargerHistorique()">
+        <i class="fas fa-search"></i>
+        Charger historique
+      </button>
+    </div>
+    <div id="historique-map" class="historique-map">
+      <!-- Carte historique -->
+    </div>
+    <div id="historique-list" class="historique-list">
+      <!-- Liste des positions -->
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+let map = null;
+let markers = {};
+let vehicleLayers = {};
+let currentFilters = {
+  status: '',
+  ligne: '',
+  zone: ''
+};
+
+function initMap() {
+  const mapContainer = document.getElementById('map-container');
+
+  // Coordonnées par défaut (Yaoundé)
+  const defaultLat = 3.8667;
+  const defaultLng = 11.5167;
+
+  map = L.map(mapContainer).setView([defaultLat, defaultLng], 12);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+
+  // Charger les positions des véhicules
+  loadVehiclePositions();
+
+  // Actualisation automatique toutes les 30 secondes
+  setInterval(loadVehiclePositions, 30000);
+}
+
+function loadVehiclePositions() {
+  fetch('/api/positions_actuelles')
+    .then(response => response.json())
+    .then(data => {
+      updateVehicleMarkers(data.vehicules);
+      updateSidebarList(data.vehicules);
+      updateStats(data.stats);
+    })
+    .catch(error => {
+      console.error('Erreur chargement positions:', error);
+    });
+}
+
+function updateVehicleMarkers(vehicules) {
+  // Supprimer les anciens marqueurs
+  Object.values(markers).forEach(marker => map.removeLayer(marker));
+  markers = {};
+
+  vehicules.forEach(vehicule => {
+    if (vehicule.latitude && vehicule.longitude) {
+      const icon = getVehicleIcon(vehicule.statut);
+      const marker = L.marker([vehicule.latitude, vehicule.longitude], { icon })
+        .addTo(map)
+        .bindPopup(createVehiclePopup(vehicule));
+
+      markers[vehicule.id] = marker;
+    }
+  });
+}
+
+function getVehicleIcon(statut) {
+  const iconColors = {
+    actif: 'green',
+    arrete: 'orange',
+    hors_ligne: 'red',
+    alerte: 'red'
+  };
+
+  const color = iconColors[statut] || 'blue';
+
+  return L.divIcon({
+    className: 'vehicle-marker',
+    html: `<div class="vehicle-marker-icon" style="background-color: ${color};">
+             <i class="fas fa-bus"></i>
+           </div>`,
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+  });
+}
+
+function createVehiclePopup(vehicule) {
+  return `
+    <div class="vehicle-popup">
+      <h4>${vehicule.immatriculation}</h4>
+      <p><strong>Chauffeur:</strong> ${vehicule.chauffeur_nom}</p>
+      <p><strong>Ligne:</strong> ${vehicule.ligne_nom}</p>
+      <p><strong>Statut:</strong> ${vehicule.statut_label}</p>
+      <p><strong>Dernière MAJ:</strong> ${vehicule.derniere_maj}</p>
+      <p><strong>Vitesse:</strong> ${vehicule.vitesse} km/h</p>
+      <button onclick="voirDetailsVehicule(${vehicule.id})" class="btn btn-sm">Détails</button>
+    </div>
+  `;
+}
+
+function updateSidebarList(vehicules) {
+  const listContainer = document.getElementById('vehicules-list');
+  listContainer.innerHTML = '';
+
+  vehicules.forEach(vehicule => {
+    const item = document.createElement('div');
+    item.className = `vehicule-item status-${vehicule.statut}`;
+    item.setAttribute('data-vehicule-id', vehicule.id);
+    item.innerHTML = `
+      <div class="vehicule-icon">
+        <i class="fas ${vehicule.icon}"></i>
+      </div>
+      <div class="vehicule-info">
+        <div class="vehicule-immat">${vehicule.immatriculation}</div>
+        <div class="vehicule-details">
+          <span class="vehicule-chauffeur">${vehicule.chauffeur_nom}</span>
+          <span class="vehicule-ligne">${vehicule.ligne_nom}</span>
+        </div>
+        <div class="vehicule-position">
+          <small>${vehicule.derniere_position}</small>
+        </div>
+      </div>
+      <div class="vehicule-actions">
+        <button class="action-btn" onclick="centrerVehicule(${vehicule.id})" title="Centrer sur véhicule">
+          <i class="fas fa-crosshairs"></i>
+        </button>
+        <button class="action-btn" onclick="voirDetailsVehicule(${vehicule.id})" title="Détails">
+          <i class="fas fa-info-circle"></i>
+        </button>
+      </div>
+    `;
+    listContainer.appendChild(item);
+  });
+}
+
+function updateStats(stats) {
+  // Mettre à jour les statistiques en temps réel
+  const statsElements = document.querySelectorAll('.stat-value');
+  if (statsElements.length >= 4) {
+    statsElements[0].textContent = `${stats.vitesse_moyenne} km/h`;
+    statsElements[1].textContent = stats.courses_en_cours;
+    statsElements[2].textContent = stats.temps_arret_moyen;
+    statsElements[3].textContent = stats.zones_couvertes;
+  }
+}
+
+function centrerCarte() {
+  if (map) {
+    map.setView([3.8667, 11.5167], 12);
+  }
+}
+
+function actualiserPositions() {
+  loadVehiclePositions();
+  showNotification('Positions actualisées', 'success');
+}
+
+function centrerVehicule(vehiculeId) {
+  const marker = markers[vehiculeId];
+  if (marker && map) {
+    map.setView(marker.getLatLng(), 15);
+    marker.openPopup();
+  }
+}
+
+function voirDetailsVehicule(vehiculeId) {
+  fetch(`/api/vehicules/${vehiculeId}/details`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('vehicule-modal-title').textContent = `Détails - ${data.immatriculation}`;
+      document.getElementById('vehicule-details').innerHTML = createVehicleDetailsHTML(data);
+      document.getElementById('vehicule-modal').style.display = 'flex';
+    })
+    .catch(error => {
+      console.error('Erreur chargement détails:', error);
+      showNotification('Erreur lors du chargement des détails', 'error');
+    });
+}
+
+function createVehicleDetailsHTML(vehicule) {
+  return `
+    <div class="vehicle-details">
+      <div class="details-section">
+        <h4>Informations générales</h4>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Immatriculation:</span>
+            <span class="detail-value">${vehicule.immatriculation}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Modèle:</span>
+            <span class="detail-value">${vehicule.modele}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Chauffeur:</span>
+            <span class="detail-value">${vehicule.chauffeur_nom}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Ligne:</span>
+            <span class="detail-value">${vehicule.ligne_nom}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <h4>Position actuelle</h4>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Latitude:</span>
+            <span class="detail-value">${vehicule.latitude}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Longitude:</span>
+            <span class="detail-value">${vehicule.longitude}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Vitesse:</span>
+            <span class="detail-value">${vehicule.vitesse} km/h</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Dernière MAJ:</span>
+            <span class="detail-value">${vehicule.derniere_maj}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <h4>Statistiques du jour</h4>
+        <div class="details-grid">
+          <div class="detail-item">
+            <span class="detail-label">Distance parcourue:</span>
+            <span class="detail-value">${vehicule.distance_jour} km</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Temps de conduite:</span>
+            <span class="detail-value">${vehicule.temps_conduite}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Courses réalisées:</span>
+            <span class="detail-value">${vehicule.courses_jour}</span>
+          </div>
+          <div class="detail-item">
+            <span class="detail-label">Revenus générés:</span>
+            <span class="detail-value">${vehicule.revenus_jour} €</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-actions">
+        <button class="btn btn-primary" onclick="centrerVehicule(${vehicule.id})">
+          <i class="fas fa-crosshairs"></i>
+          Centrer sur carte
+        </button>
+        <button class="btn btn-secondary" onclick="voirHistorique(${vehicule.id})">
+          <i class="fas fa-history"></i>
+          Historique
+        </button>
+        <button class="btn btn-info" onclick="contacterChauffeur(${vehicule.id})">
+          <i class="fas fa-phone"></i>
+          Contacter chauffeur
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function closeVehiculeModal() {
+  document.getElementById('vehicule-modal').style.display = 'none';
+}
+
+function configurerLocalisation() {
+  document.getElementById('config-modal').style.display = 'flex';
+}
+
+function closeConfigModal() {
+  document.getElementById('config-modal').style.display = 'none';
+}
+
+function voirHistorique(vehiculeId) {
+  document.getElementById('historique-vehicule').value = vehiculeId;
+  document.getElementById('historique-modal').style.display = 'flex';
+  chargerHistorique();
+}
+
+function closeHistoriqueModal() {
+  document.getElementById('historique-modal').style.display = 'none';
+}
+
+function chargerHistorique() {
+  const vehiculeId = document.getElementById('historique-vehicule').value;
+  const date = document.getElementById('historique-date').value;
+  const heureDebut = document.getElementById('historique-heure-debut').value;
+  const heureFin = document.getElementById('historique-heure-fin').value;
+
+  fetch(`/api/historique/${vehiculeId}?date=${date}&debut=${heureDebut}&fin=${heureFin}`)
+    .then(response => response.json())
+    .then(data => {
+      afficherHistorique(data);
+    })
+    .catch(error => {
+      console.error('Erreur chargement historique:', error);
+    });
+}
+
+function afficherHistorique(data) {
+  // Afficher l'historique sur la carte et dans la liste
+  // Implémentation détaillée selon les besoins
+}
+
+function contacterChauffeur(vehiculeId) {
+  // Implémentation de la fonction de contact
+  showNotification('Fonction de contact à implémenter', 'info');
+}
+
+function toggleTraffic() {
+  // Basculer l'affichage du trafic
+  showNotification('Affichage trafic non disponible', 'warning');
+}
+
+function toggleSatellites() {
+  // Basculer vers vue satellite
+  showNotification('Vue satellite non disponible', 'warning');
+}
+
+function toggleClusters() {
+  // Basculer l'affichage des clusters
+  showNotification('Clusters non disponibles', 'warning');
+}
+
+function fullscreenMap() {
+  const mapContainer = document.getElementById('map-container');
+  if (mapContainer.requestFullscreen) {
+    mapContainer.requestFullscreen();
+  }
+}
+
+// Filtres
+document.getElementById('status-filter').addEventListener('change', applyFilters);
+document.getElementById('ligne-filter').addEventListener('change', applyFilters);
+document.getElementById('zone-filter').addEventListener('change', applyFilters);
+
+function applyFilters() {
+  currentFilters.status = document.getElementById('status-filter').value;
+  currentFilters.ligne = document.getElementById('ligne-filter').value;
+  currentFilters.zone = document.getElementById('zone-filter').value;
+
+  loadVehiclePositions();
+}
+
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification notification--${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#22C55E'};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 3000;
+    animation: slideInRight 0.3s ease;
+  `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => document.body.removeChild(notification), 300);
+  }, 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  initMap();
+});
+
+// Fermer modals en cliquant en dehors
+document.getElementById('vehicule-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeVehiculeModal();
+});
+
+document.getElementById('config-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeConfigModal();
+});
+
+document.getElementById('historique-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeHistoriqueModal();
+});
+</script>
+{% endblock %}

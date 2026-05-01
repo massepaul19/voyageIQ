@@ -1,0 +1,41 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Ma Position GPS{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+{% endblock %}
+
+{% block content %}
+<div class="chauf-page-header">
+  <h1 class="chauf-page-title">Ma Position en temps réel</h1>
+  <p class="chauf-page-subtitle">Localisation active pour le suivi du trajet</p>
+</div>
+
+<div class="chauf-map" id="chaufMap"></div>
+
+<div class="card" style="margin-top: 16px; display: flex; align-items: center; gap: 12px;">
+  <div class="realtime-dot"></div>
+  <span class="form-help">Transmission GPS active via VoyageIQ-Pro</span>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const map = L.map('chaufMap').setView([3.848, 11.502], 14);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+  const chaufMarker = L.marker([3.848, 11.502]).addTo(map)
+    .bindPopup('Ma position actuelle');
+
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(pos => {
+      const { latitude, longitude } = pos.coords;
+      chaufMarker.setLatLng([latitude, longitude]);
+      map.setView([latitude, longitude]);
+    });
+  }
+});
+</script>
+{% endblock %}

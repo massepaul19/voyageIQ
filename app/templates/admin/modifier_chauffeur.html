@@ -1,0 +1,78 @@
+{% extends "base/base_admin.html" %}
+{% block title %}Gérer Chauffeur — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fas fa-id-card"></i> Dossier Chauffeur : {{ chauffeur.nom }}</h1>
+    <a href="{{ url_for('admin.chauffeurs') }}" class="btn btn-secondary">Retour</a>
+  </div>
+
+  <div class="section-card">
+    <form action="{{ url_for('admin.modifier_chauffeur', chauffeur_id=chauffeur.id) }}" method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+      
+      <div style="display: flex; gap: 30px; margin-bottom: 30px; align-items: center;">
+        <div class="chauf-avatar-large" style="width: 100px; height: 100px; border-radius: 12px; overflow: hidden; background: var(--bg3);">
+            {% if chauffeur.photo %}
+            <img src="{{ url_for('static', filename='images/chauffeurs/' ~ chauffeur.photo) }}" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+            <div style="font-size: 40px; text-align: center; line-height: 100px;">{{ chauffeur.nom[:1] }}</div>
+            {% endif %}
+        </div>
+        <div>
+            <label class="btn btn-sm btn-secondary" style="cursor:pointer;">
+                Changer la photo
+                <input type="file" name="photo" style="display:none;" accept="image/*">
+            </label>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Nom Complet</label>
+          <input type="text" name="nom" class="form-input" value="{{ chauffeur.nom }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Téléphone (Login)</label>
+          <input type="tel" name="telephone" class="form-input" value="{{ chauffeur.telephone }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Numéro de Permis</label>
+          <input type="text" name="numero_permis" class="form-input" value="{{ chauffeur.numero_permis or '' }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Statut du Compte</label>
+            <select name="actif" class="form-select">
+              <option value="1" {{ 'selected' if chauffeur.actif }}>Validé / Actif</option>
+              <option value="0" {{ 'selected' if not chauffeur.actif }}>En attente / Suspendu</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Véhicule Assigné</label>
+            <select name="vehicule_id" class="form-select">
+                <option value="">Aucun véhicule</option>
+                {% for v in vehicules_disponibles %}
+                <option value="{{ v.id }}" {{ 'selected' if chauffeur.vehicule_id == v.id }}>
+                    {{ v.immatriculation }} ({{ v.marque }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">Note interne (visible par l'admin uniquement)</label>
+        <textarea name="notes" class="form-textarea" rows="3">{{ chauffeur.notes or '' }}</textarea>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 10px;">
+        <button type="submit" class="btn btn-primary">Mettre à jour le dossier</button>
+        {% if not chauffeur.actif %}
+        <button type="submit" name="action" value="valider" class="btn btn-success">Valider l'inscription</button>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

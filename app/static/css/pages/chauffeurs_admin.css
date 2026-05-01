@@ -1,0 +1,199 @@
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Page : Chauffeurs Admin
+   Créé pour admin_chauffeurs.html
+═══════════════════════════════════════════════════════════ */
+
+/* ── Layout chauffeurs ──────────────────────────────────── */
+.chauffeurs-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ── Chauffeur info cell ─────────────────────────────────── */
+.chauffeur-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chauf-avatar-large {
+  width: 52px; height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border2);
+  flex-shrink: 0;
+}
+
+.avatar-placeholder {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: var(--gold-bg); border: 2px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold); font-size: 15px; font-weight: 700; flex-shrink: 0;
+}
+
+.chauffeur-details { min-width: 0; }
+
+.chauffeur-name {
+  font-size: 13px; font-weight: 600; color: var(--t);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.chauffeur-id {
+  font-size: 11px; color: var(--t3); font-family: var(--font-mono);
+}
+
+/* ── Contact info ───────────────────────────────────────── */
+.contact-info {
+  display: flex; flex-direction: column; gap: 3px;
+}
+
+.contact-info span {
+  font-size: 12px; color: var(--t2);
+  display: flex; align-items: center; gap: 6px;
+}
+
+.contact-info i { color: var(--t3); width: 14px; }
+
+/* ── Permis info ────────────────────────────────────────── */
+.permis-info {
+  display: flex; flex-direction: column; gap: 4px;
+}
+
+.permis-type {
+  display: inline-block; padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  background: rgba(96,165,250,.1); color: var(--info);
+}
+
+.permis-number {
+  font-family: var(--font-mono); font-size: 11px; color: var(--t3);
+}
+
+.permis-expiry {
+  font-size: 11px; color: var(--t3);
+  display: flex; align-items: center; gap: 4px;
+}
+
+.permis-expiry.expired { color: var(--err); }
+.permis-expiry.expiring-soon { color: var(--warn); }
+
+/* ── Vehicle info ───────────────────────────────────────── */
+.vehicle-info {
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.vehicle-name {
+  font-size: 13px; font-weight: 600; color: var(--t);
+}
+
+.vehicle-plate {
+  font-family: var(--font-mono);
+  font-size: 11px; color: var(--gold);
+  background: var(--gold-bg); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 1px 6px;
+  display: inline-block;
+}
+
+.no-vehicle {
+  font-size: 12px; color: var(--t3); font-style: italic;
+}
+
+/* ── Rating value ───────────────────────────────────────── */
+.rating-value {
+  font-family: var(--font-mono); font-size: 14px;
+  font-weight: 700; color: var(--gold);
+  display: flex; align-items: center; gap: 4px;
+}
+
+.rating-value i { font-size: 12px; }
+.rating-count { font-size: 10px; color: var(--t3); font-weight: 400; margin-left: 2px; }
+
+/* ── Status badge ───────────────────────────────────────── */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .4px;
+}
+
+.status-badge.actif, .status-badge--actif {
+  background: rgba(34,197,94,.1); color: var(--ok);
+}
+.status-badge.inactif, .status-badge--inactif {
+  background: rgba(107,114,128,.1); color: var(--t2);
+}
+.status-badge.suspendu, .status-badge--suspendu {
+  background: rgba(239,68,68,.1); color: var(--err);
+}
+
+/* ── Action buttons ─────────────────────────────────────── */
+.action-buttons {
+  display: flex; align-items: center; gap: 6px;
+}
+
+.action-btn {
+  width: 30px; height: 30px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card2); color: var(--t2);
+  font-size: 12px; cursor: pointer; text-decoration: none;
+  transition: all var(--dur-fast);
+}
+
+.action-btn:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-bg); }
+.action-delete:hover { border-color: var(--err); color: var(--err); background: rgba(239,68,68,.1); }
+
+/* ── Filters section ────────────────────────────────────── */
+.filters-section {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.filters-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; flex: 1; }
+.filter-group { display: flex; flex-direction: column; gap: 4px; }
+.filter-label { font-size: 10px; font-weight: 600; color: var(--t3); text-transform: uppercase; letter-spacing: .4px; }
+.filter-select, .filter-input {
+  padding: 7px 10px; background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); color: var(--t); font-size: 12px;
+  cursor: pointer; transition: border-color var(--dur-fast);
+}
+.filter-select:focus, .filter-input:focus { outline: none; border-color: var(--gold); }
+
+/* ── Pagination ─────────────────────────────────────────── */
+.pagination {
+  display: flex; align-items: center; justify-content: center;
+  gap: 4px; margin-top: 20px; flex-wrap: wrap;
+}
+.page-link {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--card2);
+  color: var(--t2); font-size: 12px; cursor: pointer;
+  text-decoration: none; transition: all var(--dur-fast);
+}
+.page-link:hover, .page-link.active { border-color: var(--gold); color: var(--gold); background: var(--gold-bg); }
+
+/* ── Data table ─────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th, .data-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--border); font-size: 13px; }
+.data-table th { background: var(--bg2); font-size: 11px; font-weight: 700; color: var(--t2); text-transform: uppercase; letter-spacing: .5px; }
+.data-table td { color: var(--t); }
+.data-table tbody tr:hover { background: var(--bg3); }
+.data-table tbody tr:last-child td { border-bottom: none; }
+
+/* ── Page layout ────────────────────────────────────────── */
+.page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); flex-wrap: wrap; gap: 12px; }
+.page-title { font-family: var(--font-head); font-size: 26px; font-weight: 800; color: var(--t); margin: 0; display: flex; align-items: center; gap: 10px; }
+.page-title i { color: var(--gold); }
+.page-subtitle { font-size: 12px; color: var(--t3); margin: 5px 0 0 0; }
+.page-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page-header { flex-direction: column; align-items: flex-start; }
+  .filters-section { flex-direction: column; align-items: flex-start; }
+  .data-table th, .data-table td { padding: 8px 10px; font-size: 12px; }
+}

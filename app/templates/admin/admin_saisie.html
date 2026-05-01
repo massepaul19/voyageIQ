@@ -1,0 +1,327 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Saisie Journalière — VoyageIQ{% endblock %}
+{% block breadcrumb %}Saisie Journalière{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/saisie.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/><path d="M17.586 3.586a2 2 0 112.828 2.828L12 15l-4 1 1-4 8.586-8.414z"/></svg>
+        Saisie Journalière
+      </h1>
+      <p class="page-subtitle">Rapport d'exploitation quotidien par ligne</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn--gold btn--sm" onclick="modalOpen('modalSaisie')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouvelle saisie
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Historique saisies ─────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+        Historique des saisies
+      </div>
+      <span style="font-size:11px;color:var(--t3)">{{ saisies.liste.total }} entrée(s)</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th class="sortable">Date</th>
+            <th>Ligne</th>
+            <th class="text-right">Voyages</th>
+            <th class="text-right">Passagers</th>
+            <th class="text-right">Km</th>
+            <th class="text-right">Recettes (FCFA)</th>
+            <th class="text-right">Dépenses (FCFA)</th>
+            <th class="text-right">Marge</th>
+            <th>Incidents</th>
+            <th>Satisfaction</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in saisies.liste.items %}
+          {% set rec = (s.rec_guichet or 0) + (s.rec_reservation or 0) + (s.rec_digital or 0) %}
+          {% set dep = (s.dep_carburant or 0) + (s.dep_autres or 0) %}
+          {% set marge = rec - dep %}
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:11px;white-space:nowrap">
+              {{ s.date.strftime('%d/%m/%Y') }}
+            </td>
+            <td>
+              {% if s.ligne %}
+              <span class="badge badge--marine">{{ s.ligne.code }}</span>
+              <span style="font-size:11px;color:var(--t3);margin-left:4px">{{ s.ligne.nom }}</span>
+              {% else %}
+              <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ s.voyages }}</td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ s.passagers }}</td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ "{:.0f}".format(s.km or 0) }}</td>
+            <td style="font-family:var(--font-mono);text-align:right;color:var(--ok)">
+              {{ "{:,.0f}".format(rec) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;color:var(--err)">
+              {{ "{:,.0f}".format(dep) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;color:{% if marge >= 0 %}var(--ok){% else %}var(--err){% endif %}">
+              {{ "{:+,.0f}".format(marge) }}
+            </td>
+            <td>
+              {% if s.incidents > 0 %}
+              <span class="badge badge--err">{{ s.incidents }} incident(s)</span>
+              {% elif s.annulations > 0 %}
+              <span class="badge badge--warn">{{ s.annulations }} annul.</span>
+              {% else %}
+              <span class="badge badge--ok">RAS</span>
+              {% endif %}
+            </td>
+            <td>
+              {% set sat = s.satisfaction | default(0) | float %}
+              <div style="display:flex;align-items:center;gap:6px">
+                <div class="progress-bar" style="width:60px">
+                  <div class="progress-bar__fill {% if sat >= 80 %}progress-bar__fill--ok{% elif sat >= 60 %}{% else %}progress-bar__fill--err{% endif %}"
+                       style="width:{{ sat | round(0) }}%"></div>
+                </div>
+                <span style="font-family:var(--font-mono);font-size:11px;color:var(--t2)">{{ sat | round(0) | int }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" style="text-align:center;padding:40px;color:var(--t3)">
+              Aucune saisie enregistrée
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if saisies.liste.pages > 1 %}
+    <div class="pagination" style="padding:12px 16px">
+      {% if saisies.liste.has_prev %}
+      <a href="{{ url_for('saisie.index', page=saisies.liste.prev_num) }}" class="btn btn--ghost btn--sm">← Précédent</a>
+      {% endif %}
+      <span style="font-size:12px;color:var(--t3)">Page {{ saisies.liste.page }} / {{ saisies.liste.pages }}</span>
+      {% if saisies.liste.has_next %}
+      <a href="{{ url_for('saisie.index', page=saisies.liste.next_num) }}" class="btn btn--ghost btn--sm">Suivant →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ══ Modal : Nouvelle saisie ════════════════════════════ -->
+<div class="modal-overlay" id="modalSaisie">
+  <div class="modal modal--xl">
+    <div class="modal__header">
+      <h3 class="modal__title">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/><path d="M17.586 3.586a2 2 0 112.828 2.828L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        Rapport journalier
+      </h3>
+      <button class="modal__close" onclick="modalClose('modalSaisie')">×</button>
+    </div>
+
+    <form action="{{ url_for('saisie.enregistrer') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- Bloc 1 : Identification -->
+      <div class="form-section">
+        <div class="form-section-title">Identification</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label form-label--required">Date</label>
+            <input type="date" name="date" class="form-input" required
+                   value="{{ now.strftime('%Y-%m-%d') if now else '' }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Ligne</label>
+            <select name="ligne_id" class="form-select" required>
+              <option value="">— Sélectionner —</option>
+              {% for l in lignes %}
+              <option value="{{ l.id }}">{{ l.code }} — {{ l.nom }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Créneau</label>
+            <select name="creneau" class="form-select">
+              <option value="">— Créneau —</option>
+              <option value="matin">Matin</option>
+              <option value="apres-midi">Après-midi</option>
+              <option value="soir">Soir</option>
+              <option value="journee">Journée complète</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 2 : Exploitation -->
+      <div class="form-section">
+        <div class="form-section-title">Exploitation</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label form-label--required">Voyages effectués</label>
+            <input type="number" name="voyages" class="form-input" value="0" min="0" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Passagers transportés</label>
+            <input type="number" name="passagers" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Capacité totale</label>
+            <input type="number" name="capacite" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kilomètres parcourus</label>
+            <input type="number" name="km" class="form-input" value="0" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure départ réelle</label>
+            <input type="number" name="dep_heure" class="form-input" placeholder="ex: 630 = 06h30" min="0" max="2359">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Retard total (min)</label>
+            <input type="number" name="retard_total" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Annulations</label>
+            <input type="number" name="annulations" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Cause annulation</label>
+            <input type="text" name="cause_annul" class="form-input" placeholder="Panne, météo…">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 3 : Recettes -->
+      <div class="form-section">
+        <div class="form-section-title">Recettes (FCFA)</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label">Guichet</label>
+            <input type="number" name="rec_guichet" class="form-input" value="0" min="0" step="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Réservations</label>
+            <input type="number" name="rec_reservation" class="form-input" value="0" min="0" step="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Digital / Mobile Money</label>
+            <input type="number" name="rec_digital" class="form-input" value="0" min="0" step="100">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 4 : Dépenses -->
+      <div class="form-section">
+        <div class="form-section-title">Dépenses (FCFA)</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label">Carburant</label>
+            <input type="number" name="dep_carburant" class="form-input" value="0" min="0" step="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Litres consommés</label>
+            <input type="number" name="litres" class="form-input" value="0" min="0" step="0.1">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Autres dépenses</label>
+            <input type="number" name="dep_autres" class="form-input" value="0" min="0" step="100">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 5 : Clientèle & Qualité -->
+      <div class="form-section">
+        <div class="form-section-title">Clientèle & Qualité</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label">Réservations en ligne</label>
+            <input type="number" name="reservations" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Résa. anticipées</label>
+            <input type="number" name="anticipees" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Réclamations</label>
+            <input type="number" name="reclamations" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Type réclamation</label>
+            <input type="text" name="type_rec" class="form-input" placeholder="Retard, bagages…">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Satisfaction (%)</label>
+            <input type="number" name="satisfaction" class="form-input" value="0" min="0" max="100">
+          </div>
+          <div class="form-group">
+            <label class="form-label">NPS</label>
+            <input type="number" name="nps" class="form-input" value="0" min="-100" max="100">
+          </div>
+        </div>
+      </div>
+
+      <!-- Bloc 6 : Incidents -->
+      <div class="form-section">
+        <div class="form-section-title">Incidents & Pannes</div>
+        <div class="form-grid form-grid--3">
+          <div class="form-group">
+            <label class="form-label">Nb incidents</label>
+            <input type="number" name="incidents" class="form-input" value="0" min="0">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Classe panne</label>
+            <select name="panne_class" class="form-select">
+              <option value="">Aucune</option>
+              <option value="moteur">Moteur</option>
+              <option value="pneumatique">Pneumatique</option>
+              <option value="electrique">Électrique</option>
+              <option value="carrosserie">Carrosserie</option>
+              <option value="autre">Autre</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Durée panne (h)</label>
+            <input type="number" name="duree_panne" class="form-input" value="0" min="0" step="0.5">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observations</label>
+          <textarea name="observations" class="form-textarea" rows="3" placeholder="Remarques, informations complémentaires…"></textarea>
+        </div>
+      </div>
+
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" onclick="modalClose('modalSaisie')">Annuler</button>
+        <button type="submit" class="btn btn--gold">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Enregistrer le rapport
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/modules/saisie.js') }}"></script>
+{% endblock %}

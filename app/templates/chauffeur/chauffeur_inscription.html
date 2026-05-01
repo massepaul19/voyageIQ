@@ -1,0 +1,538 @@
+{% extends "base/base_public.html" %}
+{% block title %}Devenir Chauffeur — VoyageIQ{% endblock %}
+
+{% block content %}
+<section class="inscription-section">
+  <div class="inscription-wrap">
+
+    <!-- En-tête -->
+    <div class="inscription-header">
+      <div class="inscription-logo">
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VoyageIQ" style="width:48px;height:48px;border-radius:12px;object-fit:cover">
+        <div>
+          <span style="font-family:var(--font-head);font-weight:800;font-size:18px;color:var(--gold)">VoyageIQ</span>
+          <span style="font-size:10px;letter-spacing:.12em;color:var(--t3);display:block;text-transform:uppercase">Pro</span>
+        </div>
+      </div>
+      <h1 style="font-family:var(--font-head);font-size:22px;font-weight:800;color:var(--t);margin:20px 0 6px">
+        Rejoindre le réseau
+      </h1>
+      <p style="font-size:13px;color:var(--t3);margin:0">
+        Votre demande sera examinée et validée par un administrateur.
+      </p>
+    </div>
+
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+      <div style="margin-bottom:16px">
+        {% for category, message in messages %}
+        <div class="flash flash--{{ category }}" role="alert">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0">
+            {% if category == 'success' %}<polyline points="20 6 9 17 4 12"/>
+            {% elif category in ['danger','error'] %}<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            {% else %}<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/>{% endif %}
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Formulaire -->
+    <form action="{{ url_for('chauffeur.inscription') }}" method="POST"
+          enctype="multipart/form-data" id="formInscription" novalidate>
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- ── SECTION 1 : Identité ─────────────────────────── -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Identité personnelle
+        </div>
+        <div class="form-grid form-grid--2">
+          <div class="form-group">
+            <label class="form-label form-label--required">Nom</label>
+            <input type="text" name="nom" class="form-input"
+                   placeholder="Ex : Tsafack" required autocomplete="family-name"
+                   value="{{ request.form.get('nom', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Prénom</label>
+            <input type="text" name="prenom" class="form-input"
+                   placeholder="Ex : Hervé" required autocomplete="given-name"
+                   value="{{ request.form.get('prenom', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sexe</label>
+            <select name="sexe" class="form-select">
+              <option value="M" {% if request.form.get('sexe','M') == 'M' %}selected{% endif %}>Masculin</option>
+              <option value="F" {% if request.form.get('sexe') == 'F' %}selected{% endif %}>Féminin</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date de naissance</label>
+            <input type="date" name="date_naissance" class="form-input"
+                   value="{{ request.form.get('date_naissance', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Lieu de naissance</label>
+            <input type="text" name="lieu_naissance" class="form-input"
+                   placeholder="Ex : Bafoussam"
+                   value="{{ request.form.get('lieu_naissance', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Numéro CNI</label>
+            <input type="text" name="num_cni" class="form-input"
+                   placeholder="Ex : 123456789"
+                   value="{{ request.form.get('num_cni', '') }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 2 : Connexion ────────────────────────── -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Identifiant de connexion
+        </div>
+        <div class="form-grid form-grid--2">
+          <div class="form-group">
+            <label class="form-label form-label--required">Nom d'utilisateur</label>
+            <input type="text" name="username" class="form-input"
+                   placeholder="Ex : c.tsafack" required autocomplete="username"
+                   value="{{ request.form.get('username', '') }}"
+                   style="text-transform:lowercase">
+            <span class="form-hint">Minuscules, sans espace. Ex : c.hervé → c.herve</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Téléphone <small style="color:var(--t3)">(login)</small></label>
+            <input type="tel" name="telephone" class="form-input"
+                   placeholder="Ex : 677100001 ou +237677100001" required
+                   autocomplete="tel"
+                   value="{{ request.form.get('telephone', '') }}">
+            <span class="form-hint">Format accepté : 9 chiffres ou +237XXXXXXXXX</span>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Mot de passe</label>
+            <div class="input-password-wrap">
+              <input type="password" name="password" class="form-input" required
+                     placeholder="Minimum 6 caractères" id="pwdInput" autocomplete="new-password">
+              <button type="button" class="input-password-toggle" onclick="togglePwd('pwdInput','eyeIcon1')"
+                      tabindex="-1" aria-label="Afficher/masquer">
+                <svg id="eyeIcon1" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label form-label--required">Confirmer le mot de passe</label>
+            <div class="input-password-wrap">
+              <input type="password" name="password2" class="form-input" required
+                     placeholder="Répéter le mot de passe" id="pwd2Input" autocomplete="new-password">
+              <button type="button" class="input-password-toggle" onclick="togglePwd('pwd2Input','eyeIcon2')"
+                      tabindex="-1" aria-label="Afficher/masquer">
+                <svg id="eyeIcon2" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 3 : Contact ──────────────────────────── -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.5v2.42z"/></svg>
+          Contact
+        </div>
+        <div class="form-grid form-grid--2">
+          <div class="form-group">
+            <label class="form-label">Téléphone d'urgence</label>
+            <input type="tel" name="telephone_urgence" class="form-input"
+                   placeholder="Ex : 655001001"
+                   value="{{ request.form.get('telephone_urgence', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input"
+                   placeholder="Ex : herve.tsafack@gmail.com"
+                   autocomplete="email"
+                   value="{{ request.form.get('email', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Adresse</label>
+            <input type="text" name="adresse" class="form-input"
+                   placeholder="Ex : Quartier Melen, Yaoundé"
+                   value="{{ request.form.get('adresse', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Ville</label>
+            <select name="ville" class="form-select">
+              <option value="">— Sélectionner —</option>
+              {% for v in ['Yaoundé','Douala','Bafoussam','Bamenda','Garoua','Maroua','Ngaoundéré','Bertoua','Ebolowa','Kribi'] %}
+              <option value="{{ v }}" {% if request.form.get('ville') == v %}selected{% endif %}>{{ v }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 4 : Permis & Expérience ─────────────── -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>
+          Permis de conduire & Expérience
+        </div>
+        <div class="form-grid form-grid--2">
+          <div class="form-group">
+            <label class="form-label">Numéro de permis</label>
+            <input type="text" name="num_permis" class="form-input"
+                   placeholder="Ex : CM-B-2019-00412"
+                   value="{{ request.form.get('num_permis', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Catégorie permis</label>
+            <select name="categorie_permis" class="form-select">
+              <option value="">— Catégorie —</option>
+              {% for cat in ['A','B','C','D','E','F'] %}
+              <option value="{{ cat }}" {% if request.form.get('categorie_permis') == cat %}selected{% endif %}>Catégorie {{ cat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Date d'expiration du permis</label>
+            <input type="date" name="exp_permis" class="form-input"
+                   value="{{ request.form.get('exp_permis', '') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Années d'expérience</label>
+            <input type="number" name="annees_exp" class="form-input"
+                   placeholder="Ex : 5" min="0" max="50"
+                   value="{{ request.form.get('annees_exp', '0') }}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Agence de rattachement</label>
+            <select name="agence" class="form-select">
+              <option value="">— Agence —</option>
+              {% for ag in ['Yaoundé','Douala','Bafoussam','Bamenda','Garoua','Maroua'] %}
+              <option value="{{ ag }}" {% if request.form.get('agence') == ag %}selected{% endif %}>{{ ag }}</option>
+              {% endfor %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SECTION 5 : Photo ────────────────────────────── -->
+      <div class="form-section">
+        <div class="form-section-title">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Photo de profil <span style="color:var(--t3);font-weight:400;font-size:11px">(optionnel)</span>
+        </div>
+
+        <!-- Zone de drop photo -->
+        <div class="photo-drop-zone" id="photoDropZone"
+             onclick="document.getElementById('photoInput').click()">
+          <div class="photo-preview-wrap" id="photoPreviewWrap" style="display:none">
+            <img id="photoPreview" src="" alt="Aperçu photo">
+            <button type="button" class="photo-remove-btn" id="photoRemoveBtn"
+                    onclick="removePhoto(event)" aria-label="Supprimer la photo">×</button>
+          </div>
+          <div class="photo-placeholder" id="photoPlaceholder">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" style="color:var(--t3)">
+              <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+              <circle cx="12" cy="13" r="4"/>
+            </svg>
+            <span style="font-size:12px;color:var(--t3);margin-top:8px;display:block">
+              Cliquer pour choisir une photo
+            </span>
+            <span style="font-size:10px;color:var(--t3)">JPG, PNG, WEBP — max 5 Mo</span>
+          </div>
+        </div>
+
+        {# Input file CACHÉ — piloté par JS, jamais visible directement #}
+        <input type="file" name="photo" id="photoInput"
+               accept="image/png,image/jpeg,image/jpg,image/webp"
+               style="display:none" aria-hidden="true">
+        <div id="photoError" style="display:none;color:var(--err);font-size:12px;margin-top:6px"></div>
+      </div>
+
+      <!-- Bouton soumettre -->
+      <button type="submit" class="btn btn--gold btn--full" style="height:46px;font-size:14px;font-weight:700;letter-spacing:.04em">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="margin-right:8px"><polyline points="20 6 9 17 4 12"/></svg>
+        Envoyer ma demande
+      </button>
+
+    </form>
+
+    <div style="text-align:center;margin-top:20px">
+      <a href="{{ url_for('chauffeur.login') }}"
+         style="font-size:12px;color:var(--t3);text-decoration:none">
+        Déjà un compte ? Se connecter
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<style>
+.inscription-section {
+  min-height: 100vh;
+  background: var(--bg);
+  padding: 32px 16px 60px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+.inscription-wrap {
+  width: 100%;
+  max-width: 580px;
+}
+.inscription-header {
+  margin-bottom: 28px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+.inscription-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+/* Photo drop zone */
+.photo-drop-zone {
+  border: 2px dashed var(--border2);
+  border-radius: var(--radius);
+  padding: 24px;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .2s, background .2s;
+  position: relative;
+  background: var(--bg2);
+  min-height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.photo-drop-zone:hover {
+  border-color: var(--gold);
+  background: var(--gold-bg, rgba(201,168,76,.06));
+}
+.photo-drop-zone.dragover {
+  border-color: var(--gold);
+  background: var(--gold-bg, rgba(201,168,76,.10));
+}
+.photo-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+.photo-preview-wrap {
+  position: relative;
+  width: 100px;
+  height: 100px;
+}
+.photo-preview-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid var(--gold);
+}
+.photo-remove-btn {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--err);
+  color: white;
+  border: none;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+.photo-remove-btn:hover { background: #b91c1c; }
+
+/* Password toggle */
+.input-password-wrap {
+  position: relative;
+}
+.input-password-wrap .form-input {
+  padding-right: 40px;
+}
+.input-password-toggle {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--t3);
+  padding: 4px;
+  display: flex;
+  align-items: center;
+}
+.input-password-toggle:hover { color: var(--t2); }
+
+.form-hint {
+  font-size: 10px;
+  color: var(--t3);
+  margin-top: 3px;
+  display: block;
+}
+
+/* Flash inline */
+.flash {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+.flash--danger, .flash--error {
+  background: rgba(239,68,68,.1);
+  color: var(--err);
+  border: 1px solid rgba(239,68,68,.2);
+}
+.flash--success {
+  background: rgba(34,197,94,.1);
+  color: var(--ok);
+  border: 1px solid rgba(34,197,94,.2);
+}
+.flash--warning {
+  background: rgba(245,158,11,.1);
+  color: var(--warn);
+  border: 1px solid rgba(245,158,11,.2);
+}
+</style>
+
+<script>
+/* ── Photo upload ─────────────────────────────────────── */
+const photoInput      = document.getElementById('photoInput');
+const photoDropZone   = document.getElementById('photoDropZone');
+const photoPreviewWrap= document.getElementById('photoPreviewWrap');
+const photoPreview    = document.getElementById('photoPreview');
+const photoPlaceholder= document.getElementById('photoPlaceholder');
+const photoError      = document.getElementById('photoError');
+
+photoInput.addEventListener('change', function () {
+  handlePhotoFile(this.files[0]);
+});
+
+/* Drag & drop */
+['dragenter','dragover'].forEach(ev => {
+  photoDropZone.addEventListener(ev, e => {
+    e.preventDefault();
+    photoDropZone.classList.add('dragover');
+  });
+});
+['dragleave','drop'].forEach(ev => {
+  photoDropZone.addEventListener(ev, e => {
+    e.preventDefault();
+    photoDropZone.classList.remove('dragover');
+  });
+});
+photoDropZone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    /* Affecter le fichier à l'input file réel (via DataTransfer) */
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    photoInput.files = dt.files;
+    handlePhotoFile(file);
+  }
+});
+
+function handlePhotoFile(file) {
+  photoError.style.display = 'none';
+  if (!file) return;
+
+  /* Validation type */
+  const allowed = ['image/png','image/jpeg','image/jpg','image/webp'];
+  if (!allowed.includes(file.type)) {
+    photoError.textContent = 'Format non accepté. Utilisez JPG, PNG ou WEBP.';
+    photoError.style.display = 'block';
+    clearPhoto();
+    return;
+  }
+  /* Validation taille (5 Mo) */
+  if (file.size > 5 * 1024 * 1024) {
+    photoError.textContent = 'Fichier trop volumineux (max 5 Mo).';
+    photoError.style.display = 'block';
+    clearPhoto();
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoPreview.src = e.target.result;
+    photoPreviewWrap.style.display = 'block';
+    photoPlaceholder.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  photoInput.value = '';
+  photoPreview.src = '';
+  photoPreviewWrap.style.display = 'none';
+  photoPlaceholder.style.display = 'flex';
+}
+
+function removePhoto(e) {
+  e.stopPropagation();
+  clearPhoto();
+  photoError.style.display = 'none';
+}
+
+/* ── Afficher/masquer mot de passe ────────────────────── */
+function togglePwd(inputId, iconId) {
+  const input = document.getElementById(inputId);
+  const icon  = document.getElementById(iconId);
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    input.type = 'password';
+    icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+/* ── Validation confirmation mot de passe ─────────────── */
+document.getElementById('formInscription').addEventListener('submit', function(e) {
+  const pwd  = document.getElementById('pwdInput').value;
+  const pwd2 = document.getElementById('pwd2Input').value;
+  if (pwd !== pwd2) {
+    e.preventDefault();
+    document.getElementById('pwd2Input').style.borderColor = 'var(--err)';
+    document.getElementById('pwd2Input').focus();
+    /* Afficher erreur inline */
+    let errEl = document.getElementById('pwd2Error');
+    if (!errEl) {
+      errEl = document.createElement('span');
+      errEl.id = 'pwd2Error';
+      errEl.style.cssText = 'font-size:11px;color:var(--err);display:block;margin-top:3px';
+      document.getElementById('pwd2Input').parentElement.parentElement.appendChild(errEl);
+    }
+    errEl.textContent = 'Les mots de passe ne correspondent pas.';
+    return false;
+  }
+});
+document.getElementById('pwd2Input').addEventListener('input', function() {
+  this.style.borderColor = '';
+  const errEl = document.getElementById('pwd2Error');
+  if (errEl) errEl.remove();
+});
+</script>
+{% endblock %}

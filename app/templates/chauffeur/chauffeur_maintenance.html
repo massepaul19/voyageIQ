@@ -1,0 +1,72 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Maintenance Véhicule{% endblock %}
+
+{% block content %}
+<div class="chauf-page-header">
+  <h1 class="chauf-page-title">Santé du Véhicule</h1>
+  <p class="chauf-page-subtitle">Assigné : {{ chauffeur.vehicule.immatriculation if chauffeur.vehicule else 'Aucun' }}</p>
+</div>
+
+{% if chauffeur.vehicule %}
+<div class="card">
+  <div class="maint-item">
+    <div class="maint-item__icon maint-item__icon--ok">✓</div>
+    <div class="maint-item__info">
+      <span class="maint-item__name">Assurance</span>
+      <span class="maint-item__date">Expire le {{ chauffeur.vehicule.date_assurance.strftime('%d/%m/%Y') }}</span>
+    </div>
+  </div>
+  <div class="maint-item">
+    <div class="maint-item__icon maint-item__icon--warn">!</div>
+    <div class="maint-item__info">
+      <span class="maint-item__name">Visite Technique</span>
+      <span class="maint-item__date">Expire dans 12 jours</span>
+    </div>
+  </div>
+  <div class="maint-item">
+    <div class="maint-item__icon maint-item__icon--err">⚠</div>
+    <div class="maint-item__info">
+      <span class="maint-item__name">Vidange (Prochaine)</span>
+      <span class="maint-item__date">Dépassement de 150 km !</span>
+    </div>
+  </div>
+</div>
+
+<div class="section-card" style="margin-top: 20px;">
+  <div class="section-header"><h3>Signaler une anomalie</h3></div>
+  <form id="anomalyForm">
+    <div class="form-group">
+      <textarea class="form-textarea" id="desc" placeholder="Décrivez le problème (freins, pneus, moteur...)" required></textarea>
+    </div>
+    <button type="submit" class="btn btn--gold btn--full" id="submitBtn">Envoyer le rapport technique</button>
+  </form>
+</div>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">🚐</div>
+  <p>Vous n'avez pas de véhicule assigné pour le moment.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block page_js %}
+<script>
+document.getElementById('anomalyForm')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = document.getElementById('submitBtn');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi en cours...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+        btn.innerHTML = '✓ Rapport envoyé';
+        btn.style.background = 'var(--ok)';
+        document.getElementById('desc').value = '';
+        setTimeout(() => {
+            btn.innerHTML = 'Envoyer le rapport technique';
+            btn.style.background = '';
+            btn.disabled = false;
+        }, 3000);
+    }, 1500);
+});
+</script>
+{% endblock %}

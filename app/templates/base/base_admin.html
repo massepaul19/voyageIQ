@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="admin">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}VoyageIQ-Pro{% endblock %} — VoyageIQ Transport</title>
+
+  <!-- ── Google Fonts ──────────────────────────────────────── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <!-- ── Font Awesome ──────────────────────────────────────── -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- ── CSS Base ──────────────────────────────────────────── -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/reset.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/animations.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/style_admin.css') }}">
+
+  <!-- ── CSS Composants ───────────────────────────────────── -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/sidebar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/buttons.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/cards.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/tables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/forms.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/modals.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/kpi.css') }}">
+
+  <!-- ── CSS Page spécifique ──────────────────────────────── -->
+  {% block page_css %}{% endblock %}
+
+  <!-- ── Favicon ──────────────────────────────────────────── -->
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+
+</head>
+
+<body class="admin-layout">
+
+<!-- ════════════════════════════════════════════════════════
+     SIDEBAR
+════════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+
+  <!-- Logo -->
+  <div class="sidebar__brand">
+    <a href="{{ url_for('dashboard.index') }}" class="sidebar__logo">
+      <div class="sidebar__logo-icon">
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}"
+             alt="VoyageIQ Logo"
+             onerror="this.parentElement.innerHTML='<span style=\'font-family:var(--font-head);font-size:15px;font-weight:800;color:var(--gold);\'>VIQ</span>'">
+      </div>
+      <div class="sidebar__logo-text">
+        <span class="sidebar__logo-name">VoyageIQ</span>
+        <span class="sidebar__logo-tag">PRO</span>
+      </div>
+    </a>
+    <button class="sidebar__toggle-btn" id="sidebarClose" aria-label="Fermer le menu">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M18 6L6 18M6 6l12 12"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Profil -->
+  <div class="sidebar__user">
+    <div class="sidebar__user-avatar">
+      {% if current_user.photo %}
+        <img src="{{ url_for('static', filename='images/avatars/' ~ current_user.photo) }}"
+             alt="{{ current_user.nom }}"
+             onerror="this.parentElement.textContent='{{ current_user.nom[:1] if current_user.nom else 'A' }}'">
+      {% else %}
+        {{ current_user.nom[:1] | upper if current_user.nom else 'A' }}
+      {% endif %}
+    </div>
+    <div class="sidebar__user-info">
+      <span class="sidebar__user-name">{{ current_user.nom }} {{ current_user.prenom or '' }}</span>
+      <span class="sidebar__user-role">{{ current_user.role | upper }}</span>
+    </div>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="sidebar__nav" role="navigation" aria-label="Navigation principale">
+
+    {% set nav_items = [
+      ('dashboard.index',  'dashboard',  'Tableau de bord',
+        '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>'),
+      ('saisie.index',     'saisie',     'Saisie Journalière',
+        '<path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5"/><path d="M17.586 3.586a2 2 0 112.828 2.828L12 15l-4 1 1-4 8.586-8.414z"/>'),
+      ('flotte.index',     'flotte',     'Flotte',
+        '<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>'),
+      ('lignes.index',     'lignes',     'Lignes',
+        '<circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>'),
+      ('operations.index', 'operations', 'Opérations',
+        '<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>'),
+      ('finance.index',    'finance',    'Finance',
+        '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>'),
+      ('clientele.index',  'clientele',  'Clientèle',
+        '<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>'),
+      ('analytique.index', 'analytique', 'Analytique',
+        '<line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>'),
+      ('alertes.index',    'alertes',    'Alertes',
+        '<path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>'),
+      ('rapports.index',   'rapports',   'Rapports',
+        '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>'),
+      ('carte.index',      'carte',      'Carte & GPS',
+        '<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>'),
+    ] %}
+
+    {% for endpoint, page, label, icon_path in nav_items %}
+      {% if not current_user.can_access or current_user.can_access(page) %}
+      <a href="{{ url_for(endpoint) }}"
+         class="sidebar__nav-item {% if request.endpoint and request.endpoint.startswith(page) %}sidebar__nav-item--active{% endif %}"
+         aria-current="{% if request.endpoint and request.endpoint.startswith(page) %}page{% endif %}">
+        <svg class="sidebar__nav-icon" width="16" height="16" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8"
+             stroke-linecap="round" stroke-linejoin="round">
+          {{ icon_path | safe }}
+        </svg>
+        <span>{{ label }}</span>
+        {% if page == 'alertes' %}
+          {% set nb = alertes_count | default(0) %}
+          {% if nb > 0 %}
+            <span class="sidebar__nav-badge">{{ nb if nb < 10 else '9+' }}</span>
+          {% endif %}
+        {% endif %}
+      </a>
+      {% endif %}
+    {% endfor %}
+
+    <!-- Section Administration -->
+    {% if current_user.role == 'admin' %}
+    <div class="sidebar__separator">Administration</div>
+
+    <a href="{{ url_for('admin.chauffeurs') }}"
+       class="sidebar__nav-item {% if request.endpoint == 'admin.chauffeurs' %}sidebar__nav-item--active{% endif %}">
+      <svg class="sidebar__nav-icon" width="16" height="16" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="8" r="5"/>
+        <path d="M3 21a9 9 0 0118 0"/>
+      </svg>
+      <span>Chauffeurs</span>
+    </a>
+
+    <a href="{{ url_for('admin.utilisateurs') }}"
+       class="sidebar__nav-item {% if request.endpoint == 'admin.utilisateurs' %}sidebar__nav-item--active{% endif %}">
+      <svg class="sidebar__nav-icon" width="16" height="16" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+      <span>Utilisateurs</span>
+    </a>
+
+    <a href="{{ url_for('admin.index') }}"
+       class="sidebar__nav-item {% if request.endpoint == 'admin.index' %}sidebar__nav-item--active{% endif %}">
+      <svg class="sidebar__nav-icon" width="16" height="16" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="3"/>
+        <path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2M12 20v2M20 12h2M2 12h2M17.66 17.66l1.41 1.41M4.93 19.07l1.41-1.41"/>
+      </svg>
+      <span>Configuration</span>
+    </a>
+    {% endif %}
+
+  </nav>
+
+  <!-- Déconnexion -->
+  <div class="sidebar__footer">
+    <a href="{{ url_for('auth.logout') }}" class="sidebar__logout">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      <span>Déconnexion</span>
+    </a>
+  </div>
+
+</aside>
+
+<!-- Overlay mobile -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ════════════════════════════════════════════════════════
+     ZONE PRINCIPALE
+════════════════════════════════════════════════════════ -->
+<div class="admin-main" id="adminMain">
+
+  <!-- ════════════════════════
+       TOPBAR
+  ════════════════════════ -->
+  <header class="topbar" role="banner">
+
+    <!-- Burger (mobile) -->
+    <button class="topbar__burger" id="burgerBtn" aria-label="Ouvrir le menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Breadcrumb -->
+    <div class="topbar__breadcrumb" aria-label="Fil d'ariane">
+      <span class="topbar__breadcrumb-root">VoyageIQ</span>
+      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+      <span class="topbar__breadcrumb-current">{% block breadcrumb %}Dashboard{% endblock %}</span>
+    </div>
+
+    <!-- Actions droite -->
+    <div class="topbar__actions">
+
+      <!-- Bouton alertes -->
+      <a href="{{ url_for('alertes.index') }}" class="topbar__action-btn" title="Alertes" aria-label="Alertes">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+          <path d="M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+        {% set nb_alertes = alertes_count | default(0) %}
+        {% if nb_alertes > 0 %}
+          <span class="topbar__badge">{{ nb_alertes if nb_alertes < 10 else '9+' }}</span>
+        {% endif %}
+      </a>
+
+      <div class="topbar__sep"></div>
+
+      <!-- Profil dropdown -->
+      <div class="topbar__profile" id="profileMenu" role="button"
+           aria-haspopup="true" aria-expanded="false"
+           tabindex="0"
+           aria-label="Menu profil">
+        <div class="topbar__profile-avatar">
+          {% if current_user.photo %}
+            <img src="{{ url_for('static', filename='images/avatars/' ~ current_user.photo) }}"
+                 alt="{{ current_user.nom }}"
+                 onerror="this.parentElement.textContent='{{ current_user.nom[:1] | upper if current_user.nom else 'A' }}'">
+          {% else %}
+            {{ current_user.nom[:1] | upper if current_user.nom else 'A' }}
+          {% endif %}
+        </div>
+        <div class="topbar__profile-info">
+          <span class="topbar__profile-name">{{ current_user.nom }}</span>
+          <span class="topbar__profile-role">{{ current_user.role | capitalize }}</span>
+        </div>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+
+        <!-- Dropdown -->
+        <div class="topbar__profile-dropdown" role="menu" id="profileDropdown">
+          <a href="{{ url_for('admin.modifier_profil') }}" class="topbar__dropdown-item" role="menuitem">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            Mon Profil
+          </a>
+          <div class="topbar__dropdown-sep"></div>
+          <a href="{{ url_for('auth.logout') }}" class="topbar__dropdown-item topbar__dropdown-item--danger" role="menuitem">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+            Déconnexion
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Flash messages -->
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-container" aria-live="polite">
+      {% for category, message in messages %}
+      <div class="flash flash--{{ category }}" role="alert">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:1px;">
+          {% if category == 'success' %}
+            <polyline points="20 6 9 17 4 12"/>
+          {% elif category in ['danger', 'error'] %}
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          {% elif category == 'warning' %}
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+          {% else %}
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r=".5" fill="currentColor"/>
+          {% endif %}
+        </svg>
+        <span>{{ message }}</span>
+        <button class="flash__close" onclick="this.parentElement.remove()" aria-label="Fermer">×</button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+  {% endwith %}
+
+  <!-- ════════════════════════
+       CONTENU PAGE
+  ════════════════════════ -->
+  <main class="admin-content" id="mainContent">
+    {% block content %}{% endblock %}
+  </main>
+
+</div><!-- /admin-main -->
+
+
+<!-- ════════════════════════════════════════════════════════
+     JS PRINCIPAL — Sidebar mobile + Dropdown profil
+════════════════════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Éléments ─────────────────────────────────────────── */
+  const sidebar     = document.getElementById('sidebar');
+  const overlay     = document.getElementById('sidebarOverlay');
+  const burgerBtn   = document.getElementById('burgerBtn');
+  const closeBtn    = document.getElementById('sidebarClose');
+  const profileMenu = document.getElementById('profileMenu');
+
+  /* ── Ouvrir sidebar ──────────────────────────────────── */
+  function openSidebar() {
+    sidebar.classList.add('open');
+    overlay.classList.add('visible');
+    burgerBtn.classList.add('active');
+    burgerBtn.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  /* ── Fermer sidebar ──────────────────────────────────── */
+  function closeSidebar() {
+    sidebar.classList.remove('open');
+    overlay.classList.remove('visible');
+    burgerBtn.classList.remove('active');
+    burgerBtn.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  /* ── Toggle sidebar ──────────────────────────────────── */
+  if (burgerBtn) {
+    burgerBtn.addEventListener('click', function () {
+      sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+    });
+  }
+
+  if (closeBtn)  closeBtn.addEventListener('click', closeSidebar);
+  if (overlay)   overlay.addEventListener('click', closeSidebar);
+
+  /* Fermer avec Escape ──────────────────────────────────── */
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeSidebar();
+      closeProfile();
+    }
+  });
+
+  /* Resize : fermer sidebar si retour desktop ─────────── */
+  const mq = window.matchMedia('(min-width: 769px)');
+  mq.addEventListener('change', function (e) {
+    if (e.matches) {
+      closeSidebar();
+      document.body.style.overflow = '';
+    }
+  });
+
+  /* ── Dropdown profil ─────────────────────────────────── */
+  function openProfile() {
+    profileMenu.classList.add('open');
+    profileMenu.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeProfile() {
+    profileMenu.classList.remove('open');
+    profileMenu.setAttribute('aria-expanded', 'false');
+  }
+
+  if (profileMenu) {
+    profileMenu.addEventListener('click', function (e) {
+      /* Ignorer les clics sur les liens enfants */
+      if (e.target.closest('a')) return;
+      profileMenu.classList.contains('open') ? closeProfile() : openProfile();
+    });
+
+    /* Accessibilité clavier */
+    profileMenu.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        profileMenu.classList.contains('open') ? closeProfile() : openProfile();
+      }
+    });
+  }
+
+  /* Clic extérieur ferme le dropdown ────────────────────── */
+  document.addEventListener('click', function (e) {
+    if (profileMenu && !profileMenu.contains(e.target)) {
+      closeProfile();
+    }
+  });
+
+  /* ── Auto-fermeture flash après 4s ─────────────────── */
+  document.querySelectorAll('.flash').forEach(function (flash) {
+    setTimeout(function () {
+      flash.style.transition = 'opacity .35s, transform .35s';
+      flash.style.opacity = '0';
+      flash.style.transform = 'translateX(20px)';
+      setTimeout(function () { flash.remove(); }, 380);
+    }, 4000);
+  });
+
+  /* ── Confirmation suppression ─────────────────────── */
+  document.addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-confirm-delete]');
+    if (!btn) return;
+    const msg = btn.getAttribute('data-confirm-delete') || 'Confirmer la suppression ?';
+    if (!confirm(msg)) e.preventDefault();
+  });
+
+})();
+</script>
+
+<!-- JS page spécifique -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block page_js %}{% endblock %}
+
+</body>
+</html>

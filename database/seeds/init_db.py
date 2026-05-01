@@ -5,13 +5,18 @@ VoyageIQ-Pro — Initialisation de la base de données
 - Insère les utilisateurs admin réels (auth par téléphone)
 - Insère des chauffeurs démo
 - Insère les lignes et véhicules de démonstration
+- Génère 6 mois de saisies réalistes (données graphiques Finance)
+- Génère des courses chauffeurs
+- Insère des alertes de démonstration
 
 Usage :
     python database/seeds/init_db.py
     python database/seeds/init_db.py --reset   # supprime et recrée tout
 """
 
-import sys, os, argparse
+import sys, os, argparse, random
+from datetime import date, datetime, time, timedelta, timezone
+
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 from app import create_app
@@ -20,7 +25,8 @@ from app.models.utilisateur import Utilisateur
 from app.models.chauffeur   import Chauffeur, CourseChauffeur
 from app.models.ligne        import Ligne
 from app.models.vehicule     import Vehicule
-from datetime import date, datetime, timezone
+from app.models.saisie       import Saisie
+from app.models.alerte       import Alerte
 
 # ─────────────────────────────────────────────────────────────
 parser = argparse.ArgumentParser()
@@ -209,13 +215,13 @@ with app.app_context():
     print("\n── Lignes ───────────────────────────────────────────")
 
     lignes_data = [
-        {'code': 'L01', 'nom': 'Yaoundé — Douala',    'depart': 'Yaoundé',    'arrivee': 'Douala',    'km': 250, 'tarif': 3500, 'frequence': 8,  'couleur': '#C9A84C'},
-        {'code': 'L02', 'nom': 'Yaoundé — Bafoussam', 'depart': 'Yaoundé',    'arrivee': 'Bafoussam', 'km': 310, 'tarif': 4000, 'frequence': 6,  'couleur': '#A07830'},
-        {'code': 'L03', 'nom': 'Douala — Kribi',      'depart': 'Douala',     'arrivee': 'Kribi',     'km': 195, 'tarif': 2500, 'frequence': 5,  'couleur': '#E8C96A'},
-        {'code': 'L04', 'nom': 'Yaoundé — Bertoua',   'depart': 'Yaoundé',    'arrivee': 'Bertoua',   'km': 350, 'tarif': 4500, 'frequence': 4,  'couleur': '#6B5520'},
-        {'code': 'L05', 'nom': 'Douala — Bafoussam',  'depart': 'Douala',     'arrivee': 'Bafoussam', 'km': 375, 'tarif': 4500, 'frequence': 4,  'couleur': '#8A7040'},
-        {'code': 'L06', 'nom': 'Yaoundé — Ebolowa',   'depart': 'Yaoundé',    'arrivee': 'Ebolowa',   'km': 160, 'tarif': 2000, 'frequence': 4,  'couleur': '#5A8A40'},
-        {'code': 'L07', 'nom': 'Douala — Limbé',      'depart': 'Douala',     'arrivee': 'Limbé',     'km': 70,  'tarif': 1000, 'frequence': 10, 'couleur': '#4080A0'},
+        {'code': 'L01', 'nom': 'Yaoundé — Douala',    'depart': 'Yaoundé',    'arrivee': 'Douala',    'km': 250, 'tarif': 3500, 'frequence': 8,  'heure_depart': time(5, 30), 'couleur': '#C9A84C'},
+        {'code': 'L02', 'nom': 'Yaoundé — Bafoussam', 'depart': 'Yaoundé',    'arrivee': 'Bafoussam', 'km': 310, 'tarif': 4000, 'frequence': 6,  'heure_depart': time(6,  0), 'couleur': '#A07830'},
+        {'code': 'L03', 'nom': 'Douala — Kribi',      'depart': 'Douala',     'arrivee': 'Kribi',     'km': 195, 'tarif': 2500, 'frequence': 5,  'heure_depart': time(7,  0), 'couleur': '#E8C96A'},
+        {'code': 'L04', 'nom': 'Yaoundé — Bertoua',   'depart': 'Yaoundé',    'arrivee': 'Bertoua',   'km': 350, 'tarif': 4500, 'frequence': 4,  'heure_depart': time(6, 30), 'couleur': '#6B5520'},
+        {'code': 'L05', 'nom': 'Douala — Bafoussam',  'depart': 'Douala',     'arrivee': 'Bafoussam', 'km': 375, 'tarif': 4500, 'frequence': 4,  'heure_depart': time(6,  0), 'couleur': '#8A7040'},
+        {'code': 'L06', 'nom': 'Yaoundé — Ebolowa',   'depart': 'Yaoundé',    'arrivee': 'Ebolowa',   'km': 160, 'tarif': 2000, 'frequence': 4,  'heure_depart': time(7, 30), 'couleur': '#5A8A40'},
+        {'code': 'L07', 'nom': 'Douala — Limbé',      'depart': 'Douala',     'arrivee': 'Limbé',     'km': 70,  'tarif': 1000, 'frequence': 10, 'heure_depart': time(5,  0), 'couleur': '#4080A0'},
     ]
 
     for l in lignes_data:
@@ -355,7 +361,6 @@ with app.app_context():
 
     for c in chauffeurs_data:
         if not Chauffeur.query.filter_by(username=c['username']).first():
-            # Générer matricule pour les validés
             mat = None
             if c['statut_inscription'] == 'valide':
                 count = Chauffeur.query.filter_by(statut_inscription='valide').count()
@@ -390,6 +395,254 @@ with app.app_context():
     print("✓ Chauffeurs enregistrés")
 
     # ══════════════════════════════════════════════════════════
+    #  SAISIES JOURNALIÈRES — 6 mois de données réalistes
+    #  Alimente tous les graphiques Finance (revenus, dépenses,
+    #  budget, rentabilité) et les KPIs du dashboard.
+    # ══════════════════════════════════════════════════════════
+    print("\n── Saisies (6 mois de données) ──────────────────────")
+
+    if Saisie.query.first():
+        print("    ✓ Des saisies existent déjà — génération ignorée")
+    else:
+        admin_user = Utilisateur.query.filter_by(identifiant='admin').first()
+        toutes_lignes = Ligne.query.all()
+        aujourd = date.today()
+        # Départ : 1er jour du mois, il y a 5 mois
+        debut_seed = date(aujourd.year, aujourd.month, 1) - timedelta(days=5 * 30)
+
+        # Paramètres réalistes par ligne (en FCFA)
+        # rec_base = recettes journalières cibles
+        # dep_carb = dépense carburant journalière moyenne
+        # dep_autres = autres charges journalières
+        # passagers_base = passagers/jour
+        params_ligne = {
+            'L01': {'rec_base': 980_000, 'dep_carb': 120_000, 'dep_autres': 35_000, 'passagers_base': 120},
+            'L02': {'rec_base': 720_000, 'dep_carb': 105_000, 'dep_autres': 28_000, 'passagers_base':  90},
+            'L03': {'rec_base': 490_000, 'dep_carb':  68_000, 'dep_autres': 18_000, 'passagers_base':  70},
+            'L04': {'rec_base': 560_000, 'dep_carb': 130_000, 'dep_autres': 30_000, 'passagers_base':  55},
+            'L05': {'rec_base': 620_000, 'dep_carb': 125_000, 'dep_autres': 32_000, 'passagers_base':  75},
+            'L06': {'rec_base': 320_000, 'dep_carb':  55_000, 'dep_autres': 14_000, 'passagers_base':  55},
+            'L07': {'rec_base': 760_000, 'dep_carb':  38_000, 'dep_autres': 10_000, 'passagers_base': 200},
+        }
+
+        nb_saisies = 0
+        cur = debut_seed
+        while cur <= aujourd:
+            # Réalisme : environ 10 % des jours sans saisie (congés, fériés…)
+            if random.random() < 0.10:
+                cur += timedelta(days=1)
+                continue
+
+            # Légère tendance haussière sur 6 mois (+15 % en bout de période)
+            progression = 1.0 + 0.15 * ((cur - debut_seed).days / max((aujourd - debut_seed).days, 1))
+
+            for ligne in toutes_lignes:
+                p = params_ligne.get(ligne.code, params_ligne['L01'])
+
+                var = random.uniform(0.78, 1.22) * progression
+
+                # Répartition recettes : guichet 55 %, réservation 25 %, digital 20 %
+                rec_total = p['rec_base'] * var
+                rec_g = rec_total * random.uniform(0.50, 0.60)
+                rec_r = rec_total * random.uniform(0.20, 0.28)
+                rec_d = rec_total - rec_g - rec_r
+
+                dep_c = p['dep_carb']   * random.uniform(0.88, 1.12)
+                dep_a = p['dep_autres'] * random.uniform(0.80, 1.20)
+
+                passagers = max(1, int(p['passagers_base'] * var))
+                capacite  = passagers + random.randint(5, 20)
+                voyages   = max(1, ligne.frequence + random.randint(-1, 1))
+                km        = ligne.km * voyages * random.uniform(0.97, 1.03)
+                litres    = dep_c / 730  # ~730 FCFA/litre
+
+                retard       = random.randint(0, 30)
+                incidents    = 1 if random.random() < 0.04 else 0
+                annulations  = 1 if random.random() < 0.03 else 0
+                satisfaction = round(random.uniform(68, 96), 1)
+                nps          = round(random.uniform(-15, 60), 1)
+                reclamations = random.randint(0, 3)
+
+                saisie = Saisie(
+                    date            = cur,
+                    ligne_id        = ligne.id,
+                    saisi_par       = admin_user.id if admin_user else None,
+                    voyages         = voyages,
+                    passagers       = passagers,
+                    capacite        = capacite,
+                    km              = round(km, 1),
+                    dep_heure       = retard,
+                    retard_total    = retard,
+                    annulations     = annulations,
+                    rec_guichet     = round(rec_g),
+                    rec_reservation = round(rec_r),
+                    rec_digital     = round(rec_d),
+                    dep_carburant   = round(dep_c),
+                    litres          = round(litres, 1),
+                    dep_autres      = round(dep_a),
+                    reservations    = random.randint(8, 30),
+                    anticipees      = random.randint(0, 12),
+                    reclamations    = reclamations,
+                    satisfaction    = satisfaction,
+                    nps             = nps,
+                    incidents       = incidents,
+                    created_at      = datetime.now(timezone.utc),
+                )
+                db.session.add(saisie)
+                nb_saisies += 1
+
+            cur += timedelta(days=1)
+
+        db.session.commit()
+        print(f"    + {nb_saisies} saisies générées ({debut_seed} → {aujourd})")
+        print("✓ Saisies enregistrées")
+
+    # ══════════════════════════════════════════════════════════
+    #  COURSES CHAUFFEURS
+    #  Associe les chauffeurs validés aux saisies récentes
+    # ══════════════════════════════════════════════════════════
+    print("\n── Courses chauffeurs ───────────────────────────────")
+
+    if CourseChauffeur.query.first():
+        print("    ✓ Des courses existent déjà — génération ignorée")
+    else:
+        chauffeurs_valides = Chauffeur.query.filter_by(statut_inscription='valide', actif=True).all()
+        # Saisies des 90 derniers jours uniquement
+        date_limite = aujourd - timedelta(days=90)
+        saisies_recentes = Saisie.query.filter(Saisie.date >= date_limite).all()
+
+        # Chaque chauffeur a une ligne de prédilection
+        ligne_chauf = {
+            'c.tsafack': l01.id if l01 else None,
+            'c.nganou':  l01.id if l01 else None,
+            'c.kamga':   l02.id if l02 else None,
+        }
+
+        nb_courses = 0
+        for saisie in saisies_recentes:
+            # 35 % des saisies ont un chauffeur associé
+            if random.random() > 0.35:
+                continue
+            if not chauffeurs_valides:
+                break
+
+            # Priorité au chauffeur de la même ligne
+            candidats = [
+                c for c in chauffeurs_valides
+                if ligne_chauf.get(c.username) == saisie.ligne_id
+            ] or chauffeurs_valides
+
+            chauffeur = random.choice(candidats)
+            km_course = round((saisie.km or 0) / max(saisie.voyages, 1), 1)
+
+            course = CourseChauffeur(
+                chauffeur_id   = chauffeur.id,
+                saisie_id      = saisie.id,
+                ligne_id       = saisie.ligne_id,
+                date           = saisie.date,
+                heure_depart   = '06:30',
+                heure_arrivee  = '10:15',
+                km             = km_course,
+                passagers      = saisie.passagers // max(saisie.voyages, 1),
+                retard_minutes = saisie.retard_total,
+                incidents      = saisie.incidents,
+            )
+            db.session.add(course)
+            nb_courses += 1
+
+        db.session.commit()
+        print(f"    + {nb_courses} courses générées")
+        print("✓ Courses enregistrées")
+
+    # ══════════════════════════════════════════════════════════
+    #  ALERTES DE DÉMONSTRATION
+    # ══════════════════════════════════════════════════════════
+    print("\n── Alertes ──────────────────────────────────────────")
+
+    if Alerte.query.first():
+        print("    ✓ Des alertes existent déjà — génération ignorée")
+    else:
+        alertes = [
+            Alerte(
+                type_alerte = 'maintenance',
+                niveau      = 'critical',
+                titre       = 'Révision urgente — LT-2341-A',
+                message     = 'Le véhicule LT-2341-A approche de son seuil de maintenance (48 500 / 50 000 km). Planifiez la révision immédiatement.',
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'maintenance',
+                niveau      = 'critical',
+                titre       = 'Panne signalée — LT-8820-H',
+                message     = 'Le véhicule LT-8820-H est immobilisé pour panne. Diagnostic en cours. Impact potentiel sur la ligne L01.',
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'document',
+                niveau      = 'warning',
+                titre       = 'Visite technique expirée — LT-8820-H',
+                message     = "La visite technique du LT-8820-H a expiré le 01/03/2026. Le véhicule ne peut pas circuler avant renouvellement.",
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'document',
+                niveau      = 'warning',
+                titre       = 'Assurance expirant — LT-5514-C',
+                message     = "L'assurance du Mercedes Sprinter LT-5514-C expire le 20/05/2026. Renouvellement à effectuer sous 3 semaines.",
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'finance',
+                niveau      = 'info',
+                titre       = 'Rapport mensuel disponible',
+                message     = 'Le rapport financier du mois précédent est disponible. Revenus en hausse de 8 % par rapport au mois précédent.',
+                lue         = True,
+            ),
+            Alerte(
+                type_alerte = 'exploitation',
+                niveau      = 'warning',
+                titre       = 'Taux de remplissage faible — L04',
+                message     = 'La ligne Yaoundé–Bertoua affiche un taux de remplissage moyen de 56 % sur les 7 derniers jours, en dessous de l\'objectif de 70 %.',
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'finance',
+                niveau      = 'success',
+                titre       = 'Objectif mensuel dépassé — L01',
+                message     = 'La ligne Yaoundé–Douala Express a dépassé son objectif de recettes mensuel de 12 %. Félicitations à l\'équipe.',
+                lue         = True,
+            ),
+            Alerte(
+                type_alerte = 'exploitation',
+                niveau      = 'info',
+                titre       = 'Nouveau chauffeur en attente de validation',
+                message     = 'Fouda Serge (+237677200004) a soumis son dossier d\'inscription. Vérification des documents requise.',
+                lue         = False,
+            ),
+            Alerte(
+                type_alerte = 'maintenance',
+                niveau      = 'warning',
+                titre       = 'Maintenance programmée — LT-5514-C',
+                message     = 'Le Mercedes Sprinter LT-5514-C est en maintenance préventive. Retour en service prévu dans 48 h.',
+                lue         = True,
+            ),
+            Alerte(
+                type_alerte = 'info',
+                niveau      = 'info',
+                titre       = 'Mise à jour système VoyageIQ Pro',
+                message     = 'Une mise à jour de la plateforme a été effectuée ce matin. Consultez la documentation pour les nouveautés.',
+                lue         = True,
+            ),
+        ]
+
+        for alerte in alertes:
+            db.session.add(alerte)
+
+        db.session.commit()
+        print(f"    + {len(alertes)} alertes créées")
+        print("✓ Alertes enregistrées")
+
+    # ══════════════════════════════════════════════════════════
     #  RÉSUMÉ FINAL
     # ══════════════════════════════════════════════════════════
     print()
@@ -400,17 +653,22 @@ with app.app_context():
     print("╠══════════════════════════════════════════════════════════╣")
     print("║  +237690000001   Admin@VIQ2026     [Admin]               ║")
     print("║  +237677000010   DG@VIQ2026        [DG - Mbarga]         ║")
+    print("║  +237699000020   DG2@VIQ2026       [DG - Onana]          ║")
     print("║  +237655000100   Chef1@VIQ2026     [Chef - Yaoundé]      ║")
     print("║  +237666000200   Chef2@VIQ2026     [Chef - Douala]       ║")
+    print("║  +237677000300   Chef3@VIQ2026     [Chef - Bafoussam]    ║")
     print("║  +237655001001   Sup1@VIQ2026      [Superviseur - Yde]   ║")
+    print("║  +237699001002   Sup2@VIQ2026      [Superviseur - Dla]   ║")
     print("║  +237677002001   Audit1@VIQ2026    [Auditeur]            ║")
     print("╠══════════════════════════════════════════════════════════╣")
     print("║  ACCÈS CHAUFFEURS (téléphone + mot de passe)             ║")
     print("╠══════════════════════════════════════════════════════════╣")
-    print("║  +237677100001   Chauf1@VIQ2026    [Tsafack Hervé]       ║")
-    print("║  +237655100002   Chauf2@VIQ2026    [Nganou Alphonse]     ║")
-    print("║  +237699100003   Chauf3@VIQ2026    [Kamga Rodrigue]      ║")
-    print("║  +237677200004   Fouda@2026        [en attente valid.]   ║")
+    print("║  +237677100001   Chauf1@VIQ2026    [Tsafack Hervé ✓]     ║")
+    print("║  +237655100002   Chauf2@VIQ2026    [Nganou Alphonse ✓]   ║")
+    print("║  +237699100003   Chauf3@VIQ2026    [Kamga Rodrigue ✓]    ║")
+    print("║  +237677200004   Fouda@2026        [Fouda Serge ⏳]      ║")
     print("╠══════════════════════════════════════════════════════════╣")
-    print(f"║  Lignes : {Ligne.query.count():<3}   Véhicules : {Vehicule.query.count():<3}                          ║")
+    print(f"║  Lignes : {Ligne.query.count():<3}  Véhicules : {Vehicule.query.count():<3}  "
+          f"Saisies : {Saisie.query.count():<5}          ║")
+    print(f"║  Alertes : {Alerte.query.count():<3}  Courses : {CourseChauffeur.query.count():<5}                        ║")
     print("╚══════════════════════════════════════════════════════════╝")

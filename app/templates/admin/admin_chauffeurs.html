@@ -1,0 +1,187 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Chauffeurs — VoyageIQ{% endblock %}
+{% block breadcrumb %}Chauffeurs{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/chauffeurs_admin.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <!-- ── En-tête ──────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M3 21a9 9 0 0118 0"/></svg>
+        Gestion des Chauffeurs
+      </h1>
+      <p class="page-subtitle">
+        {{ chauffeurs.total }} chauffeur(s) au total
+        {% if en_attente > 0 %}
+        — <span style="color:var(--warn)">{{ en_attente }} en attente de validation</span>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <!-- ── Filtres ───────────────────────────────────────────── -->
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+    <a href="{{ url_for('admin.chauffeurs') }}"
+       class="btn btn--sm {% if not statut_filtre %}btn--gold{% else %}btn--ghost{% endif %}">
+      Tous ({{ chauffeurs.total }})
+    </a>
+    <a href="{{ url_for('admin.chauffeurs', statut='en_attente') }}"
+       class="btn btn--sm {% if statut_filtre == 'en_attente' %}btn--gold{% else %}btn--ghost{% endif %}">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      En attente
+      {% if en_attente > 0 %}<span class="badge badge--warn" style="margin-left:4px">{{ en_attente }}</span>{% endif %}
+    </a>
+    <a href="{{ url_for('admin.chauffeurs', statut='valide') }}"
+       class="btn btn--sm {% if statut_filtre == 'valide' %}btn--gold{% else %}btn--ghost{% endif %}">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Validés
+    </a>
+    <a href="{{ url_for('admin.chauffeurs', statut='rejete') }}"
+       class="btn btn--sm {% if statut_filtre == 'rejete' %}btn--gold{% else %}btn--ghost{% endif %}">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Rejetés
+    </a>
+  </div>
+
+  <!-- ── Tableau chauffeurs ────────────────────────────────── -->
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Chauffeur</th>
+            <th>Contact</th>
+            <th>Matricule</th>
+            <th>Agence</th>
+            <th>Permis</th>
+            <th>Exp. permis</th>
+            <th>Statut</th>
+            <th>Inscription</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in chauffeurs.items %}
+          <tr>
+            <td>
+              <div style="display:flex;align-items:center;gap:10px">
+                <div style="width:36px;height:36px;border-radius:50%;background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0">
+                  {% if c.photo %}
+                  <img src="{{ url_for('static', filename='images/chauffeurs/' ~ c.photo) }}" style="width:100%;height:100%;object-fit:cover">
+                  {% else %}
+                  <span style="font-family:var(--font-head);font-weight:800;color:var(--gold);font-size:14px">{{ c.nom[:1] }}</span>
+                  {% endif %}
+                </div>
+                <div>
+                  <div style="font-weight:600;color:var(--t)">{{ c.nom }} {{ c.prenom }}</div>
+                  <div style="font-size:11px;color:var(--t3)">{{ c.username }}</div>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div style="font-size:12px;font-family:var(--font-mono)">{{ c.telephone or '—' }}</div>
+              {% if c.email %}
+              <div style="font-size:11px;color:var(--t3)">{{ c.email }}</div>
+              {% endif %}
+            </td>
+            <td>
+              {% if c.matricule %}
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--gold)">{{ c.matricule }}</span>
+              {% else %}
+              <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td style="color:var(--t2)">{{ c.agence or '—' }}</td>
+            <td>
+              {% if c.num_permis %}
+              <span style="font-family:var(--font-mono);font-size:11px">{{ c.num_permis }}</span>
+              {% if c.categorie_permis %}
+              <span class="badge badge--marine" style="margin-left:3px">{{ c.categorie_permis }}</span>
+              {% endif %}
+              {% else %}
+              <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if c.exp_permis %}
+              <span style="font-family:var(--font-mono);font-size:11px;color:var(--t2)">{{ c.exp_permis.strftime('%d/%m/%Y') }}</span>
+              {% else %}
+              <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if c.statut_inscription == 'valide' %}
+                <span class="badge badge--ok">Validé</span>
+              {% elif c.statut_inscription == 'en_attente' %}
+                <span class="badge badge--warn">En attente</span>
+              {% else %}
+                <span class="badge badge--err">Rejeté</span>
+              {% endif %}
+            </td>
+            <td style="font-family:var(--font-mono);font-size:11px;color:var(--t3)">
+              {{ c.created_at.strftime('%d/%m/%Y') if c.created_at else '—' }}
+            </td>
+            <td style="text-align:right">
+              <div style="display:flex;gap:4px;justify-content:flex-end;flex-wrap:wrap">
+
+                {% if c.statut_inscription == 'en_attente' %}
+                <form action="{{ url_for('admin.valider_chauffeur', cid=c.id) }}" method="POST" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn--ghost btn--xs" style="color:var(--ok);border-color:rgba(34,197,94,.3)" title="Valider">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                </form>
+                <form action="{{ url_for('admin.rejeter_chauffeur', cid=c.id) }}" method="POST" style="display:inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn--ghost btn--xs btn--danger" title="Rejeter"
+                          onclick="return confirm('Rejeter la demande de {{ c.nom }} ?')">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </form>
+                {% endif %}
+
+                <a href="{{ url_for('admin.modifier_chauffeur', cid=c.id) }}" class="btn btn--ghost btn--xs" title="Modifier">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </a>
+
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;padding:40px;color:var(--t3)">
+              Aucun chauffeur trouvé{% if statut_filtre %} avec le statut « {{ statut_filtre }} »{% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if chauffeurs.pages > 1 %}
+    <div class="pagination" style="padding:12px 16px">
+      {% if chauffeurs.has_prev %}
+      <a href="{{ url_for('admin.chauffeurs', page=chauffeurs.prev_num, statut=statut_filtre) }}" class="btn btn--ghost btn--sm">← Précédent</a>
+      {% endif %}
+      <span style="font-size:12px;color:var(--t3)">Page {{ chauffeurs.page }} / {{ chauffeurs.pages }}</span>
+      {% if chauffeurs.has_next %}
+      <a href="{{ url_for('admin.chauffeurs', page=chauffeurs.next_num, statut=statut_filtre) }}" class="btn btn--ghost btn--sm">Suivant →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="{{ url_for('static', filename='js/modules/admin.js') }}"></script>
+{% endblock %}

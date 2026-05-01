@@ -1,0 +1,86 @@
+{% extends "base/base_public.html" %}
+{% block title %}Connexion Administration — VoyageIQ{% endblock %}
+
+{% block content %}
+<section class="section" style="min-height: 80vh; display: flex; align-items: center; background: var(--bg);">
+  <div class="container" style="max-width: 460px;">
+
+    <div class="section-card" style="border-top: 3px solid var(--gold); border-radius: 16px; padding: 2.5rem;">
+
+      <!-- En-tête -->
+      <div style="text-align: center; margin-bottom: 2rem;">
+        <div class="sidebar__logo-icon" style="margin: 0 auto 1rem; width: 64px; height: 64px; border-radius: 14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,.12);">
+          <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="Logo" style="width:100%;height:100%;object-fit:cover;">
+        </div>
+
+        <div style="display:inline-flex;align-items:center;gap:.45rem;background:rgba(196,160,80,.1);border:1px solid rgba(196,160,80,.25);border-radius:999px;padding:.28rem .85rem;margin-bottom:.9rem;">
+          <span style="width:6px;height:6px;border-radius:50%;background:var(--gold);display:inline-block;"></span>
+          <span style="font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--gold);">Accès Administration</span>
+        </div>
+
+        <h1 class="page-title" style="justify-content:center;font-size:1.55rem;">Espace de gestion</h1>
+        <p class="page-sub" style="margin-top:.3rem;">Connectez-vous à votre espace professionnel</p>
+      </div>
+
+      <!-- Flash messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div style="display:flex;align-items:center;gap:.5rem;padding:.7rem 1rem;border-radius:8px;margin-bottom:1.25rem;font-size:.875rem;
+              {%- if category == 'danger' %}background:#fdf2f2;color:#b91c1c;border-left:3px solid #ef4444;
+              {%- elif category == 'success' %}background:#f0fdf4;color:#166534;border-left:3px solid #22c55e;
+              {%- else %}background:#fffbeb;color:#92400e;border-left:3px solid #f59e0b;{%- endif %}">
+              <i class="fas fa-{% if category == 'danger' %}exclamation-circle{% elif category == 'success' %}check-circle{% else %}info-circle{% endif %}"></i>
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Formulaire -->
+      <form action="{{ url_for('auth.login') }}" method="POST" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+
+        <div class="form-group">
+          <label class="form-label" for="telephone">Identifiant (Téléphone)</label>
+          <div style="position:relative;">
+            <i class="fas fa-phone" style="position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;pointer-events:none;"></i>
+            <input type="text" name="telephone" id="telephone" class="form-input"
+                   placeholder="+237 690 000 001" required autofocus
+                   value="{{ request.form.get('telephone', '') }}"
+                   style="padding-left:2.5rem;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top:1.25rem;">
+          <label class="form-label" for="password">Mot de passe</label>
+          <div style="position:relative;">
+            <i class="fas fa-lock" style="position:absolute;left:.85rem;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;pointer-events:none;"></i>
+            <input type="password" name="password" id="password" class="form-input"
+                   placeholder="••••••••" required
+                   style="padding-left:2.5rem;">
+          </div>
+        </div>
+
+        <div style="margin-top:1.75rem;">
+          <button type="submit" class="btn btn--gold btn--full"
+                  style="padding:.85rem;border-radius:10px;font-size:.95rem;font-weight:600;display:flex;align-items:center;justify-content:center;gap:.5rem;cursor:pointer;box-shadow:0 4px 14px rgba(196,160,80,.2);transition:opacity .2s,transform .15s;"
+                  onmouseover="this.style.opacity='.88';this.style.transform='translateY(-1px)'"
+                  onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+            <i class="fas fa-sign-in-alt"></i> Se connecter
+          </button>
+        </div>
+      </form>
+
+      <!-- Retour site -->
+      <div style="text-align:center;margin-top:1.75rem;padding-top:1.25rem;border-top:1px solid var(--border);">
+        <a href="{{ url_for('public.index') }}" class="text-muted"
+           style="font-size:13px;text-decoration:none;display:inline-flex;align-items:center;gap:.4rem;">
+          <i class="fas fa-arrow-left" style="font-size:.7rem;"></i> Retour au site
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

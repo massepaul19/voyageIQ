@@ -1,0 +1,10 @@
+pip install xhtml2pdf --default-timeout=100
+
+
+# 1. Installer le wrapper Python
+pip install pdfkit
+
+# 2. Installer l'outil système wkhtmltopdf (nécessaire pour pdfkit)
+sudo apt-get update
+sudo apt-get install wkhtmltopdf
+

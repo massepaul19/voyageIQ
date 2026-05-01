@@ -1,0 +1,1055 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="public">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="{% block meta_description %}VoyageIQ Transport — Votre partenaire de confiance pour le transport interurbain au Cameroun.{% endblock %}">
+  <title>{% block title %}VoyageIQ Transport{% endblock %}</title>
+
+  <!-- ── CSS Base ──────────────────────────────────────────── -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/variables.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/reset.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/main.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/base/animations.css') }}">
+
+  <!-- ── CSS Composants ───────────────────────────────────── -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/navbar.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/footer.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/buttons.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/cards.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/alerts.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/forms.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/components/modals.css') }}">
+
+  <!-- ── CSS Page publique ────────────────────────────────── -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/pages/public.css') }}">
+  {% block page_css %}{% endblock %}
+
+  <link rel="icon" type="image/jpeg" href="{{ url_for('static', filename='images/logo.jpeg') }}">
+
+  <style>
+  /* ══════════════════════════════════════════════════════════
+     NAVBAR PUBLIQUE — Mobile-first
+  ══════════════════════════════════════════════════════════ */
+  .pub-navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 2000;
+    background: rgba(10,10,10,.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+    transition: background .3s, box-shadow .3s;
+  }
+
+  .pub-navbar--scrolled {
+    background: rgba(10,10,10,.98);
+    box-shadow: 0 4px 24px rgba(0,0,0,.5);
+  }
+
+  .pub-navbar__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
+    height: 68px;
+    gap: 16px;
+  }
+
+  /* Brand */
+  .pub-navbar__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+    z-index: 2100;
+  }
+
+  .pub-navbar__logo-img {
+    width: 38px; height: 38px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1.5px solid rgba(201,168,76,.4);
+  }
+
+  .pub-navbar__logo-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+  }
+
+  .pub-navbar__logo-name {
+    font-family: var(--font-head, 'Sora', sans-serif);
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--gold, #C9A84C);
+    letter-spacing: .5px;
+  }
+
+  .pub-navbar__logo-sub {
+    font-size: 10px;
+    color: rgba(255,255,255,.4);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* ── Nav desktop ─────────────────────────────────────────── */
+  .pub-navbar__nav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+    justify-content: center;
+  }
+
+  .pub-navbar__link {
+    padding: 7px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(255,255,255,.65);
+    text-decoration: none;
+    transition: color .2s, background .2s;
+    white-space: nowrap;
+  }
+
+  .pub-navbar__link:hover,
+  .pub-navbar__link--active {
+    color: #fff;
+    background: rgba(255,255,255,.07);
+  }
+
+  /* ── Actions desktop ─────────────────────────────────────── */
+  .pub-navbar__actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .pub-navbar__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    text-decoration: none;
+    transition: all .2s;
+    white-space: nowrap;
+  }
+
+  .pub-navbar__btn--outline {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.18);
+    color: rgba(255,255,255,.8);
+  }
+
+  .pub-navbar__btn--outline:hover {
+    border-color: var(--gold, #C9A84C);
+    color: var(--gold, #C9A84C);
+    background: rgba(201,168,76,.06);
+  }
+
+  .pub-navbar__btn--gold {
+    background: var(--gold, #C9A84C);
+    color: #0A0A0A;
+  }
+
+  .pub-navbar__btn--gold:hover {
+    background: #D4B66A;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(201,168,76,.35);
+  }
+
+  /* ── Burger ─────────────────────────────────────────────── */
+  .pub-navbar__burger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: transparent;
+    cursor: pointer;
+    z-index: 2100;
+    position: relative;
+    flex-shrink: 0;
+    transition: border-color .2s;
+  }
+
+  .pub-navbar__burger:hover { border-color: var(--gold, #C9A84C); }
+
+  .pub-navbar__burger span {
+    display: block;
+    width: 20px; height: 2px;
+    background: rgba(255,255,255,.8);
+    border-radius: 2px;
+    transition: transform .28s ease, opacity .2s;
+    transform-origin: center;
+  }
+
+  /* Burger → X */
+  .pub-navbar__burger--open span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .pub-navbar__burger--open span:nth-child(2) {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  .pub-navbar__burger--open span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     DRAWER MOBILE
+  ══════════════════════════════════════════════════════════ */
+  .pub-drawer-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(4px);
+    z-index: 1999;
+    opacity: 0;
+    transition: opacity .28s;
+  }
+
+  .pub-drawer-overlay.open {
+    display: block;
+    opacity: 1;
+  }
+
+  .pub-drawer {
+    position: fixed;
+    top: 0; right: 0;
+    width: min(320px, 85vw);
+    height: 100%;
+    background: #111;
+    border-left: 1px solid rgba(255,255,255,.08);
+    z-index: 2100;
+    transform: translateX(100%);
+    transition: transform .3s cubic-bezier(.4,0,.2,1);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .pub-drawer.open {
+    transform: translateX(0);
+  }
+
+  .pub-drawer__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid rgba(255,255,255,.07);
+    flex-shrink: 0;
+  }
+
+  .pub-drawer__brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .pub-drawer__brand img {
+    width: 34px; height: 34px;
+    border-radius: 7px;
+    object-fit: cover;
+    border: 1.5px solid rgba(201,168,76,.3);
+  }
+
+  .pub-drawer__brand-name {
+    font-weight: 800;
+    font-size: 15px;
+    color: var(--gold, #C9A84C);
+  }
+
+  .pub-drawer__close {
+    width: 34px; height: 34px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 7px;
+    background: transparent;
+    color: rgba(255,255,255,.6);
+    cursor: pointer;
+    transition: all .18s;
+  }
+
+  .pub-drawer__close:hover {
+    border-color: var(--gold, #C9A84C);
+    color: var(--gold, #C9A84C);
+  }
+
+  .pub-drawer__nav {
+    display: flex;
+    flex-direction: column;
+    padding: 16px 12px;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .pub-drawer__link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 10px;
+    color: rgba(255,255,255,.7);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all .18s;
+  }
+
+  .pub-drawer__link:hover,
+  .pub-drawer__link--active {
+    background: rgba(201,168,76,.08);
+    color: var(--gold, #C9A84C);
+  }
+
+  .pub-drawer__link svg {
+    flex-shrink: 0;
+    opacity: .7;
+  }
+
+  .pub-drawer__link--active svg,
+  .pub-drawer__link:hover svg { opacity: 1; }
+
+  .pub-drawer__sep {
+    height: 1px;
+    background: rgba(255,255,255,.06);
+    margin: 8px 0;
+  }
+
+  .pub-drawer__actions {
+    padding: 16px 12px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .pub-drawer__actions .pub-navbar__btn {
+    width: 100%;
+    justify-content: center;
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     RESPONSIVE — masquer/montrer
+  ══════════════════════════════════════════════════════════ */
+  @media (max-width: 900px) {
+    .pub-navbar__nav { display: none; }
+    .pub-navbar__actions .pub-navbar__btn { display: none; }
+    .pub-navbar__burger { display: flex; }
+  }
+
+  @media (max-width: 480px) {
+    .pub-navbar__inner { padding: 0 16px; height: 60px; }
+    .pub-navbar__logo-sub { display: none; }
+  }
+
+  /* ══════════════════════════════════════════════════════════
+     MODAL LOGIN ADMIN
+  ══════════════════════════════════════════════════════════ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.72);
+    backdrop-filter: blur(6px);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-overlay--open { display: flex; }
+
+  .modal--login {
+    background: #111;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 32px 28px;
+    position: relative;
+    animation: loginModalIn .25s cubic-bezier(.34,1.56,.64,1);
+  }
+
+  @keyframes loginModalIn {
+    from { opacity:0; transform: scale(.93) translateY(-14px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+
+  .modal__close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 32px; height: 32px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 8px;
+    background: transparent;
+    color: rgba(255,255,255,.5);
+    cursor: pointer;
+    transition: all .18s;
+  }
+
+  .modal__close:hover {
+    border-color: rgba(255,255,255,.3);
+    color: #fff;
+  }
+
+  .modal__header { text-align: center; margin-bottom: 24px; }
+
+  .modal__logo {
+    width: 56px; height: 56px;
+    border-radius: 12px;
+    overflow: hidden;
+    margin: 0 auto 14px;
+    border: 2px solid rgba(201,168,76,.3);
+  }
+
+  .modal__logo img { width: 100%; height: 100%; object-fit: cover; }
+
+  .modal__title {
+    font-size: 19px;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 6px;
+  }
+
+  .modal__subtitle {
+    font-size: 13px;
+    color: rgba(255,255,255,.45);
+  }
+
+  .modal__form { display: flex; flex-direction: column; gap: 14px; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,.6);
+    text-transform: uppercase;
+    letter-spacing: .8px;
+  }
+
+  .form-input-wrap { position: relative; }
+
+  .form-input-icon {
+    position: absolute;
+    left: 12px; top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255,255,255,.3);
+    pointer-events: none;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 11px 14px 11px 38px;
+    background: rgba(255,255,255,.05);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 9px;
+    color: #fff;
+    font-size: 14px;
+    outline: none;
+    transition: border-color .2s;
+    box-sizing: border-box;
+  }
+
+  .form-input::placeholder { color: rgba(255,255,255,.25); }
+  .form-input:focus { border-color: var(--gold, #C9A84C); }
+
+  .form-input-toggle-pwd {
+    position: absolute;
+    right: 10px; top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: rgba(255,255,255,.3);
+    cursor: pointer;
+    padding: 4px;
+    transition: color .18s;
+  }
+
+  .form-input-toggle-pwd:hover { color: rgba(255,255,255,.7); }
+
+  .btn--gold {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: var(--gold, #C9A84C);
+    color: #0A0A0A;
+    border: none;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .2s;
+  }
+
+  .btn--gold:hover {
+    background: #D4B66A;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,168,76,.35);
+  }
+
+  .btn--full { width: 100%; }
+
+  /* ══════════════════════════════════════════════════════════
+     FLASH MESSAGES
+  ══════════════════════════════════════════════════════════ */
+  .flash-container--public {
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    z-index: 4000;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-width: 360px;
+  }
+
+  .flash {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: #111;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 10px;
+    font-size: 13px;
+    color: rgba(255,255,255,.85);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    animation: flashIn .3s ease;
+    transition: opacity .35s, transform .35s;
+  }
+
+  @keyframes flashIn {
+    from { opacity:0; transform: translateX(20px); }
+    to   { opacity:1; transform: translateX(0); }
+  }
+
+  .flash--danger  { border-color: rgba(239,68,68,.4); }
+  .flash--success { border-color: rgba(34,197,94,.4); }
+  .flash--warning { border-color: rgba(245,158,11,.4); }
+  .flash--info    { border-color: rgba(96,165,250,.4); }
+
+  .flash__close {
+    background: none; border: none;
+    color: rgba(255,255,255,.4);
+    cursor: pointer; font-size: 16px; line-height: 1;
+    padding: 0; transition: color .18s; flex-shrink: 0;
+  }
+
+  .flash__close:hover { color: #fff; }
+
+  /* ══════════════════════════════════════════════════════════
+     FOOTER PUBLIC
+  ══════════════════════════════════════════════════════════ */
+  .pub-footer {
+    background: #0A0A0A;
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding-top: 48px;
+  }
+
+  .pub-footer__inner {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px 40px;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 48px;
+  }
+
+  .pub-footer__brand { display: flex; flex-direction: column; gap: 14px; }
+
+  .pub-footer__logo {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    object-fit: cover;
+    border: 1.5px solid rgba(201,168,76,.3);
+  }
+
+  .pub-footer__tagline {
+    font-size: 13px;
+    color: rgba(255,255,255,.4);
+    line-height: 1.7;
+  }
+
+  .pub-footer__links {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+
+  .pub-footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .pub-footer__col h4 {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.2px;
+    color: var(--gold, #C9A84C);
+    margin-bottom: 4px;
+  }
+
+  .pub-footer__col a,
+  .pub-footer__col span {
+    font-size: 13px;
+    color: rgba(255,255,255,.45);
+    text-decoration: none;
+    transition: color .18s;
+  }
+
+  .pub-footer__col a:hover { color: #fff; }
+
+  .pub-footer__bottom {
+    border-top: 1px solid rgba(255,255,255,.06);
+    padding: 18px 24px;
+    max-width: 1280px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    font-size: 12px;
+    color: rgba(255,255,255,.28);
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 768px) {
+    .pub-footer__inner {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .pub-footer__links {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .pub-footer__bottom {
+      flex-direction: column;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .pub-footer__links { grid-template-columns: 1fr; }
+    .pub-footer__inner { padding: 0 16px 32px; }
+    .flash-container--public { right: 12px; left: 12px; max-width: none; }
+  }
+  </style>
+</head>
+
+<body class="public-layout" style="padding-top:68px">
+
+<!-- ════════════════════════════════════════════════════════
+     NAVBAR
+════════════════════════════════════════════════════════ -->
+<header class="pub-navbar" id="pubNavbar">
+  <div class="pub-navbar__inner">
+
+    <!-- Logo -->
+    <a href="{{ url_for('public.index') }}" class="pub-navbar__brand">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VoyageIQ" class="pub-navbar__logo-img">
+      <div class="pub-navbar__logo-text">
+        <span class="pub-navbar__logo-name">VoyageIQ</span>
+        <span class="pub-navbar__logo-sub">Transport</span>
+      </div>
+    </a>
+
+    <!-- Nav desktop -->
+    <nav class="pub-navbar__nav">
+      <a href="{{ url_for('public.index') }}"
+         class="pub-navbar__link {% if request.endpoint == 'public.index' %}pub-navbar__link--active{% endif %}">
+        Accueil
+      </a>
+      <a href="{{ url_for('public.index') }}#lignes" class="pub-navbar__link">Nos Lignes</a>
+      <a href="{{ url_for('public.index') }}#services" class="pub-navbar__link">Services</a>
+      <a href="{{ url_for('public.about') }}"
+         class="pub-navbar__link {% if request.endpoint == 'public.about' %}pub-navbar__link--active{% endif %}">
+        À Propos
+      </a>
+      <a href="{{ url_for('public.localisation') }}"
+         class="pub-navbar__link {% if request.endpoint == 'public.localisation' %}pub-navbar__link--active{% endif %}">
+        Localisation
+      </a>
+      <a href="{{ url_for('public.contact') }}"
+         class="pub-navbar__link {% if request.endpoint == 'public.contact' %}pub-navbar__link--active{% endif %}">
+        Contact
+      </a>
+    </nav>
+
+    <!-- Actions desktop -->
+    <div class="pub-navbar__actions">
+      <a href="{{ url_for('auth_chauffeur.login') }}" class="pub-navbar__btn pub-navbar__btn--outline">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <path d="M16 8h4l3 3v5h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+        Espace Chauffeur
+      </a>
+      <button class="pub-navbar__btn pub-navbar__btn--gold" id="adminLoginBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="11" width="18" height="11" rx="2"/>
+          <path d="M7 11V7a5 5 0 0110 0v4"/>
+        </svg>
+        Administration
+      </button>
+
+      <!-- Burger -->
+      <button class="pub-navbar__burger" id="pubBurger" aria-label="Menu" aria-expanded="false" aria-controls="pubDrawer">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- ════════════════════════════════════════════════════════
+     DRAWER MOBILE
+════════════════════════════════════════════════════════ -->
+<div class="pub-drawer-overlay" id="pubDrawerOverlay" aria-hidden="true"></div>
+
+<aside class="pub-drawer" id="pubDrawer" role="dialog" aria-label="Menu navigation" aria-modal="true">
+
+  <div class="pub-drawer__head">
+    <a href="{{ url_for('public.index') }}" class="pub-drawer__brand">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VoyageIQ">
+      <span class="pub-drawer__brand-name">VoyageIQ</span>
+    </a>
+    <button class="pub-drawer__close" id="pubDrawerClose" aria-label="Fermer le menu">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="pub-drawer__nav">
+    <a href="{{ url_for('public.index') }}"
+       class="pub-drawer__link {% if request.endpoint == 'public.index' %}pub-drawer__link--active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      Accueil
+    </a>
+    <a href="{{ url_for('public.index') }}#lignes" class="pub-drawer__link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+      </svg>
+      Nos Lignes
+    </a>
+    <a href="{{ url_for('public.index') }}#services" class="pub-drawer__link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+      </svg>
+      Services
+    </a>
+    <a href="{{ url_for('public.about') }}"
+       class="pub-drawer__link {% if request.endpoint == 'public.about' %}pub-drawer__link--active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      À Propos
+    </a>
+    <a href="{{ url_for('public.localisation') }}"
+       class="pub-drawer__link {% if request.endpoint == 'public.localisation' %}pub-drawer__link--active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      Localisation
+    </a>
+    <a href="{{ url_for('public.contact') }}"
+       class="pub-drawer__link {% if request.endpoint == 'public.contact' %}pub-drawer__link--active{% endif %}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81"/>
+      </svg>
+      Contact
+    </a>
+
+    <div class="pub-drawer__sep"></div>
+  </nav>
+
+  <div class="pub-drawer__actions">
+    <a href="{{ url_for('auth_chauffeur.login') }}" class="pub-navbar__btn pub-navbar__btn--outline">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="1" y="3" width="15" height="13" rx="2"/>
+        <path d="M16 8h4l3 3v5h-7V8z"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/>
+        <circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+      Espace Chauffeur
+    </a>
+    <button class="pub-navbar__btn pub-navbar__btn--gold" id="adminLoginBtnMobile">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <rect x="3" y="11" width="18" height="11" rx="2"/>
+        <path d="M7 11V7a5 5 0 0110 0v4"/>
+      </svg>
+      Administration
+    </button>
+    <a href="{{ url_for('chauffeur.inscription') }}" class="pub-navbar__btn pub-navbar__btn--outline">
+      Devenir Chauffeur
+    </a>
+  </div>
+</aside>
+
+<!-- ════════════════════════════════════════════════════════
+     MODAL LOGIN ADMIN
+════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="loginModalOverlay" role="dialog" aria-modal="true" aria-labelledby="loginModalTitle">
+  <div class="modal--login" id="loginModal">
+
+    <button class="modal__close" id="loginModalClose" aria-label="Fermer">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+
+    <div class="modal__header">
+      <div class="modal__logo">
+        <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VIQ">
+      </div>
+      <h2 class="modal__title" id="loginModalTitle">Accès Administration</h2>
+      <p class="modal__subtitle">Connectez-vous avec votre numéro de téléphone</p>
+    </div>
+
+    <form class="modal__form" action="{{ url_for('auth.login') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+
+      <div class="form-group">
+        <label class="form-label" for="modal-telephone">Numéro de téléphone</label>
+        <div class="form-input-wrap">
+          <svg class="form-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.02 1.22 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+          </svg>
+          <input type="text" id="modal-telephone" name="telephone"
+                 class="form-input" placeholder="+237 6XX XXX XXX"
+                 autocomplete="tel" required>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="modal-password">Mot de passe</label>
+        <div class="form-input-wrap">
+          <svg class="form-input-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <rect x="3" y="11" width="18" height="11" rx="2"/>
+            <path d="M7 11V7a5 5 0 0110 0v4"/>
+          </svg>
+          <input type="password" id="modal-password" name="password"
+                 class="form-input" placeholder="••••••••" required>
+          <button type="button" class="form-input-toggle-pwd" id="togglePwd" aria-label="Voir le mot de passe">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn--gold btn--full" style="margin-top:4px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4"/>
+          <polyline points="10 17 15 12 10 7"/>
+          <line x1="15" y1="12" x2="3" y2="12"/>
+        </svg>
+        Se connecter
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════════════════
+     FLASH MESSAGES
+════════════════════════════════════════════════════════ -->
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <div class="flash-container flash-container--public">
+    {% for category, message in messages %}
+    <div class="flash flash--{{ category }}">
+      <span>{{ message }}</span>
+      <button class="flash__close" onclick="this.parentElement.remove()" aria-label="Fermer">×</button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+{% endwith %}
+
+<!-- ════════════════════════════════════════════════════════
+     CONTENU
+════════════════════════════════════════════════════════ -->
+<main class="pub-content">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- ════════════════════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════════════════════ -->
+<footer class="pub-footer">
+  <div class="pub-footer__inner">
+    <div class="pub-footer__brand">
+      <img src="{{ url_for('static', filename='images/logo.jpeg') }}" alt="VoyageIQ" class="pub-footer__logo">
+      <p class="pub-footer__tagline">
+        Votre partenaire de confiance pour le transport<br>interurbain au Cameroun.
+      </p>
+    </div>
+    <div class="pub-footer__links">
+      <div class="pub-footer__col">
+        <h4>Navigation</h4>
+        <a href="{{ url_for('public.index') }}">Accueil</a>
+        <a href="{{ url_for('public.about') }}">À Propos</a>
+        <a href="{{ url_for('public.localisation') }}">Localisation</a>
+        <a href="{{ url_for('public.contact') }}">Contact</a>
+      </div>
+      <div class="pub-footer__col">
+        <h4>Accès</h4>
+        <a href="{{ url_for('auth.login') }}">Espace Admin</a>
+        <a href="{{ url_for('auth_chauffeur.login') }}">Espace Chauffeur</a>
+        <a href="{{ url_for('chauffeur.inscription') }}">Devenir Chauffeur</a>
+      </div>
+      <div class="pub-footer__col">
+        <h4>VoyageIQ Transport</h4>
+        <span>Yaoundé, Cameroun</span>
+        <span>+237 6XX XXX XXX</span>
+        <span>contact@voyageiq.cm</span>
+      </div>
+    </div>
+  </div>
+  <div class="pub-footer__bottom">
+    <span>© {{ now().year if now is defined else 2026 }} VoyageIQ Transport. Tous droits réservés.</span>
+    <span>Développé à l'ESTLC — Département Transport &amp; Informatique</span>
+  </div>
+</footer>
+
+<!-- ── JS ─────────────────────────────────────────────────── -->
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/modules/public.js') }}"></script>
+{% block page_js %}{% endblock %}
+
+<script>
+/* ── Navbar scroll ────────────────────────────────────────── */
+const pubNavbar = document.getElementById('pubNavbar');
+window.addEventListener('scroll', () => {
+  pubNavbar?.classList.toggle('pub-navbar--scrolled', window.scrollY > 40);
+}, { passive: true });
+
+/* ── Drawer mobile ───────────────────────────────────────── */
+const pubBurger        = document.getElementById('pubBurger');
+const pubDrawer        = document.getElementById('pubDrawer');
+const pubDrawerOverlay = document.getElementById('pubDrawerOverlay');
+const pubDrawerClose   = document.getElementById('pubDrawerClose');
+
+function openDrawer() {
+  pubDrawer.classList.add('open');
+  pubDrawerOverlay.classList.add('open');
+  pubBurger.classList.add('pub-navbar__burger--open');
+  pubBurger.setAttribute('aria-expanded', 'true');
+  document.body.style.overflow = 'hidden';
+  // Focus premier lien pour accessibilité
+  setTimeout(() => pubDrawer.querySelector('a, button')?.focus(), 80);
+}
+
+function closeDrawer() {
+  pubDrawer.classList.remove('open');
+  pubDrawerOverlay.classList.remove('open');
+  pubBurger.classList.remove('pub-navbar__burger--open');
+  pubBurger.setAttribute('aria-expanded', 'false');
+  document.body.style.overflow = '';
+  pubBurger.focus();
+}
+
+pubBurger?.addEventListener('click', () => {
+  pubDrawer.classList.contains('open') ? closeDrawer() : openDrawer();
+});
+
+pubDrawerClose?.addEventListener('click', closeDrawer);
+pubDrawerOverlay?.addEventListener('click', closeDrawer);
+
+// Fermer drawer en cliquant sur un lien (ancres / pages)
+pubDrawer?.querySelectorAll('a').forEach(link => {
+  link.addEventListener('click', () => {
+    setTimeout(closeDrawer, 60);
+  });
+});
+
+// ESC
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeDrawer(); closeLoginModal(); }
+});
+
+// Fermer au redimensionnement desktop
+window.matchMedia('(min-width: 901px)').addEventListener('change', e => {
+  if (e.matches) closeDrawer();
+});
+
+/* ── Modal login admin ───────────────────────────────────── */
+const loginModalOverlay  = document.getElementById('loginModalOverlay');
+const adminLoginBtn      = document.getElementById('adminLoginBtn');
+const adminLoginBtnMob   = document.getElementById('adminLoginBtnMobile');
+const loginModalClose    = document.getElementById('loginModalClose');
+
+function openLoginModal() {
+  closeDrawer();
+  loginModalOverlay.classList.add('modal-overlay--open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(() => document.getElementById('modal-telephone')?.focus(), 80);
+}
+
+function closeLoginModal() {
+  loginModalOverlay.classList.remove('modal-overlay--open');
+  document.body.style.overflow = '';
+}
+
+adminLoginBtn?.addEventListener('click', openLoginModal);
+adminLoginBtnMob?.addEventListener('click', openLoginModal);
+loginModalClose?.addEventListener('click', closeLoginModal);
+loginModalOverlay?.addEventListener('click', e => {
+  if (e.target === loginModalOverlay) closeLoginModal();
+});
+
+/* ── Toggle mot de passe ─────────────────────────────────── */
+const togglePwd = document.getElementById('togglePwd');
+const pwdInput  = document.getElementById('modal-password');
+togglePwd?.addEventListener('click', () => {
+  pwdInput.type = pwdInput.type === 'password' ? 'text' : 'password';
+});
+
+/* ── Auto-ouvrir modal si erreur auth ────────────────────── */
+const hasLoginError = document.querySelector('.flash--danger');
+const cameFromLogin = document.referrer.includes('/auth');
+if (hasLoginError && cameFromLogin) openLoginModal();
+
+/* ── Auto-dismiss flash ──────────────────────────────────── */
+document.querySelectorAll('.flash').forEach(el => {
+  setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateX(10px)'; }, 4000);
+  setTimeout(() => el.remove(), 4380);
+});
+</script>
+
+</body>
+</html>

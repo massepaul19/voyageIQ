@@ -1,2 +1,620 @@
-/* Styles spécifiques au module : alertes */
-/* Complétez selon les besoins du module */
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Page : Alertes
+═══════════════════════════════════════════════════════════ */
+
+/* ── Layout alertes ───────────────────────────────────── */
+.alertes-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ── Header alertes ───────────────────────────────────── */
+.alertes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.alertes-title {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--t);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.alertes-title::before {
+  content: "🚨";
+  font-size: 24px;
+}
+
+.alertes-subtitle {
+  font-size: 12px;
+  color: var(--t3);
+  margin: 4px 0 0 0;
+}
+
+/* ── Stats alertes ────────────────────────────────────── */
+.alertes-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.alerte-stat {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+}
+
+.alerte-stat__number {
+  font-size: 28px;
+  font-weight: 800;
+  font-family: var(--font-head);
+  margin-bottom: 4px;
+}
+
+.alerte-stat--critical .alerte-stat__number { color: var(--err); }
+.alerte-stat--warning .alerte-stat__number { color: var(--warn); }
+.alerte-stat--info .alerte-stat__number { color: var(--info); }
+
+.alerte-stat__label {
+  font-size: 12px;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+}
+
+/* ── Liste des alertes ────────────────────────────────── */
+.alertes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.alerte-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: all var(--dur-fast);
+  position: relative;
+  overflow: hidden;
+}
+
+.alerte-card:hover {
+  border-color: var(--gold3);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+.alerte-card--critical {
+  border-left: 4px solid var(--err);
+  background: linear-gradient(90deg, rgba(239,68,68,.05) 0%, var(--card) 20px);
+}
+
+.alerte-card--warning {
+  border-left: 4px solid var(--warn);
+  background: linear-gradient(90deg, rgba(245,158,11,.05) 0%, var(--card) 20px);
+}
+
+.alerte-card--info {
+  border-left: 4px solid var(--info);
+  background: linear-gradient(90deg, rgba(59,130,246,.05) 0%, var(--card) 20px);
+}
+
+.alerte-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.alerte-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0;
+  flex: 1;
+}
+
+.alerte-card__badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  margin-left: 8px;
+  flex-shrink: 0;
+}
+
+.alerte-card--critical .alerte-card__badge {
+  background: rgba(239,68,68,.2);
+  color: var(--err);
+}
+
+.alerte-card--warning .alerte-card__badge {
+  background: rgba(245,158,11,.2);
+  color: var(--warn);
+}
+
+.alerte-card--info .alerte-card__badge {
+  background: rgba(59,130,246,.2);
+  color: var(--info);
+}
+
+.alerte-card__message {
+  font-size: 14px;
+  color: var(--t2);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.alerte-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--t4);
+}
+
+.alerte-card__date {
+  font-family: var(--font-mono);
+}
+
+.alerte-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Actions des alertes ──────────────────────────────── */
+.alerte-action {
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--t2);
+  transition: all var(--dur-fast);
+}
+
+.alerte-action:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.alerte-action--primary {
+  background: var(--gold);
+  color: #0A0A0A;
+  border-color: var(--gold);
+}
+
+.alerte-action--primary:hover {
+  background: var(--gold2);
+}
+
+/* ── Filtres ──────────────────────────────────────────── */
+.alertes-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.alerte-filter {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--t2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.alerte-filter:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.alerte-filter.active {
+  background: var(--gold);
+  color: #0A0A0A;
+  border-color: var(--gold);
+}
+
+/* ── État vide ────────────────────────────────────────── */
+.alertes-empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--t3);
+}
+
+.alertes-empty__icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  opacity: .5;
+}
+
+.alertes-empty__title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 8px 0;
+}
+
+.alertes-empty__text {
+  font-size: 14px;
+  margin: 0;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+/* ── Animations ───────────────────────────────────────── */
+@keyframes alertePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .7; }
+}
+
+.alerte-card--critical {
+  animation: alertePulse 2s ease-in-out infinite;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .alertes-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .alertes-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .alerte-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .alerte-card__meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .alerte-card__actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .alerte-action {
+    flex: 1;
+    text-align: center;
+  }
+
+  .alertes-filters {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .alertes-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLÉMENT — Classes manquantes admin_alertes.html
+═══════════════════════════════════════════════════════════ */
+
+/* ── Alertes summary (KPI row) ──────────────────────────── */
+.alertes-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+/* ── Alerte card (variantes du template) ────────────────── */
+.alerte-card { position: relative; }
+
+.alerte-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px;
+  margin-bottom: 10px;
+}
+
+.alerte-titre {
+  font-size: 14px; font-weight: 600; color: var(--t); margin: 0; flex: 1;
+}
+
+.alerte-badge {
+  display: inline-block; padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  flex-shrink: 0;
+}
+
+.alerte-card.critical .alerte-badge { background:rgba(239,68,68,.2); color:var(--err); }
+.alerte-card.warning  .alerte-badge { background:rgba(245,158,11,.2); color:var(--warn); }
+.alerte-card.info     .alerte-badge { background:rgba(96,165,250,.2); color:var(--info); }
+
+.alerte-icon {
+  width: 34px; height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; flex-shrink: 0;
+}
+
+.alerte-card.critical .alerte-icon { background:rgba(239,68,68,.15); color:var(--err); }
+.alerte-card.warning  .alerte-icon { background:rgba(245,158,11,.15); color:var(--warn); }
+.alerte-card.info     .alerte-icon { background:rgba(96,165,250,.15); color:var(--info); }
+
+.alerte-content { flex: 1; min-width: 0; }
+
+.alerte-description {
+  font-size: 13px; color: var(--t2); line-height: 1.5; margin-bottom: 8px;
+}
+
+.alerte-meta {
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; color: var(--t3); flex-wrap: wrap;
+}
+
+.alerte-date { font-family: var(--font-mono); }
+.alerte-source { display: flex; align-items: center; gap: 4px; }
+.alerte-info  { display: flex; align-items: center; gap: 4px; }
+
+.alerte-type {
+  display: inline-block; padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: .4px;
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--t2);
+}
+
+.alerte-details {
+  padding-top: 10px;
+  border-top: 1px solid rgba(255,255,255,.04);
+  margin-top: 10px;
+  font-size: 12px; color: var(--t3);
+}
+
+.alerte-actions {
+  display: flex; align-items: center; gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,.04);
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.alerte-actions-possibles {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+}
+
+/* ── Non-lue indicator ──────────────────────────────────── */
+.alerte-card.non-lue {
+  border-left: 3px solid var(--gold);
+}
+
+.alerte-card.non-lue::before {
+  content: '';
+  position: absolute; top: 12px; right: 12px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: glowGold 2s ease infinite;
+}
+
+/* ── Type badge (avec couleur) ──────────────────────────── */
+.type-badge {
+  display: inline-block; padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .5px;
+  background: var(--gold-bg); color: var(--gold);
+}
+
+/* ── Alert confidence ───────────────────────────────────── */
+.alert-confidence {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; color: var(--t3);
+}
+
+.alert-confidence-bar {
+  width: 60px; height: 4px;
+  background: var(--bg3); border-radius: 4px; overflow: hidden;
+}
+
+.alert-confidence-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold3), var(--gold2));
+}
+
+/* ── Config sections ────────────────────────────────────── */
+.config-section {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 16px;
+}
+
+.config-options {
+  display: flex; flex-direction: column; gap: 10px; margin-top: 12px;
+}
+
+/* ── Checkbox label ─────────────────────────────────────── */
+.checkbox-label {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: var(--t2); cursor: pointer;
+}
+
+.checkbox-label input[type=checkbox] { accent-color: var(--gold); }
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLÉMENT — Filtres + summary cards (manquants)
+═══════════════════════════════════════════════════════════ */
+
+/* ── Filters section ────────────────────────────────────── */
+.filters-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  margin-bottom: 20px;
+}
+
+.filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 150px;
+}
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.filter-select,
+.filter-input {
+  height: 36px;
+  padding: 0 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--t);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast);
+  appearance: auto;
+  width: 100%;
+}
+
+.filter-select:focus,
+.filter-input:focus {
+  outline: none;
+  border-color: var(--gold3);
+}
+
+/* ── Summary cards (KPI row alertes) ────────────────────── */
+.alertes-summary {
+  margin-bottom: 24px;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+}
+
+.summary-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: border-color var(--dur-fast), transform var(--dur-fast);
+}
+
+.summary-card:hover {
+  border-color: var(--gold3);
+  transform: translateY(-2px);
+}
+
+.summary-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.summary-icon.critical { background: rgba(239,68,68,.15); color: #EF4444; }
+.summary-icon.warning  { background: rgba(245,158,11,.15); color: #F59E0B; }
+.summary-icon.info     { background: rgba(96,165,250,.15); color: #60A5FA; }
+.summary-icon.success  { background: rgba(34,197,94,.15);  color: #22C55E; }
+
+.summary-content { flex: 1; }
+
+.summary-value {
+  font-size: 26px;
+  font-weight: 800;
+  font-family: var(--font-head);
+  color: var(--t);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.summary-label {
+  font-size: 11px;
+  color: var(--t3);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  font-weight: 600;
+}
+
+/* ── filter-input (search spécifique) ───────────────────── */
+input.filter-select[type="text"],
+input.filter-input[type="text"] {
+  appearance: none;
+}
+
+/* ── Responsive filtres ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .filter-group {
+    min-width: unset;
+    width: 100%;
+  }
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,111 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Tableau de Bord Chauffeur{% endblock %}
+
+{% block page_css %}
+<style>.course-card { opacity: 0; transform: translateY(20px); }</style>
+{% endblock %}
+
+{% block content %}
+<div class="chauf-profile-banner">
+  <div class="chauf-avatar-lg">
+    {% if chauffeur.photo %}
+      <img src="{{ url_for('static', filename='images/chauffeurs/' ~ chauffeur.photo) }}" alt="">
+    {% else %}
+      <span>{{ chauffeur.nom[:1] }}</span>
+    {% endif %}
+  </div>
+  <div class="chauf-profile-info">
+    <h1 class="chauf-profile-name">Bonjour, {{ chauffeur.nom }}</h1>
+    <div class="chauf-profile-meta">
+      <span>🆔 {{ chauffeur.matricule or 'Non assigné' }}</span>
+      <span>🚐 {{ chauffeur.vehicule.immatriculation if chauffeur.vehicule else 'Pas de véhicule assigné' }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- KPIs -->
+<div class="chauf-kpi-grid">
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Courses ce mois</span>
+    <span class="chauf-kpi__value js-counter" data-target="{{ courses_count | default(24) }}">0</span>
+    <span class="chauf-kpi__sub">Moyenne: {{ courses_moyenne | default(1.2) }} / jour</span>
+  </div>
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Kilométrage total</span>
+    <span class="chauf-kpi__value js-counter" data-target="{{ chauffeur.total_km | default(12450) }}">0</span>
+    <span class="chauf-kpi__sub">Dernière course: +250 km</span>
+  </div>
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Score Ponctualité</span>
+    <span class="chauf-kpi__value js-counter" data-target="{{ chauffeur.score_ponctualite | default(98) }}" data-suffix="%">0</span>
+    <span class="chauf-kpi__sub">Excellent travail</span>
+  </div>
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Qualité Conduite</span>
+    <span class="chauf-kpi__value">4.8/5</span>
+    <span class="chauf-kpi__sub">Avis passagers</span>
+  </div>
+</div>
+
+<!-- Dernières Courses -->
+<div class="section-header">
+  <h3>Dernières courses effectuées</h3>
+  <a href="{{ url_for('chauffeur.courses') }}" class="text-gold" style="font-size: 11px;">Voir tout</a>
+</div>
+
+<div class="courses-list">
+  {% for course in chauffeur.courses[:5] %}
+  <div class="course-card">
+    <div class="course-card__date">
+      <span class="course-card__date-day">{{ course.date.day }}</span>
+      <span class="course-card__date-mon">{{ course.date.strftime('%b') }}</span>
+    </div>
+    <div class="course-card__info">
+      <span class="course-card__route">{{ course.ligne.depart }} ➔ {{ course.ligne.arrivee }}</span>
+      <div class="course-card__meta">
+        <span>🕒 {{ course.heure_depart }}</span>
+        <span>🚐 {{ course.vehicule.immatriculation }}</span>
+      </div>
+    </div>
+    <div class="course-card__right">
+      <span class="course-card__km">{{ course.km }}</span>
+      <span class="course-card__km-sub">KM</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p>Aucune course enregistrée récemment.</p>
+  </div>
+  {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Animation des compteurs
+    const counters = document.querySelectorAll('.js-counter');
+    counters.forEach(counter => {
+        const target = +counter.dataset.target;
+        const suffix = counter.dataset.suffix || '';
+        let current = 0;
+        const increment = target / 50;
+        const update = () => {
+            current += increment;
+            if (current < target) {
+                counter.innerText = Math.ceil(current).toLocaleString() + suffix;
+                setTimeout(update, 20);
+            } else {
+                counter.innerText = target.toLocaleString() + suffix;
+            }
+        };
+        update();
+    });
+
+    // Animation d'entrée des cartes
+    gsap.to(".course-card", { opacity: 1, y: 0, duration: 0.5, stagger: 0.1, ease: "power2.out" });
+});
+</script>
+{% endblock %}

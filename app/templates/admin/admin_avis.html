@@ -1,0 +1,772 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Avis — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title">
+      <i class="fas fa-comments"></i>
+      Gestion des Avis et Commentaires
+    </h1>
+    <p class="page-subtitle">Modération et analyse des retours utilisateurs</p>
+  </div>
+
+  <!-- Actions -->
+  <div class="page-actions">
+    <button class="btn btn-primary" onclick="nouveauAvis()">
+      <i class="fas fa-plus"></i>
+      Ajouter avis
+    </button>
+    <button class="btn btn-secondary" onclick="exporterAvis()">
+      <i class="fas fa-download"></i>
+      Exporter avis
+    </button>
+    <button class="btn btn-info" onclick="reglesModeration()">
+      <i class="fas fa-gavel"></i>
+      Règles modération
+    </button>
+  </div>
+
+  <!-- Résumé avis -->
+  <div class="avis-summary">
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon total">
+          <i class="fas fa-comment-dots"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ avis.total }}</div>
+          <div class="summary-label">Avis totaux</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon pending">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ avis.en_attente }}</div>
+          <div class="summary-label">En attente</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon approved">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ avis.approuves }}</div>
+          <div class="summary-label">Approuvés</div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon rejected">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="summary-content">
+          <div class="summary-value">{{ avis.rejetes }}</div>
+          <div class="summary-label">Rejetés</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Graphiques -->
+  <div class="avis-charts">
+    <div class="chart-container">
+      <canvas id="ratingChart"></canvas>
+    </div>
+    <div class="chart-container">
+      <canvas id="categoryChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Filtres -->
+  <div class="filters-section">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label class="filter-label">Rechercher</label>
+        <input type="text" class="filter-input" id="search-input" placeholder="Auteur, contenu...">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Statut</label>
+        <select class="filter-select" id="status-filter">
+          <option value="">Tous</option>
+          <option value="en_attente">En attente</option>
+          <option value="approuve">Approuvé</option>
+          <option value="rejete">Rejeté</option>
+          <option value="signale">Signalé</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Note</label>
+        <select class="filter-select" id="rating-filter">
+          <option value="">Toutes</option>
+          <option value="5">5 étoiles</option>
+          <option value="4">4 étoiles</option>
+          <option value="3">3 étoiles</option>
+          <option value="2">2 étoiles</option>
+          <option value="1">1 étoile</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Catégorie</label>
+        <select class="filter-select" id="category-filter">
+          <option value="">Toutes</option>
+          <option value="service">Service</option>
+          <option value="confort">Confort</option>
+          <option value="ponctualite">Ponctualité</option>
+          <option value="securite">Sécurité</option>
+          <option value="prix">Prix</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Liste des avis -->
+  <div class="avis-list">
+    {% for avis_item in avis.liste %}
+    <div class="avis-card status-{{ avis_item.statut }}">
+      <div class="avis-header">
+        <div class="avis-author">
+          <div class="author-avatar">
+            {% if avis_item.avatar %}
+              <img src="{{ avis_item.avatar }}" alt="Avatar">
+            {% else %}
+              <i class="fas fa-user"></i>
+            {% endif %}
+          </div>
+          <div class="author-info">
+            <div class="author-name">{{ avis_item.auteur }}</div>
+            <div class="avis-meta">
+              <span class="avis-date">{{ avis_item.created_at.strftime('%d/%m/%Y %H:%M') }}</span>
+              {% if avis_item.ligne %}
+                <span class="avis-ligne">{{ avis_item.ligne }}</span>
+              {% endif %}
+              {% if avis_item.vehicule %}
+                <span class="avis-vehicule">{{ avis_item.vehicule }}</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+        <div class="avis-rating">
+          <div class="rating-stars">
+            {% for i in range(5) %}
+              <i class="fas fa-star {{ 'filled' if i < avis_item.note else '' }}"></i>
+            {% endfor %}
+          </div>
+          <span class="rating-text">{{ avis_item.note }}/5</span>
+        </div>
+        <div class="avis-status">
+          <span class="status-badge {{ avis_item.statut }}">{{ avis_item.statut_label }}</span>
+        </div>
+        <div class="avis-actions">
+          <button class="action-btn" onclick="voirAvis({{ avis_item.id }})" title="Voir détails">
+            <i class="fas fa-eye"></i>
+          </button>
+          {% if avis_item.statut == 'en_attente' %}
+            <button class="action-btn" onclick="approuverAvis({{ avis_item.id }})" title="Approuver">
+              <i class="fas fa-check"></i>
+            </button>
+            <button class="action-btn" onclick="rejeterAvis({{ avis_item.id }})" title="Rejeter">
+              <i class="fas fa-times"></i>
+            </button>
+          {% endif %}
+          <button class="action-btn" onclick="signalerAvis({{ avis_item.id }})" title="Signaler">
+            <i class="fas fa-flag"></i>
+          </button>
+          <button class="action-btn" onclick="supprimerAvis({{ avis_item.id }})" title="Supprimer">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      <div class="avis-content">
+        <div class="avis-text">{{ avis_item.contenu }}</div>
+        {% if avis_item.categories %}
+          <div class="avis-categories">
+            {% for categorie in avis_item.categories %}
+              <span class="category-tag">{{ categorie }}</span>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if avis_item.reponse %}
+          <div class="avis-reponse">
+            <div class="reponse-header">
+              <i class="fas fa-reply"></i>
+              <span>Réponse de l'administrateur</span>
+              <span class="reponse-date">{{ avis_item.reponse_date.strftime('%d/%m/%Y %H:%M') }}</span>
+            </div>
+            <div class="reponse-content">{{ avis_item.reponse }}</div>
+          </div>
+        {% endif %}
+      </div>
+      {% if avis_item.signals %}
+        <div class="avis-signals">
+          <i class="fas fa-exclamation-triangle"></i>
+          <span>{{ avis_item.signals }} signalement(s)</span>
+        </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    {% if avis.liste.has_prev %}
+      <a href="{{ url_for('admin.avis', page=avis.liste.prev_num) }}" class="page-link">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    {% else %}
+      <span class="page-link disabled">
+        <i class="fas fa-chevron-left"></i>
+      </span>
+    {% endif %}
+
+    {% for page_num in avis.liste.iter_pages() %}
+      {% if page_num %}
+        {% if page_num == avis.liste.page %}
+          <span class="page-link active">{{ page_num }}</span>
+        {% else %}
+          <a href="{{ url_for('admin.avis', page=page_num) }}" class="page-link">{{ page_num }}</a>
+        {% endif %}
+      {% else %}
+        <span class="page-link disabled">...</span>
+      {% endif %}
+    {% endfor %}
+
+    {% if avis.liste.has_next %}
+      <a href="{{ url_for('admin.avis', page=avis.liste.next_num) }}" class="page-link">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    {% else %}
+      <span class="page-link disabled">
+        <i class="fas fa-chevron-right"></i>
+      </span>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Modal avis -->
+<div id="avis-modal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3 id="modal-title">Détails de l'avis</h3>
+      <button class="modal-close" onclick="closeAvisModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div id="avis-details">
+      <!-- Les détails seront chargés dynamiquement -->
+    </div>
+  </div>
+</div>
+
+<!-- Modal réponse -->
+<div id="reponse-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Répondre à l'avis</h3>
+      <button class="modal-close" onclick="closeReponseModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="reponse-form" method="post">
+      <input type="hidden" id="reponse-avis-id" name="avis_id">
+      <div class="form-group">
+        <label class="form-label">Réponse *</label>
+        <textarea class="form-textarea" id="reponse-contenu" name="reponse" rows="6" required placeholder="Votre réponse à l'utilisateur..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="reponse-publique" name="publique" checked>
+          Rendre la réponse publique
+        </label>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="reponse-email" name="envoyer_email">
+          Envoyer par email à l'utilisateur
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeReponseModal()">Annuler</button>
+        <button type="submit" class="btn btn-primary">Envoyer réponse</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal rejet -->
+<div id="rejet-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>Rejeter l'avis</h3>
+      <button class="modal-close" onclick="closeRejetModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <form id="rejet-form" method="post">
+      <input type="hidden" id="rejet-avis-id" name="avis_id">
+      <div class="form-group">
+        <label class="form-label">Raison du rejet *</label>
+        <select class="form-select" id="raison-rejet" name="raison" required>
+          <option value="">Sélectionner une raison</option>
+          <option value="contenu_inapproprie">Contenu inapproprié</option>
+          <option value="spam">Spam</option>
+          <option value="fausse_information">Fausse information</option>
+          <option value="hors_sujet">Hors sujet</option>
+          <option value="doublon">Doublon</option>
+          <option value="autre">Autre</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Commentaire (optionnel)</label>
+        <textarea class="form-textarea" id="rejet-commentaire" name="commentaire" rows="3" placeholder="Explication du rejet..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" id="rejet-notifier" name="notifier_auteur">
+          Notifier l'auteur du rejet
+        </label>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn" onclick="closeRejetModal()">Annuler</button>
+        <button type="submit" class="btn btn-danger">Rejeter avis</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal règles modération -->
+<div id="regles-modal" class="modal">
+  <div class="modal-content large">
+    <div class="modal-header">
+      <h3>Règles de modération</h3>
+      <button class="modal-close" onclick="closeReglesModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="regles-content">
+      <div class="regles-section">
+        <h4>Contenu approuvé automatiquement</h4>
+        <ul>
+          <li>Avis constructifs avec note ≥ 3</li>
+          <li>Commentaires neutres sur les services</li>
+          <li>Témoignages positifs</li>
+        </ul>
+      </div>
+      <div class="regles-section">
+        <h4>Contenu nécessitant modération</h4>
+        <ul>
+          <li>Avis avec note ≤ 2</li>
+          <li>Contenu potentiellement offensant</li>
+          <li>Informations sensibles</li>
+          <li>Critiques constructives</li>
+        </ul>
+      </div>
+      <div class="regles-section">
+        <h4>Contenu rejeté automatiquement</h4>
+        <ul>
+          <li>Contenu haineux ou discriminatoire</li>
+          <li>Spam et publicité</li>
+          <li>Informations fausses</li>
+          <li>Violation des conditions d'utilisation</li>
+        </ul>
+      </div>
+      <div class="regles-section">
+        <h4>Procédures de réponse</h4>
+        <ul>
+          <li>Répondre sous 24h aux avis négatifs</li>
+          <li>Remercier pour les retours positifs</li>
+          <li>Proposer des solutions aux problèmes</li>
+          <li>Inviter au dialogue constructif</li>
+        </ul>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn" onclick="closeReglesModal()">Fermer</button>
+      <button type="button" class="btn btn-primary" onclick="modifierRegles()">Modifier règles</button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+let currentAvisId = null;
+let ratingChart = null;
+let categoryChart = null;
+
+function initCharts() {
+  // Graphique des notes
+  const ratingCtx = document.getElementById('ratingChart').getContext('2d');
+  ratingChart = new Chart(ratingCtx, {
+    type: 'bar',
+    data: {
+      labels: ['1 étoile', '2 étoiles', '3 étoiles', '4 étoiles', '5 étoiles'],
+      datasets: [{
+        label: 'Nombre d\'avis',
+        data: {{ avis.stats_notes|tojson }},
+        backgroundColor: [
+          '#EF4444',
+          '#F59E0B',
+          '#FCD34D',
+          '#34D399',
+          '#10B981'
+        ],
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        title: {
+          display: true,
+          text: 'Répartition des notes'
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true
+        }
+      }
+    }
+  });
+
+  // Graphique des catégories
+  const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+  categoryChart = new Chart(categoryCtx, {
+    type: 'doughnut',
+    data: {
+      labels: {{ avis.categories_labels|tojson }},
+      datasets: [{
+        data: {{ avis.categories_data|tojson }},
+        backgroundColor: [
+          '#3B82F6',
+          '#8B5CF6',
+          '#06B6D4',
+          '#10B981',
+          '#F59E0B',
+          '#EF4444'
+        ]
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        title: {
+          display: true,
+          text: 'Répartition par catégorie'
+        }
+      }
+    }
+  });
+}
+
+function nouveauAvis() {
+  showNotification('Fonction d\'ajout d\'avis à implémenter', 'info');
+}
+
+function exporterAvis() {
+  const filters = {
+    status: document.getElementById('status-filter').value,
+    rating: document.getElementById('rating-filter').value,
+    category: document.getElementById('category-filter').value
+  };
+
+  const params = new URLSearchParams(filters);
+  window.open(`/admin/api/avis/export?${params}`, '_blank');
+}
+
+function reglesModeration() {
+  document.getElementById('regles-modal').style.display = 'flex';
+}
+
+function closeReglesModal() {
+  document.getElementById('regles-modal').style.display = 'none';
+}
+
+function modifierRegles() {
+  showNotification('Modification des règles à implémenter', 'info');
+}
+
+function voirAvis(avisId) {
+  fetch(`/admin/api/avis/${avisId}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById('modal-title').textContent = `Avis de ${data.auteur}`;
+      document.getElementById('avis-details').innerHTML = createAvisDetailsHTML(data);
+      document.getElementById('avis-modal').style.display = 'flex';
+    })
+    .catch(error => {
+      console.error('Erreur chargement avis:', error);
+      showNotification('Erreur lors du chargement de l\'avis', 'error');
+    });
+}
+
+function createAvisDetailsHTML(avis) {
+  const stars = Array.from({length: 5}, (_, i) =>
+    `<i class="fas fa-star ${i < avis.note ? 'filled' : ''}"></i>`
+  ).join('');
+
+  return `
+    <div class="avis-details">
+      <div class="details-section">
+        <div class="avis-header-detail">
+          <div class="author-info-detail">
+            <div class="author-avatar-large">
+              ${avis.avatar ? `<img src="${avis.avatar}" alt="Avatar">` : '<i class="fas fa-user"></i>'}
+            </div>
+            <div class="author-details">
+              <h4>${avis.auteur}</h4>
+              <div class="avis-meta-detail">
+                <span>${avis.created_at}</span>
+                ${avis.ligne ? `<span>Ligne: ${avis.ligne}</span>` : ''}
+                ${avis.vehicule ? `<span>Véhicule: ${avis.vehicule}</span>` : ''}
+              </div>
+            </div>
+          </div>
+          <div class="avis-rating-detail">
+            <div class="rating-stars-large">${stars}</div>
+            <span class="rating-number">${avis.note}/5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <h4>Contenu de l'avis</h4>
+        <div class="avis-content-detail">
+          <p>${avis.contenu}</p>
+        </div>
+        ${avis.categories ? `
+          <div class="avis-categories-detail">
+            <strong>Catégories:</strong>
+            ${avis.categories.map(cat => `<span class="category-tag">${cat}</span>`).join('')}
+          </div>
+        ` : ''}
+      </div>
+
+      ${avis.reponse ? `
+        <div class="details-section">
+          <h4>Réponse de l'administrateur</h4>
+          <div class="avis-reponse-detail">
+            <div class="reponse-meta">
+              <span>Répondu le ${avis.reponse_date}</span>
+            </div>
+            <div class="reponse-content-detail">
+              <p>${avis.reponse}</p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <div class="details-section">
+        <h4>Informations système</h4>
+        <div class="system-info">
+          <div class="info-item">
+            <span class="info-label">ID:</span>
+            <span class="info-value">${avis.id}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Statut:</span>
+            <span class="info-value status-${avis.statut}">${avis.statut_label}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Signalements:</span>
+            <span class="info-value">${avis.signals || 0}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">IP:</span>
+            <span class="info-value">${avis.ip_address || 'N/A'}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="details-actions">
+        ${avis.statut === 'en_attente' ? `
+          <button class="btn btn-success" onclick="approuverAvis(${avis.id})">
+            <i class="fas fa-check"></i>
+            Approuver
+          </button>
+          <button class="btn btn-danger" onclick="rejeterAvis(${avis.id})">
+            <i class="fas fa-times"></i>
+            Rejeter
+          </button>
+        ` : ''}
+        <button class="btn btn-primary" onclick="repondreAvis(${avis.id})">
+          <i class="fas fa-reply"></i>
+          Répondre
+        </button>
+        <button class="btn btn-warning" onclick="signalerAvis(${avis.id})">
+          <i class="fas fa-flag"></i>
+          Signaler
+        </button>
+        <button class="btn btn-secondary" onclick="closeAvisModal()">
+          Fermer
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function closeAvisModal() {
+  document.getElementById('avis-modal').style.display = 'none';
+}
+
+function approuverAvis(avisId) {
+  if (confirm('Approuver cet avis ?')) {
+    fetch(`/admin/api/avis/${avisId}/approuver`, { method: 'POST' })
+      .then(response => {
+        if (response.ok) {
+          location.reload();
+        } else {
+          throw new Error('Erreur lors de l\'approbation');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors de l\'approbation', 'error');
+      });
+  }
+}
+
+function rejeterAvis(avisId) {
+  currentAvisId = avisId;
+  document.getElementById('rejet-avis-id').value = avisId;
+  document.getElementById('rejet-modal').style.display = 'flex';
+}
+
+function closeRejetModal() {
+  document.getElementById('rejet-modal').style.display = 'none';
+  currentAvisId = null;
+}
+
+function signalerAvis(avisId) {
+  if (confirm('Signaler cet avis comme problématique ?')) {
+    fetch(`/admin/api/avis/${avisId}/signaler`, { method: 'POST' })
+      .then(response => {
+        if (response.ok) {
+          showNotification('Avis signalé', 'warning');
+        } else {
+          throw new Error('Erreur lors du signalement');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors du signalement', 'error');
+      });
+  }
+}
+
+function supprimerAvis(avisId) {
+  if (confirm('Êtes-vous sûr de vouloir supprimer cet avis ? Cette action est irréversible.')) {
+    fetch(`/admin/api/avis/${avisId}`, { method: 'DELETE' })
+      .then(response => {
+        if (response.ok) {
+          location.reload();
+        } else {
+          throw new Error('Erreur lors de la suppression');
+        }
+      })
+      .catch(error => {
+        console.error('Erreur:', error);
+        showNotification('Erreur lors de la suppression', 'error');
+      });
+  }
+}
+
+function repondreAvis(avisId) {
+  currentAvisId = avisId;
+  document.getElementById('reponse-avis-id').value = avisId;
+  document.getElementById('reponse-modal').style.display = 'flex';
+}
+
+function closeReponseModal() {
+  document.getElementById('reponse-modal').style.display = 'none';
+  currentAvisId = null;
+}
+
+// Recherche et filtres
+document.getElementById('search-input').addEventListener('input', filterAvis);
+document.getElementById('status-filter').addEventListener('change', filterAvis);
+document.getElementById('rating-filter').addEventListener('change', filterAvis);
+document.getElementById('category-filter').addEventListener('change', filterAvis);
+
+function filterAvis() {
+  const searchTerm = document.getElementById('search-input').value.toLowerCase();
+  const statusFilter = document.getElementById('status-filter').value;
+  const ratingFilter = document.getElementById('rating-filter').value;
+  const categoryFilter = document.getElementById('category-filter').value;
+
+  const avisCards = document.querySelectorAll('.avis-card');
+
+  avisCards.forEach(card => {
+    const auteur = card.querySelector('.author-name').textContent.toLowerCase();
+    const contenu = card.querySelector('.avis-text').textContent.toLowerCase();
+    const status = card.className.match(/status-(\w+)/)?.[1] || '';
+    const rating = card.querySelector('.rating-text').textContent.split('/')[0];
+    const categories = Array.from(card.querySelectorAll('.category-tag')).map(tag => tag.textContent.toLowerCase());
+
+    const matchesSearch = auteur.includes(searchTerm) || contenu.includes(searchTerm);
+    const matchesStatus = !statusFilter || status === statusFilter;
+    const matchesRating = !ratingFilter || rating === ratingFilter;
+    const matchesCategory = !categoryFilter || categories.some(cat => cat.includes(categoryFilter));
+
+    card.style.display = matchesSearch && matchesStatus && matchesRating && matchesCategory ? '' : 'none';
+  });
+}
+
+function showNotification(message, type = 'info') {
+  const notification = document.createElement('div');
+  notification.className = `notification notification--${type}`;
+  notification.textContent = message;
+  notification.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'error' ? '#EF4444' : type === 'warning' ? '#F59E0B' : '#22C55E'};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    z-index: 3000;
+    animation: slideInRight 0.3s ease;
+  `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.style.animation = 'slideOutRight 0.3s ease';
+    setTimeout(() => document.body.removeChild(notification), 300);
+  }, 3000);
+}
+
+// Initialisation
+document.addEventListener('DOMContentLoaded', function() {
+  initCharts();
+});
+
+// Fermer modals en cliquant en dehors
+document.getElementById('avis-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeAvisModal();
+});
+
+document.getElementById('reponse-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReponseModal();
+});
+
+document.getElementById('rejet-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeRejetModal();
+});
+
+document.getElementById('regles-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeReglesModal();
+});
+</script>
+{% endblock %}

@@ -1,2 +1,183 @@
-/* Styles spécifiques au module : dashboard */
-/* Complétez selon les besoins du module */
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ Pro — Dashboard page
+   Fichier source : static/css/pages/dashboard.css
+═══════════════════════════════════════════════════════════ */
+
+/* ── Charts section ─────────────────────────────────────── */
+.charts-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.chart-canvas-wrap    { position: relative; height: 220px; }
+.chart-canvas-wrap-sm { position: relative; height: 200px; }
+
+/* ── Bottom 3-col grid ──────────────────────────────────── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ── Alerts in dashboard ────────────────────────────────── */
+.alerts-list { display: flex; flex-direction: column; gap: 8px; }
+
+.alert-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg3);
+  border-left: 3px solid;
+}
+
+.alert-item.danger  { border-left-color: var(--err);  background: rgba(239,68,68,.05); }
+.alert-item.warning { border-left-color: var(--warn); background: rgba(245,158,11,.05); }
+.alert-item.info    { border-left-color: var(--info); background: rgba(96,165,250,.05); }
+.alert-item.success { border-left-color: var(--ok);   background: rgba(34,197,94,.05); }
+
+.alert-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  margin-top: 5px; flex-shrink: 0;
+}
+
+.alert-item.danger  .alert-dot { background: var(--err); }
+.alert-item.warning .alert-dot { background: var(--warn); }
+.alert-item.info    .alert-dot { background: var(--info); }
+.alert-item.success .alert-dot { background: var(--ok); }
+
+.alert-body  { flex: 1; }
+.alert-title { font-size: 12px; font-weight: 600; color: var(--t); }
+.alert-desc  { font-size: 11px; color: var(--t3); margin-top: 1px; }
+.alert-time  { font-size: 10px; color: var(--t3); font-family: var(--font-mono); white-space: nowrap; }
+
+/* ── Quick actions ──────────────────────────────────────── */
+.actions-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.action-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 16px 10px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--t3);
+  font-size: 11px; font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--dur-mid) var(--ease);
+}
+
+.action-btn i { font-size: 18px; color: var(--gold); }
+
+.action-btn:hover {
+  border-color: var(--gold);
+  color: var(--t);
+  background: var(--gold-bg);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-gold);
+}
+
+/* ── Live clock ─────────────────────────────────────────── */
+.live-clock-card {
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: var(--radius);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.live-clock-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(201,168,76,.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.clock-time {
+  font-family: var(--font-mono);
+  font-size: 30px; font-weight: 700;
+  color: var(--gold);
+  letter-spacing: 3px;
+  animation: clockPulse 2s ease-in-out infinite;
+}
+
+.clock-date {
+  font-size: 11px; color: var(--t3);
+  font-family: var(--font-mono);
+  margin-top: 6px; letter-spacing: .5px;
+}
+
+.clock-status {
+  margin-top: 12px;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; color: var(--ok);
+  font-family: var(--font-mono);
+}
+
+.status-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  animation: statusBlink 2s ease infinite;
+}
+
+/* ── Line performance bars ──────────────────────────────── */
+.ligne-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid rgba(255,255,255,.03);
+  font-size: 12px;
+}
+
+.ligne-row:last-child { border-bottom: none; }
+.ligne-name { font-weight: 600; color: var(--t); min-width: 90px; font-size: 11px; }
+
+.ligne-bar {
+  flex: 1; height: 5px;
+  background: var(--bg3);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ligne-bar__fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--gold3), var(--gold2));
+  animation: progressFill .8s var(--ease) both;
+}
+
+.ligne-pct {
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--t3);
+  min-width: 34px; text-align: right;
+}
+
+/* ── Responsive ─────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .charts-section { grid-template-columns: 1fr; }
+  .bottom-grid    { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .bottom-grid { grid-template-columns: 1fr; }
+}

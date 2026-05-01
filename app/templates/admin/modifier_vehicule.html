@@ -1,0 +1,56 @@
+{% extends "base/base_admin.html" %}
+{% block title %}Modifier Véhicule — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+  <div class="page-header">
+    <h1 class="page-title"><i class="fas fa-bus"></i> Modifier le véhicule : {{ vehicule.immatriculation }}</h1>
+    <a href="{{ url_for('flotte.index') }}" class="btn btn-secondary">Retour</a>
+  </div>
+
+  <div class="section-card">
+    <form action="{{ url_for('flotte.modifier', vehicule_id=vehicule.id) }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() if csrf_token is defined else '' }}">
+      
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label">Immatriculation</label>
+          <input type="text" name="immatriculation" class="form-input" value="{{ vehicule.immatriculation }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Statut</label>
+          <select name="statut" class="form-select">
+            <option value="active" {{ 'selected' if vehicule.statut == 'active' }}>Actif</option>
+            <option value="maintenance" {{ 'selected' if vehicule.statut == 'maintenance' }}>En maintenance</option>
+            <option value="inactive" {{ 'selected' if vehicule.statut == 'inactive' }}>Hors service</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kilométrage actuel</label>
+          <input type="number" name="kilometrage" class="form-input" value="{{ vehicule.kilometrage or 0 }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Chauffeur assigné</label>
+            <select name="chauffeur_id" class="form-select">
+                <option value="">Aucun</option>
+                {% for chauf in chauffeurs_disponibles %}
+                <option value="{{ chauf.id }}" {{ 'selected' if vehicule.chauffeur_id == chauf.id }}>
+                    {{ chauf.nom }} ({{ chauf.matricule }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+      </div>
+
+      <div class="form-group" style="margin-top:20px;">
+        <label class="form-label">Notes techniques</label>
+        <textarea name="notes" class="form-textarea" rows="4">{{ vehicule.notes or '' }}</textarea>
+      </div>
+
+      <div style="margin-top: 30px;">
+        <button type="submit" class="btn btn-primary">Mettre à jour le véhicule</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

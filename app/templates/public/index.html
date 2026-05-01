@@ -1,0 +1,832 @@
+{% extends "base/base_public.html" %}
+
+{% block title %}VoyageIQ Transport — Transport Interurbain au Cameroun{% endblock %}
+{% block meta_description %}VoyageIQ Transport, votre agence de transport interurbain au Cameroun. Liaisons Yaoundé, Douala, Bafoussam, Kribi et plus.{% endblock %}
+
+{% block page_css %}
+<style>
+/* ══════════════════════════════════════════════════════════
+   INDEX.HTML — Styles spécifiques page d'accueil
+══════════════════════════════════════════════════════════ */
+
+/* ── Hero ──────────────────────────────────────────────── */
+.hero {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 80px 24px 120px;
+}
+
+.hero__bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 50% 20%, rgba(201,168,76,.15) 0%, transparent 60%),
+              linear-gradient(180deg, #0A0A0A 0%, #111115 100%);
+}
+
+.hero__bg-pattern {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(201,168,76,.06) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 50%, black 40%, transparent 100%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border: 1px solid rgba(201,168,76,.3);
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(201,168,76,.9);
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  background: rgba(201,168,76,.06);
+}
+
+.hero__badge-dot {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--gold, #C9A84C);
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: .5; transform: scale(.8); }
+}
+
+.hero__title {
+  font-size: clamp(36px, 7vw, 72px);
+  font-weight: 900;
+  line-height: 1.08;
+  color: #fff;
+  margin-bottom: 20px;
+  letter-spacing: -.02em;
+}
+
+.hero__title-accent {
+  color: var(--gold, #C9A84C);
+  position: relative;
+}
+
+.hero__subtitle {
+  font-size: clamp(15px, 2.5vw, 18px);
+  color: rgba(255,255,255,.5);
+  line-height: 1.7;
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.btn--lg {
+  padding: 14px 28px;
+  font-size: 15px;
+  border-radius: 10px;
+}
+
+.btn--ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: transparent;
+  color: rgba(255,255,255,.7);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all .2s;
+}
+
+.btn--ghost:hover {
+  border-color: rgba(255,255,255,.35);
+  color: #fff;
+  background: rgba(255,255,255,.05);
+}
+
+/* Stats hero */
+.hero__stats {
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 16px 28px;
+  backdrop-filter: blur(8px);
+  white-space: nowrap;
+  z-index: 1;
+}
+
+.hero__stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 0 20px;
+}
+
+.hero__stat-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--gold, #C9A84C);
+  font-family: var(--font-head, 'Sora', sans-serif);
+  line-height: 1;
+}
+
+.hero__stat-label {
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase;
+  letter-spacing: .8px;
+}
+
+.hero__stat-sep {
+  width: 1px;
+  height: 36px;
+  background: rgba(255,255,255,.1);
+}
+
+.hero__scroll-indicator {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.hero__scroll-indicator span {
+  display: block;
+  width: 24px; height: 38px;
+  border: 2px solid rgba(255,255,255,.2);
+  border-radius: 12px;
+  position: relative;
+}
+
+.hero__scroll-indicator span::after {
+  content: '';
+  position: absolute;
+  top: 6px; left: 50%;
+  transform: translateX(-50%);
+  width: 4px; height: 8px;
+  background: var(--gold, #C9A84C);
+  border-radius: 2px;
+  animation: scrollBob 2s infinite;
+}
+
+@keyframes scrollBob {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity:1; }
+  80%       { transform: translateX(-50%) translateY(12px); opacity:0; }
+}
+
+/* ── Sections ───────────────────────────────────────────── */
+.section {
+  padding: 80px 0;
+}
+
+.section--dark {
+  background: #0D0D0D;
+}
+
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.section__header {
+  text-align: center;
+  margin-bottom: 52px;
+}
+
+.section__tag {
+  display: inline-block;
+  padding: 5px 14px;
+  border-radius: 100px;
+  background: rgba(201,168,76,.1);
+  border: 1px solid rgba(201,168,76,.25);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--gold, #C9A84C);
+  margin-bottom: 14px;
+}
+
+.section__title {
+  font-size: clamp(26px, 5vw, 40px);
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 14px;
+  letter-spacing: -.02em;
+}
+
+.section__title--light { color: #fff; }
+
+.section__subtitle {
+  font-size: 15px;
+  color: rgba(255,255,255,.45);
+  max-width: 520px;
+  margin: 0 auto;
+  line-height: 1.7;
+}
+
+/* ── Lignes grid ────────────────────────────────────────── */
+.lignes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.ligne-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 20px;
+  transition: border-color .25s, transform .2s, box-shadow .25s;
+  cursor: default;
+  transform-style: preserve-3d;
+  position: relative;
+  overflow: hidden;
+}
+
+.ligne-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 3px;
+  background: var(--ligne-color, var(--gold, #C9A84C));
+  border-radius: 14px 14px 0 0;
+}
+
+.ligne-card:hover {
+  border-color: var(--ligne-color, var(--gold, #C9A84C));
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+}
+
+.ligne-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.ligne-card__code {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--ligne-color, var(--gold, #C9A84C));
+  font-family: var(--font-mono, monospace);
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid currentColor;
+}
+
+.ligne-card__freq {
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ligne-card__route {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.ligne-card__city {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  flex: 1;
+}
+
+.ligne-card__city:last-child { text-align: right; }
+
+.ligne-card__arrow { color: var(--ligne-color, var(--gold, #C9A84C)); flex-shrink: 0; }
+
+.ligne-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid rgba(255,255,255,.07);
+}
+
+.ligne-card__meta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: rgba(255,255,255,.4);
+}
+
+.ligne-card__tarif {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--gold, #C9A84C);
+}
+
+/* ── Services grid ──────────────────────────────────────── */
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.service-card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 14px;
+  padding: 24px;
+  transition: border-color .2s, transform .2s;
+}
+
+.service-card:hover {
+  border-color: rgba(201,168,76,.25);
+  transform: translateY(-3px);
+}
+
+.service-card__icon {
+  width: 50px; height: 50px;
+  border-radius: 12px;
+  background: rgba(201,168,76,.1);
+  border: 1px solid rgba(201,168,76,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold, #C9A84C);
+  margin-bottom: 16px;
+}
+
+.service-card__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.service-card__desc {
+  font-size: 13px;
+  color: rgba(255,255,255,.45);
+  line-height: 1.65;
+}
+
+/* ── CTA Chauffeur ──────────────────────────────────────── */
+.section--chauffeur-cta {
+  background: linear-gradient(135deg, rgba(201,168,76,.08), rgba(160,120,48,.04));
+  border-top: 1px solid rgba(201,168,76,.12);
+  border-bottom: 1px solid rgba(201,168,76,.12);
+}
+
+.cta-chauffeur {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  background: rgba(201,168,76,.06);
+  border: 1px solid rgba(201,168,76,.2);
+  border-radius: 18px;
+  padding: 36px 40px;
+}
+
+.cta-chauffeur__icon {
+  width: 72px; height: 72px;
+  border-radius: 16px;
+  background: rgba(201,168,76,.12);
+  border: 1px solid rgba(201,168,76,.25);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold, #C9A84C);
+  flex-shrink: 0;
+}
+
+.cta-chauffeur__content { flex: 1; }
+
+.cta-chauffeur__title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+.cta-chauffeur__text {
+  font-size: 14px;
+  color: rgba(255,255,255,.5);
+  line-height: 1.65;
+  max-width: 480px;
+}
+
+.cta-chauffeur__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ── Contact ────────────────────────────────────────────── */
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 28px 20px;
+  text-align: center;
+  transition: border-color .2s;
+}
+
+.contact-card:hover { border-color: rgba(201,168,76,.25); }
+
+.contact-card__icon {
+  width: 46px; height: 46px;
+  border-radius: 11px;
+  background: rgba(201,168,76,.1);
+  border: 1px solid rgba(201,168,76,.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold, #C9A84C);
+}
+
+.contact-card__label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,.35);
+}
+
+.contact-card__value {
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255,255,255,.8);
+}
+
+.section__cta-center { text-align: center; }
+
+/* ══════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE
+══════════════════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .cta-chauffeur {
+    flex-direction: column;
+    text-align: center;
+    padding: 28px 24px;
+    gap: 20px;
+  }
+  .cta-chauffeur__actions { flex-direction: row; flex-wrap: wrap; justify-content: center; }
+  .contact-grid { grid-template-columns: 1fr; gap: 10px; }
+}
+
+@media (max-width: 768px) {
+  .hero { padding: 60px 20px 160px; min-height: 100svh; }
+  .hero__stats {
+    flex-wrap: wrap;
+    width: calc(100% - 32px);
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 16px;
+    bottom: 24px;
+  }
+  .hero__stat { padding: 8px 12px; }
+  .hero__stat-value { font-size: 22px; }
+  .hero__stat-sep { display: none; }
+  .hero__scroll-indicator { display: none; }
+  .lignes-grid { grid-template-columns: 1fr; }
+  .services-grid { grid-template-columns: 1fr; }
+  .section { padding: 56px 0; }
+}
+
+@media (max-width: 480px) {
+  .hero { padding: 48px 16px 180px; }
+  .hero__actions { flex-direction: column; width: 100%; }
+  .hero__actions a, .hero__actions button { width: 100%; justify-content: center; }
+  .btn--lg { padding: 13px 20px; font-size: 14px; }
+  .section__header { margin-bottom: 32px; }
+  .cta-chauffeur { padding: 20px 16px; }
+  .cta-chauffeur__icon { display: none; }
+  .contact-card { padding: 20px 16px; }
+  .container { padding: 0 16px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ════════════════════════════════════════════════════════
+     HERO
+════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero__bg">
+    <div class="hero__bg-pattern"></div>
+  </div>
+
+  <div class="hero__content">
+    <div class="hero__badge">
+      <span class="hero__badge-dot"></span>
+      Transport Interurbain Cameroun
+    </div>
+    <h1 class="hero__title">
+      Voyagez avec<br>
+      <span class="hero__title-accent">confiance</span>
+    </h1>
+    <p class="hero__subtitle">
+      Des liaisons fiables entre les grandes villes du Cameroun.
+      Confort, ponctualité et sécurité à chaque trajet.
+    </p>
+    <div class="hero__actions">
+      <a href="{{ url_for('public.contact') }}" class="btn--gold btn--lg">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81"/>
+        </svg>
+        Nous contacter
+      </a>
+      <a href="#lignes" class="btn--ghost btn--lg">
+        Voir nos lignes
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="hero__stats">
+    <div class="hero__stat">
+      <span class="hero__stat-value" data-count="{{ stats.total_voyages | default(0) }}">0</span>
+      <span class="hero__stat-label">Voyages</span>
+    </div>
+    <div class="hero__stat-sep"></div>
+    <div class="hero__stat">
+      <span class="hero__stat-value" data-count="{{ stats.total_lignes | default(7) }}">0</span>
+      <span class="hero__stat-label">Lignes</span>
+    </div>
+    <div class="hero__stat-sep"></div>
+    <div class="hero__stat">
+      <span class="hero__stat-value" data-count="{{ stats.total_vehicules | default(8) }}">0</span>
+      <span class="hero__stat-label">Véhicules</span>
+    </div>
+    <div class="hero__stat-sep"></div>
+    <div class="hero__stat">
+      <span class="hero__stat-value" data-count="{{ stats.satisfaction | default(94) }}">0</span>
+      <span class="hero__stat-label">% Satisfaction</span>
+    </div>
+  </div>
+
+  <div class="hero__scroll-indicator"><span></span></div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     NOS LIGNES
+════════════════════════════════════════════════════════ -->
+<section class="section" id="lignes">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">Nos destinations</div>
+      <h2 class="section__title">Lignes de transport</h2>
+      <p class="section__subtitle">
+        Des liaisons directes entre les principales villes du Cameroun,
+        avec des départs réguliers tout au long de la journée.
+      </p>
+    </div>
+
+    <div class="lignes-grid">
+      {% for ligne in lignes | default([]) %}
+      <div class="ligne-card" style="--ligne-color: {{ ligne.couleur | default('#C9A84C') }}">
+        <div class="ligne-card__header">
+          <span class="ligne-card__code">{{ ligne.code }}</span>
+          <span class="ligne-card__freq">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ ligne.frequence }}x/jour
+          </span>
+        </div>
+        <div class="ligne-card__route">
+          <span class="ligne-card__city">{{ ligne.depart }}</span>
+          <div class="ligne-card__arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+          <span class="ligne-card__city">{{ ligne.arrivee }}</span>
+        </div>
+        <div class="ligne-card__footer">
+          <div class="ligne-card__meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+            {{ ligne.km }} km
+          </div>
+          <div class="ligne-card__tarif">{{ "{:,.0f}".format(ligne.tarif) }} FCFA</div>
+        </div>
+      </div>
+      {% else %}
+      {# Données de démo si pas de lignes en BDD #}
+      {% for code, dep, arr, km, tarif, freq, color in [
+        ('L01','Yaoundé','Douala','250','3 500','8','#C9A84C'),
+        ('L02','Yaoundé','Bafoussam','310','4 000','6','#A07830'),
+        ('L03','Douala','Kribi','195','2 500','5','#E8C96A'),
+        ('L04','Yaoundé','Bertoua','350','4 500','4','#6B5520'),
+        ('L05','Douala','Limbé','70','1 000','10','#4080A0'),
+        ('L06','Yaoundé','Ngaoundéré','420','6 000','2','#805040'),
+      ] %}
+      <div class="ligne-card" style="--ligne-color: {{ color }}">
+        <div class="ligne-card__header">
+          <span class="ligne-card__code">{{ code }}</span>
+          <span class="ligne-card__freq">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            {{ freq }}x/jour
+          </span>
+        </div>
+        <div class="ligne-card__route">
+          <span class="ligne-card__city">{{ dep }}</span>
+          <div class="ligne-card__arrow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+          </div>
+          <span class="ligne-card__city">{{ arr }}</span>
+        </div>
+        <div class="ligne-card__footer">
+          <div class="ligne-card__meta">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+            </svg>
+            {{ km }} km
+          </div>
+          <div class="ligne-card__tarif">{{ tarif }} FCFA</div>
+        </div>
+      </div>
+      {% endfor %}
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     NOS SERVICES
+════════════════════════════════════════════════════════ -->
+<section class="section section--dark" id="services">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">Ce que nous offrons</div>
+      <h2 class="section__title">Nos services</h2>
+    </div>
+
+    <div class="services-grid">
+      {% for icon_d, title, desc in [
+        ('<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+         'Sécurité', 'Véhicules régulièrement entretenus et chauffeurs expérimentés pour votre sécurité totale.'),
+        ('<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+         'Ponctualité', 'Des départs planifiés et un suivi en temps réel pour respecter vos horaires.'),
+        ('<path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>',
+         'Confort', 'Des véhicules modernes et spacieux pour des trajets confortables et agréables.'),
+        ('<rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>',
+         'Flotte moderne', 'Une flotte de minibus et bus régulièrement renouvelée et entretenue.'),
+        ('<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>',
+         'Tarifs compétitifs', 'Des prix accessibles pour tous les budgets sur toutes nos lignes.'),
+        ('<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>',
+         'Réseau étendu', 'Couverture des principales villes et régions du Cameroun.'),
+      ] %}
+      <div class="service-card">
+        <div class="service-card__icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+               stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            {{ icon_d | safe }}
+          </svg>
+        </div>
+        <h3 class="service-card__title">{{ title }}</h3>
+        <p class="service-card__desc">{{ desc }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     CTA CHAUFFEUR
+════════════════════════════════════════════════════════ -->
+<section class="section section--chauffeur-cta">
+  <div class="container">
+    <div class="cta-chauffeur">
+      <div class="cta-chauffeur__icon">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="1" y="3" width="15" height="13" rx="2"/>
+          <path d="M16 8h4l3 3v5h-7V8z"/>
+          <circle cx="5.5" cy="18.5" r="2.5"/>
+          <circle cx="18.5" cy="18.5" r="2.5"/>
+        </svg>
+      </div>
+      <div class="cta-chauffeur__content">
+        <h2 class="cta-chauffeur__title">Vous êtes chauffeur ?</h2>
+        <p class="cta-chauffeur__text">
+          Rejoignez notre réseau. Accédez à votre espace personnel,
+          suivez vos courses, consultez vos statistiques et gérez votre profil.
+        </p>
+      </div>
+      <div class="cta-chauffeur__actions">
+        <a href="{{ url_for('chauffeur.inscription') }}" class="btn--gold btn--lg">
+          S'inscrire comme chauffeur
+        </a>
+        <a href="{{ url_for('auth_chauffeur.login') }}" class="btn--ghost">
+          J'ai déjà un compte
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════════════════════════════════════════════
+     CONTACT RAPIDE
+════════════════════════════════════════════════════════ -->
+<section class="section" id="contact-rapide">
+  <div class="container">
+    <div class="section__header">
+      <div class="section__tag">Nous joindre</div>
+      <h2 class="section__title">Contactez-nous</h2>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.02 1.22 2 2 0 012 0h3a2 2 0 012 1.72"/>
+          </svg>
+        </div>
+        <span class="contact-card__label">Téléphone</span>
+        <span class="contact-card__value">+237 6XX XXX XXX</span>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+            <polyline points="22,6 12,13 2,6"/>
+          </svg>
+        </div>
+        <span class="contact-card__label">Email</span>
+        <span class="contact-card__value">contact@voyageiq.cm</span>
+      </div>
+      <div class="contact-card">
+        <div class="contact-card__icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+        </div>
+        <span class="contact-card__label">Adresse</span>
+        <span class="contact-card__value">Yaoundé, Cameroun</span>
+      </div>
+    </div>
+
+    <div class="section__cta-center">
+      <a href="{{ url_for('public.contact') }}" class="btn--gold btn--lg">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+          <polyline points="22,6 12,13 2,6"/>
+        </svg>
+        Envoyer un message
+      </a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

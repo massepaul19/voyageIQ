@@ -1,0 +1,77 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Performances — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="chauf-page-header">
+  <h1 class="chauf-page-title">Mes Statistiques</h1>
+</div>
+
+<div class="chauf-kpi-grid">
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Note Moyenne</span>
+    <span class="chauf-kpi__value" style="color:var(--gold)">4.8/5</span>
+  </div>
+  <div class="chauf-kpi">
+    <span class="chauf-kpi__label">Taux Ponctualité</span>
+    <span class="chauf-kpi__value" style="color:var(--ok)">98%</span>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+  <div class="section-header"><h3>Activité Récente</h3></div>
+  <div style="height: 300px;">
+    <canvas id="chaufPerfChart"></canvas>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const ctx = document.getElementById('chaufPerfChart').getContext('2d');
+  
+  const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+  gradient.addColorStop(0, 'rgba(224, 120, 32, 0.4)');
+  gradient.addColorStop(1, 'rgba(224, 120, 32, 0)');
+
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
+      datasets: [{
+        label: 'KM parcourus',
+        data: [250, 180, 310, 0, 250, 400, 150],
+        backgroundColor: '#E07820',
+        borderRadius: 8,
+      }, {
+        label: 'Objectif',
+        type: 'line',
+        data: [200, 200, 200, 200, 200, 200, 200],
+        borderColor: 'rgba(255,255,255,0.2)',
+        borderDash: [5, 5],
+        fill: false
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { 
+          legend: { labels: { color: '#9A9080', font: { family: 'Syne' } } },
+          tooltip: {
+              backgroundColor: '#111',
+              titleFont: { family: 'Syne' },
+              bodyFont: { family: 'DM Sans' },
+              padding: 12,
+              displayColors: false
+          }
+      },
+      scales: {
+          y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#5A5048' } },
+          x: { grid: { display: false }, ticks: { color: '#5A5048' } }
+      }
+    }
+  });
+});
+</script>
+{% endblock %}

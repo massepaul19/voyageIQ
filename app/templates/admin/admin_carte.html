@@ -1,0 +1,489 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Carte & Itinéraires — VoyageIQ{% endblock %}
+{% block breadcrumb %}Carte & GPS{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/carte.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page carte-admin-page">
+
+  <!-- ── En-tête ─────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+        </svg>
+        Carte &amp; Itinéraires
+      </h1>
+      <p class="page-subtitle">Planification et visualisation des routes de transport</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn--ghost btn--sm" onclick="importerCarte()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        Importer
+      </button>
+      <button class="btn btn--ghost btn--sm" onclick="exporterCarte()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Exporter
+      </button>
+      <button class="btn btn--ghost btn--sm" onclick="optimiserRoutes()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Optimiser
+      </button>
+      <button class="btn btn--gold btn--sm" onclick="nouvelItineraire()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Nouvel itinéraire
+      </button>
+    </div>
+  </div>
+
+  <!-- ── KPI rapides ──────────────────────────────────────── -->
+  <div class="carte-kpi-row">
+    <div class="carte-kpi">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 12h18M3 6h18M3 18h18"/>
+      </svg>
+      <div>
+        <div class="carte-kpi__val">{{ cartes.itineraires }}</div>
+        <div class="carte-kpi__lbl">Itinéraires</div>
+      </div>
+    </div>
+    <div class="carte-kpi">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      <div>
+        <div class="carte-kpi__val">{{ cartes.arrets }}</div>
+        <div class="carte-kpi__lbl">Arrêts</div>
+      </div>
+    </div>
+    <div class="carte-kpi">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+      <div>
+        <div class="carte-kpi__val">{{ cartes.distance_totale }} km</div>
+        <div class="carte-kpi__lbl">Distance totale</div>
+      </div>
+    </div>
+    <div class="carte-kpi">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      <div>
+        <div class="carte-kpi__val">{{ cartes.temps_moyen }}</div>
+        <div class="carte-kpi__lbl">Temps moyen</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Zone principale : sidebar + carte ────────────────── -->
+  <div class="carte-content">
+
+    <!-- Sidebar gauche -->
+    <aside class="carte-sidebar" id="carte-sidebar">
+
+      <!-- Outils de dessin -->
+      <div class="csb-section">
+        <div class="csb-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+          Outils de dessin
+        </div>
+        <div class="drawing-tools">
+          <button class="tool-btn active" onclick="setTool('select')" title="Sélection" data-tool="select">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M5 3l14 9-7 1-4 7z"/>
+            </svg>
+          </button>
+          <button class="tool-btn" onclick="setTool('marker')" title="Ajouter arrêt" data-tool="marker">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </button>
+          <button class="tool-btn" onclick="setTool('route')" title="Tracer route" data-tool="route">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </button>
+          <button class="tool-btn" onclick="setTool('measure')" title="Mesurer distance" data-tool="measure">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 12h20M2 12l4-4M2 12l4 4M22 12l-4-4M22 12l-4 4"/>
+            </svg>
+          </button>
+        </div>
+        <div class="tool-options" id="tool-options"></div>
+      </div>
+
+      <!-- Couches -->
+      <div class="csb-section">
+        <div class="csb-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/>
+          </svg>
+          Couches
+        </div>
+        <div class="layers-list">
+          <label class="layer-item" data-layer="routes">
+            <input type="checkbox" checked onchange="toggleLayer('routes')">
+            <span class="layer-dot" style="background:var(--gold)"></span>
+            <span>Itinéraires</span>
+          </label>
+          <label class="layer-item" data-layer="stops">
+            <input type="checkbox" checked onchange="toggleLayer('stops')">
+            <span class="layer-dot" style="background:#F97316"></span>
+            <span>Arrêts</span>
+          </label>
+          <label class="layer-item" data-layer="drawing">
+            <input type="checkbox" checked onchange="toggleLayer('drawing')">
+            <span class="layer-dot" style="background:#60A5FA"></span>
+            <span>Dessin en cours</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Itinéraires -->
+      <div class="csb-section csb-section--flex">
+        <div class="csb-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+          </svg>
+          Itinéraires
+        </div>
+        <div class="itineraires-list" id="itineraires-list">
+          {% for itineraire in itineraires %}
+          <div class="itineraire-item" data-itineraire-id="{{ itineraire.id }}">
+            <div class="itineraire-header">
+              <div class="itineraire-color" style="background:{{ itineraire.couleur | default('#C9A84C') }}"></div>
+              <div class="itineraire-nom">{{ itineraire.nom }}</div>
+              <div class="itineraire-actions">
+                <button class="itineraire-btn" onclick="editerItineraire({{ itineraire.id }})" title="Éditer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                </button>
+                <button class="itineraire-btn" onclick="dupliquerItineraire({{ itineraire.id }})" title="Dupliquer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                  </svg>
+                </button>
+                <button class="itineraire-btn itineraire-btn--del" onclick="supprimerItineraire({{ itineraire.id }})" title="Supprimer">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+                    <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="itineraire-stats">
+              <span>{{ itineraire.arrets | default(0) }} arrêts</span>
+              <span>{{ itineraire.distance | default(0) }} km</span>
+              <span>{{ itineraire.temps_estime | default('—') }}</span>
+            </div>
+          </div>
+          {% else %}
+          <div class="empty-itineraires">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+              <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+            </svg>
+            <span>Aucun itinéraire</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Recherche adresse -->
+      <div class="csb-section">
+        <div class="csb-title">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Recherche
+        </div>
+        <div class="addr-search-box">
+          <input type="text" id="address-search" class="addr-input" placeholder="Rechercher une adresse…">
+          <button class="addr-btn" onclick="searchAddress()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+          </button>
+        </div>
+        <div id="search-results" class="search-results-list"></div>
+      </div>
+
+    </aside>
+
+    <!-- Zone carte -->
+    <div class="carte-map" id="carte-map-wrapper">
+
+      <!-- Conteneur Leaflet -->
+      <div id="map-container" class="map-container">
+        <div class="map-placeholder" id="map-placeholder">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+          </svg>
+          <span>Chargement de la carte…</span>
+        </div>
+      </div>
+
+      <!-- Contrôles flottants -->
+      <div class="map-controls" id="map-controls">
+        <button class="map-ctrl-btn" onclick="zoomIn()" title="Zoom +">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" onclick="zoomOut()" title="Zoom −">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" onclick="fitBounds()" title="Ajuster vue">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+            <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+          </svg>
+        </button>
+        <button class="map-ctrl-btn" onclick="toggleFullscreen()" title="Plein écran" id="btn-fullscreen">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M8 3H5a2 2 0 00-2 2v3m18 0V5a2 2 0 00-2-2h-3m0 18h3a2 2 0 002-2v-3M3 16v3a2 2 0 002 2h3"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Barre d'outils d'édition (flottante, haut carte) -->
+      <div class="drawing-toolbar" id="drawing-toolbar" style="display:none">
+        <button class="tool-mini-btn" onclick="undo()" title="Annuler (Ctrl+Z)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+          </svg>
+        </button>
+        <button class="tool-mini-btn" onclick="redo()" title="Rétablir (Ctrl+Y)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+        <div class="toolbar-sep"></div>
+        <button class="tool-mini-btn" onclick="clearSelection()" title="Effacer le dessin">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M20 20H7L3 16l9.586-9.586a2 2 0 012.828 0L20 11.172A2 2 0 0120 14z"/>
+            <line x1="18" y1="13" x2="9" y2="22"/>
+          </svg>
+        </button>
+        <button class="tool-mini-btn tool-mini-btn--save" onclick="saveChanges()" title="Sauvegarder">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Sauvegarder
+        </button>
+      </div>
+
+      <!-- Panneau d'info bas droite -->
+      <div class="info-panel" id="info-panel">
+        <div class="info-panel__row" id="info-distance">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+          </svg>
+          Distance : 0 km
+        </div>
+        <div class="info-panel__row" id="info-duration">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          Durée : — min
+        </div>
+        <div class="info-panel__row" id="info-stops">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+          </svg>
+          Points : 0
+        </div>
+      </div>
+
+    </div><!-- /carte-map -->
+  </div><!-- /carte-content -->
+
+</div><!-- /admin-page -->
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — Itinéraire
+══════════════════════════════════════════════════════════ -->
+<div id="itineraire-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="modal__inner">
+    <div class="modal__head">
+      <h3 class="modal__title" id="modal-title">Nouvel itinéraire</h3>
+      <button class="modal__close" onclick="closeItineraireModal()" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <form id="itineraire-form">
+      <input type="hidden" id="itineraire-id" name="itineraire_id">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="nom_itineraire">Nom <span class="req">*</span></label>
+          <input type="text" class="form-input" id="nom_itineraire" name="nom_itineraire" required placeholder="Ex : Ligne 12 Centre-Nord">
+        </div>
+        <div class="form-group form-group--sm">
+          <label class="form-label" for="couleur_itineraire">Couleur</label>
+          <input type="color" class="form-input form-input--color" id="couleur_itineraire" name="couleur_itineraire" value="#C9A84C">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="ligne_id">Ligne associée</label>
+          <select class="form-select" id="ligne_id" name="ligne_id">
+            <option value="">— Sélectionner —</option>
+            {% for ligne in lignes %}
+              <option value="{{ ligne.id }}">{{ ligne.code }} — {{ ligne.nom }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="type_transport">Type</label>
+          <select class="form-select" id="type_transport" name="type_transport">
+            <option value="bus">Bus</option>
+            <option value="minibus">Minibus</option>
+            <option value="car">Car</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="description_itineraire">Description</label>
+        <textarea class="form-textarea" id="description_itineraire" name="description_itineraire" rows="2" placeholder="Informations complémentaires…"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="frequence">Fréquence (min)</label>
+          <input type="number" class="form-input" id="frequence" name="frequence" min="5" max="120" value="30">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="vitesse_moyenne">Vitesse moy. (km/h)</label>
+          <input type="number" class="form-input" id="vitesse_moyenne" name="vitesse_moyenne" min="10" max="80" value="25">
+        </div>
+      </div>
+      <label class="form-checkbox">
+        <input type="checkbox" id="actif" name="actif" checked>
+        <span>Itinéraire actif</span>
+      </label>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" onclick="closeItineraireModal()">Annuler</button>
+        <button type="submit" class="btn btn--gold">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — Arrêt
+══════════════════════════════════════════════════════════ -->
+<div id="arret-modal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal__inner">
+    <div class="modal__head">
+      <h3 class="modal__title" id="arret-modal-title">Ajouter un arrêt</h3>
+      <button class="modal__close" onclick="closeArretModal()" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <form id="arret-form">
+      <input type="hidden" id="arret-id" name="arret_id">
+      <input type="hidden" id="arret-lat" name="lat">
+      <input type="hidden" id="arret-lng" name="lng">
+      <div class="form-group">
+        <label class="form-label" for="nom_arret">Nom de l'arrêt <span class="req">*</span></label>
+        <input type="text" class="form-input" id="nom_arret" name="nom_arret" required placeholder="Ex : Gare Centrale">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="description_arret">Description</label>
+        <textarea class="form-textarea" id="description_arret" name="description_arret" rows="2"></textarea>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="temps_arret">Temps d'arrêt (min)</label>
+          <input type="number" class="form-input" id="temps_arret" name="temps_arret" min="0" max="30" value="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="priorite_arret">Priorité</label>
+          <select class="form-select" id="priorite_arret" name="priorite_arret">
+            <option value="normal">Normal</option>
+            <option value="eleve">Élevé</option>
+            <option value="critique">Critique</option>
+          </select>
+        </div>
+      </div>
+      <label class="form-checkbox">
+        <input type="checkbox" id="arret_actif" name="arret_actif" checked>
+        <span>Arrêt actif</span>
+      </label>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" onclick="closeArretModal()">Annuler</button>
+        <button type="submit" class="btn btn--gold">Ajouter</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL — Optimisation
+══════════════════════════════════════════════════════════ -->
+<div id="optimisation-modal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal__inner">
+    <div class="modal__head">
+      <h3 class="modal__title">Optimisation des routes</h3>
+      <button class="modal__close" onclick="closeOptimisationModal()" aria-label="Fermer">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+    <div style="padding:0 24px 20px">
+      <p style="font-size:13px;color:var(--t3);margin-bottom:16px">Sélectionnez les critères à appliquer :</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
+        <label class="form-checkbox"><input type="checkbox" id="opt_distance" checked><span>Minimiser la distance totale</span></label>
+        <label class="form-checkbox"><input type="checkbox" id="opt_time" checked><span>Minimiser le temps de trajet</span></label>
+        <label class="form-checkbox"><input type="checkbox" id="opt_traffic"><span>Éviter les zones de trafic dense</span></label>
+        <label class="form-checkbox"><input type="checkbox" id="opt_priority"><span>Respecter les priorités d'arrêts</span></label>
+      </div>
+      <div id="optimisation-results"></div>
+    </div>
+    <div class="modal__footer">
+      <button type="button" class="btn btn--ghost" onclick="closeOptimisationModal()">Annuler</button>
+      <button type="button" class="btn btn--gold" onclick="appliquerOptimisation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+        Appliquer
+      </button>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="{{ url_for('static', filename='js/modules/carte.js') }}"></script>
+{% endblock %}

@@ -1,5 +1,681 @@
-/* ── VoyageIQ-Pro — Page : rapports ─────────────────────────────
-   Styles spécifiques à la page rapports
-   Importé via base_admin.html ou base_public.html
-──────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Page : Rapports
+═══════════════════════════════════════════════════════════ */
 
+/* ── Layout rapports ───────────────────────────────────── */
+.rapports-page {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 24px 20px;
+}
+
+/* ── Header rapports ───────────────────────────────────── */
+.rapports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.rapports-title {
+  font-family: var(--font-head);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--t);
+  margin: 0;
+}
+
+.rapports-subtitle {
+  font-size: 12px;
+  color: var(--t3);
+  margin: 4px 0 0 0;
+}
+
+/* ── Filtres et contrôles ──────────────────────────────── */
+.rapports-controls {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.rapports-filters {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.rapports-filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rapports-filter-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.rapports-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+/* ── Grille de rapports ────────────────────────────────── */
+.rapports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.rapport-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  transition: border-color var(--dur-fast), transform var(--dur-fast);
+}
+
+.rapport-card:hover {
+  border-color: var(--gold3);
+  transform: translateY(-2px);
+}
+
+.rapport-card__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.rapport-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius);
+  background: var(--gold-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.rapport-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0;
+}
+
+.rapport-card__description {
+  font-size: 13px;
+  color: var(--t3);
+  margin: 0 0 16px 0;
+  line-height: 1.5;
+}
+
+.rapport-card__meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--t4);
+}
+
+.rapport-card__date {
+  font-family: var(--font-mono);
+}
+
+/* ── Rapport détaillé ──────────────────────────────────── */
+.rapport-detail {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.rapport-detail__header {
+  padding: 20px;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+}
+
+.rapport-detail__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--t);
+  margin: 0 0 8px 0;
+}
+
+.rapport-detail__info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: var(--t3);
+}
+
+.rapport-detail__content {
+  padding: 24px;
+}
+
+.rapport-detail__section {
+  margin-bottom: 24px;
+}
+
+.rapport-detail__section:last-child {
+  margin-bottom: 0;
+}
+
+.rapport-detail__section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 0 0 12px 0;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rapport-detail__section-title::before {
+  content: "▸";
+  font-size: 12px;
+}
+
+/* ── Tableaux de données ──────────────────────────────── */
+.rapport-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.rapport-table th,
+.rapport-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+
+.rapport-table th {
+  background: var(--bg2);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.rapport-table td {
+  font-size: 13px;
+  color: var(--t);
+}
+
+.rapport-table tr:last-child td {
+  border-bottom: none;
+}
+
+.rapport-table tr:hover td {
+  background: var(--bg2);
+}
+
+/* ── Graphiques ───────────────────────────────────────── */
+.rapport-chart {
+  margin: 20px 0;
+  padding: 16px;
+  background: var(--bg2);
+  border-radius: var(--radius);
+}
+
+.rapport-chart__title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 12px 0;
+  text-align: center;
+}
+
+/* ── Export et actions ────────────────────────────────── */
+.rapport-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.rapport-export-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--gold);
+  color: #0A0A0A;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--dur-fast);
+}
+
+.rapport-export-btn:hover {
+  background: var(--gold2);
+  transform: translateY(-1px);
+}
+
+.rapport-export-btn:active {
+  transform: translateY(0);
+}
+
+/* ── États de chargement ──────────────────────────────── */
+.rapport-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: var(--t3);
+}
+
+.rapport-loading::before {
+  content: '';
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--border);
+  border-top: 2px solid var(--gold);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-right: 12px;
+}
+
+/* ── États vides ─────────────────────────────────────── */
+.rapport-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--t3);
+}
+
+.rapport-empty__icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+  opacity: .5;
+}
+
+.rapport-empty__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 8px 0;
+}
+
+.rapport-empty__text {
+  font-size: 13px;
+  margin: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .rapports-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rapports-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rapports-actions {
+    margin-left: 0;
+    margin-top: 12px;
+  }
+
+  .rapports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rapport-card__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .rapport-detail__info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .rapport-table th,
+  .rapport-table td {
+    padding: 8px;
+    font-size: 12px;
+  }
+
+  .rapport-actions {
+    flex-direction: column;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   COMPLÉMENT — Classes utilisées dans admin_rapports.html
+═══════════════════════════════════════════════════════════ */
+
+/* ── Reports grid ───────────────────────────────────────── */
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+/* ── Report card (rapports rapides) ─────────────────────── */
+.report-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: border-color var(--dur-fast), box-shadow var(--dur-fast), transform var(--dur-fast);
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.report-card:hover {
+  border-color: var(--gold3);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.report-card.not-generated {
+  opacity: .7;
+  border-style: dashed;
+}
+
+/* ── Report icon ────────────────────────────────────────── */
+.report-icon {
+  width: 100%;
+  height: 72px;
+  background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3, var(--bg2)) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  color: var(--gold);
+  border-bottom: 1px solid var(--border);
+}
+
+/* ── Report info ────────────────────────────────────────── */
+.report-info {
+  padding: 14px 16px;
+  flex: 1;
+}
+
+.report-info h4 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 4px 0;
+}
+
+.report-info p {
+  font-size: 11px;
+  color: var(--t3);
+  margin: 0;
+}
+
+/* ── Report action footer ───────────────────────────────── */
+.report-action {
+  padding: 10px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  color: var(--gold);
+  font-size: 13px;
+  transition: background var(--dur-fast);
+}
+
+.report-card:hover .report-action {
+  background: var(--gold-bg);
+}
+
+/* ── rapport-info (dans la table) ──────────────────────── */
+.rapport-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 2px 0;
+}
+
+.rapport-description {
+  font-size: 11px;
+  color: var(--t3);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.rapport-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+/* ── File size / generation date ────────────────────────── */
+.file-size,
+.generation-date,
+.generation-user {
+  font-size: 11px;
+  color: var(--t3);
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.generation-user {
+  color: var(--t4);
+  font-style: italic;
+  margin-top: 2px;
+}
+
+.no-file,
+.not-generated {
+  font-size: 11px;
+  color: var(--t4);
+  font-style: italic;
+}
+
+/* ── Type badge base ────────────────────────────────────── */
+.type-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  background: var(--gold-bg);
+  color: var(--gold);
+}
+
+/* ── Type badge variants ─────────────────────────────────── */
+.type-financier    { background: rgba(34, 197, 94,  .13); color: #22C55E; }
+.type-operationnel { background: rgba(96, 165, 250, .13); color: #60A5FA; }
+.type-client       { background: rgba(167,139, 250, .13); color: #A78BFA; }
+.type-chauffeur    { background: rgba(251, 191, 36,  .13); color: #FBBF24; }
+.type-maintenance  { background: rgba(239,  68,  68, .13); color: #EF4444; }
+.type-complet      { background: rgba(20,  184, 166, .13); color: #14B8A6; }
+
+/* ── Status badge ────────────────────────────────────────── */
+.status-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+}
+
+.status-generated  { background: rgba(34, 197, 94,  .13); color: #22C55E; }
+.status-pending    { background: rgba(245,158,  11, .13); color: #F59E0B; }
+.status-scheduled  { background: rgba(96, 165, 250, .13); color: #60A5FA; }
+.status-error      { background: rgba(239,  68,  68, .13); color: #EF4444; }
+
+/* ── Quick reports bloc ─────────────────────────────────── */
+.quick-reports {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.quick-reports h3 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--t);
+  margin: 0 0 14px 0;
+}
+
+/* ── Filters section (utilisé dans admin_rapports.html) ─── */
+.filters-section {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.filters-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.filter-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--t2);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.filter-select {
+  height: 36px;
+  padding: 0 10px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--t);
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color var(--dur-fast);
+  appearance: auto;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--gold3);
+}
+
+/* ── Checkbox label (modal options) ─────────────────────── */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 13px;
+  color: var(--t2);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-label input[type="checkbox"] {
+  accent-color: var(--gold);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+
+/* ── Periode info ───────────────────────────────────────── */
+.periode-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.periode-type {
+  background: var(--gold-bg);
+  color: var(--gold);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  display: inline-block;
+}
+
+.periode-dates {
+  font-size: 12px;
+  color: var(--t3);
+  font-family: var(--font-mono);
+}
+
+/* ── Filters options (checkboxes dans modal) ────────────── */
+.filters-options {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* ── Responsive rapports rapides ─────────────────────────── */
+@media (max-width: 768px) {
+  .reports-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .filters-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .filter-group {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .filters-options {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,675 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Rapports — VoyageIQ{% endblock %}
+{% block breadcrumb %}Rapports{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/rapports.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <!-- ── Page header ──────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <i class="fas fa-file-lines"></i>
+        Rapports
+      </h1>
+      <p class="page-subtitle">Génération et export de rapports d'exploitation</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn-secondary" onclick="exportCSVHistorique()">
+        <i class="fas fa-download"></i> Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Générateur de rapport ─────────────────────────────── -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-header">
+      <div class="card-title">
+        <i class="fas fa-bolt"></i>
+        Générer un rapport
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:16px">
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Type de rapport</label>
+        <select class="form-control" id="typeRapport">
+          <option value="exploitation">Exploitation</option>
+          <option value="finance">Finance</option>
+          <option value="flotte">Flotte</option>
+          <option value="clientele">Clientèle</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Période prédéfinie</label>
+        <select class="form-control" id="periodeRapport">
+          <option value="jour">Aujourd'hui</option>
+          <option value="semaine">Cette semaine</option>
+          <option value="mois" selected>Ce mois</option>
+          <option value="trimestre">Ce trimestre</option>
+          <option value="annee">Cette année</option>
+          <option value="custom">Dates personnalisées</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="margin:0" id="dateDebutGroup" style="display:none">
+        <label class="form-label">Date début</label>
+        <input type="date" class="form-control" id="dateDebut">
+      </div>
+
+      <div class="form-group" style="margin:0" id="dateFinGroup" style="display:none">
+        <label class="form-label">Date fin</label>
+        <input type="date" class="form-control" id="dateFin">
+      </div>
+
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Ligne</label>
+        <select class="form-control" id="ligneRapport">
+          <option value="">Toutes les lignes</option>
+          {% for l in lignes %}
+          <option value="{{ l.id }}">{{ l.code }} — {{ l.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+    </div>
+
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" id="btnGenerer" onclick="genererRapport()">
+        <i class="fas fa-bolt"></i>
+        Générer
+      </button>
+      <button class="btn btn-secondary" id="btnExportPDF" style="display:none"
+              onclick="telechargerPDF()">
+        <i class="fas fa-file-pdf"></i>
+        Télécharger PDF
+      </button>
+      <button class="btn btn-secondary" id="btnExportCSV" style="display:none"
+              onclick="exporterCSVRapport()">
+        <i class="fas fa-file-csv"></i>
+        Télécharger CSV
+      </button>
+      <button class="btn btn-secondary" id="btnEnvoyerEmail" style="display:none"
+              onclick="envoyerEmail()">
+        <i class="fas fa-envelope"></i>
+        Envoyer par email
+      </button>
+      <button class="btn btn-secondary" id="btnEnvoyerWhatsApp" style="display:none"
+              onclick="envoyerWhatsApp()">
+        <i class="fab fa-whatsapp" style="color:#25D366"></i>
+        WhatsApp
+      </button>
+      <span id="rapportLoader" style="display:none;align-items:center;gap:6px;font-size:12px;color:var(--t3)">
+        <i class="fas fa-spinner fa-spin"></i>
+        Génération en cours…
+      </span>
+    </div>
+  </div>
+
+  <!-- ── Zone résultat rapport ─────────────────────────────── -->
+  <div id="rapportResult" style="display:none;margin-bottom:14px">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title" id="rapportTitleDisplay">
+          <i class="fas fa-chart-bar"></i>
+          Résultats du rapport
+        </div>
+        <span id="rapportPeriodeLabel" class="card-badge"></span>
+      </div>
+
+      <!-- KPIs résumé -->
+      <div id="rapportResume" class="kpi-grid"
+           style="grid-template-columns:repeat(auto-fit,minmax(140px,1fr));margin-bottom:16px">
+      </div>
+
+      <!-- Résumé par ligne -->
+      <div id="rapportLignesSection" style="display:none;margin-bottom:16px">
+        <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+          Résultats par ligne
+        </div>
+        <div class="data-table" style="margin-bottom:0">
+          <table>
+            <thead>
+              <tr>
+                <th>Ligne</th>
+                <th style="text-align:right">Voyages</th>
+                <th style="text-align:right">Passagers</th>
+                <th style="text-align:right">Recettes (FCFA)</th>
+                <th style="text-align:right">Dépenses (FCFA)</th>
+                <th style="text-align:right">Marge</th>
+              </tr>
+            </thead>
+            <tbody id="rapportLignesBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tableau détail journalier -->
+      <div style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px">
+        Détail journalier
+      </div>
+      <div class="data-table" style="margin-bottom:0">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Ligne</th>
+              <th style="text-align:right">Voyages</th>
+              <th style="text-align:right">Passagers</th>
+              <th style="text-align:right">Recettes (FCFA)</th>
+              <th style="text-align:right">Dépenses (FCFA)</th>
+              <th style="text-align:right">Marge</th>
+              <th style="text-align:right">Satisf.</th>
+            </tr>
+          </thead>
+          <tbody id="rapportTableBody"></tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Filtres historique ────────────────────────────────── -->
+  <div class="filters-section" style="margin-bottom:10px">
+    <div class="filters-row">
+      <div class="filter-group">
+        <label class="filter-label">Rechercher</label>
+        <input type="text" class="filter-input" id="search-input"
+               placeholder="Date, ligne, code…">
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Ligne</label>
+        <select class="filter-select" id="filter-ligne">
+          <option value="">Toutes</option>
+          {% for l in lignes %}
+          <option value="{{ l.code }}">{{ l.code }} — {{ l.nom }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Satisfaction</label>
+        <select class="filter-select" id="filter-satisfaction">
+          <option value="">Tous</option>
+          <option value="high">≥ 80%</option>
+          <option value="mid">60–79%</option>
+          <option value="low">&lt; 60%</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Historique saisies ─────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <i class="fas fa-clock-rotate-left"></i>
+        Historique — toutes les saisies
+      </div>
+      <span class="card-badge">{{ rapports.total }} entrée(s)</span>
+    </div>
+
+    <div class="data-table" style="margin-bottom:0;border:none">
+      <table id="historique-table">
+        <thead>
+          <tr>
+            <th data-sort="0">Date</th>
+            <th data-sort="1">Ligne</th>
+            <th data-sort="2" style="text-align:right">Voyages</th>
+            <th data-sort="3" style="text-align:right">Passagers</th>
+            <th data-sort="4" style="text-align:right">Recettes (FCFA)</th>
+            <th data-sort="5" style="text-align:right">Dépenses (FCFA)</th>
+            <th data-sort="6" style="text-align:right">Marge</th>
+            <th style="text-align:right">Satisfaction</th>
+          </tr>
+        </thead>
+        <tbody id="historique-tbody">
+          {% for s in rapports.items %}
+          {% set rec = (s.rec_guichet or 0) + (s.rec_reservation or 0) + (s.rec_digital or 0) %}
+          {% set dep = (s.dep_carburant or 0) + (s.dep_autres or 0) %}
+          {% set sat = s.satisfaction | default(0) | float %}
+          <tr
+            data-ligne="{{ s.ligne.code if s.ligne else '' }}"
+            data-satisfaction="{{ sat }}">
+            <td style="font-family:var(--font-mono);font-size:12px">
+              {{ s.date.strftime('%d/%m/%Y') }}
+            </td>
+            <td>
+              {% if s.ligne %}
+              <span class="status-badge status-active" style="font-size:10px">
+                {{ s.ligne.code }}
+              </span>
+              <span style="color:var(--t3);font-size:11px;margin-left:4px">{{ s.ligne.nom }}</span>
+              {% else %}
+              <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ s.voyages }}</td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ s.passagers }}</td>
+            <td style="font-family:var(--font-mono);text-align:right;color:var(--ok)">
+              {{ "{:,.0f}".format(rec) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;color:var(--err)">
+              {{ "{:,.0f}".format(dep) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-weight:600;
+                       color:{{ 'var(--gold)' if rec - dep >= 0 else 'var(--err)' }}">
+              {{ "{:+,.0f}".format(rec - dep) }}
+            </td>
+            <td style="text-align:right">
+              <span class="status-badge {{ 'status-operationnel' if sat >= 80 else ('status-pending' if sat >= 60 else 'status-panne') }}">
+                {{ sat | round(0) | int }}%
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" style="text-align:center;color:var(--t3);padding:40px">
+              <i class="fas fa-inbox" style="font-size:28px;display:block;margin-bottom:10px;opacity:.3"></i>
+              Aucune saisie disponible
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    {% if rapports.pages > 1 %}
+    <div class="pagination">
+      <span>Page {{ rapports.page }} / {{ rapports.pages }} — {{ rapports.total }} entrées</span>
+      <div class="pagination-pages">
+        {% if rapports.has_prev %}
+        <a href="{{ url_for('rapports.index', page=rapports.prev_num) }}"
+           class="pagination-btn">‹</a>
+        {% endif %}
+        {% for p in rapports.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+          {% if p %}
+            <a href="{{ url_for('rapports.index', page=p) }}"
+               class="pagination-btn {{ 'active' if p == rapports.page }}">{{ p }}</a>
+          {% else %}
+            <span class="pagination-btn" style="cursor:default;opacity:.4">…</span>
+          {% endif %}
+        {% endfor %}
+        {% if rapports.has_next %}
+        <a href="{{ url_for('rapports.index', page=rapports.next_num) }}"
+           class="pagination-btn">›</a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+
+{% endblock %}
+
+{% block page_js %}
+<script>
+/* ── Variables injectées depuis le blueprint ─────────────── */
+const GENERER_URL   = "{{ url_for('rapports.generer') }}";
+const PDF_URL       = "{{ url_for('rapports.export_pdf') }}";
+const CSRF_TOKEN    = "{{ csrf_token() }}";
+const WHATSAPP_NUM  = "{{ config.WHATSAPP_NUMBER | default('+237673485193') }}";
+const MAIL_DEST     = "{{ config.RAPPORT_DEST_EMAIL | default('paolocisse6@gmail.com') }}";
+
+/* Données du rapport courant (rempli après génération) */
+let _donneesRapport = null;
+let _paramsRapport  = {};
+
+/* ── Affichage champs dates custom ───────────────────────── */
+document.getElementById('periodeRapport').addEventListener('change', function () {
+  const show = this.value === 'custom';
+  document.getElementById('dateDebutGroup').style.display = show ? 'block' : 'none';
+  document.getElementById('dateFinGroup').style.display   = show ? 'block' : 'none';
+});
+
+/* Initialiser les dates custom à aujourd'hui / fin de mois */
+(function () {
+  const today    = new Date();
+  const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+  const lastDay  = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const toISO    = d => d.toISOString().split('T')[0];
+  const dDebut   = document.getElementById('dateDebut');
+  const dFin     = document.getElementById('dateFin');
+  if (dDebut) dDebut.value = toISO(firstDay);
+  if (dFin)   dFin.value   = toISO(lastDay);
+})();
+
+/* ── Génération rapport ──────────────────────────────────── */
+async function genererRapport() {
+  const btn     = document.getElementById('btnGenerer');
+  const loader  = document.getElementById('rapportLoader');
+  const periode = document.getElementById('periodeRapport').value;
+  const type    = document.getElementById('typeRapport').value;
+  const ligne   = document.getElementById('ligneRapport').value;
+
+  /* Paramètres */
+  _paramsRapport = {
+    type_rapport: type,
+    type_periode: periode !== 'custom' ? periode : null,
+    date_debut:   periode === 'custom' ? document.getElementById('dateDebut').value : null,
+    date_fin:     periode === 'custom' ? document.getElementById('dateFin').value   : null,
+    ligne_id:     ligne || null,
+  };
+
+  /* UI chargement */
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération…';
+  loader.style.display = 'inline-flex';
+  document.getElementById('rapportResult').style.display = 'none';
+  ['btnExportPDF','btnExportCSV','btnEnvoyerEmail','btnEnvoyerWhatsApp'].forEach(id => {
+    document.getElementById(id).style.display = 'none';
+  });
+
+  try {
+    const resp = await fetch(GENERER_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'X-CSRFToken':   CSRF_TOKEN,
+      },
+      body: JSON.stringify(_paramsRapport),
+    });
+
+    if (!resp.ok) {
+      const err = await resp.json().catch(() => ({}));
+      throw new Error(err.message || `Erreur serveur (${resp.status})`);
+    }
+
+    _donneesRapport = await resp.json();
+    afficherResultat(_donneesRapport);
+    showNotif('Rapport généré avec succès.', 'success');
+
+  } catch (e) {
+    showNotif('Erreur : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-bolt"></i> Générer';
+    loader.style.display = 'none';
+  }
+}
+
+/* ── Affichage résultats ─────────────────────────────────── */
+function afficherResultat(data) {
+  const { meta, kpis, lignes, rows } = data;
+
+  /* Titre & période */
+  document.getElementById('rapportTitleDisplay').innerHTML =
+    `<i class="fas fa-chart-bar"></i> Rapport ${meta.type_rapport}`;
+  document.getElementById('rapportPeriodeLabel').textContent =
+    `${meta.debut} → ${meta.fin}`;
+
+  /* KPIs */
+  const kpiEl = document.getElementById('rapportResume');
+  kpiEl.innerHTML = `
+    ${kpiCard('Recettes', fmtFCFA(kpis.recettes), 'green', 'fas fa-coins')}
+    ${kpiCard('Dépenses', fmtFCFA(kpis.depenses), 'red',   'fas fa-receipt')}
+    ${kpiCard('Marge',    fmtFCFA(kpis.marge),    kpis.marge >= 0 ? 'gold' : 'red', 'fas fa-chart-line')}
+    ${kpiCard('Voyages',  kpis.voyages,            'blue',  'fas fa-bus')}
+    ${kpiCard('Passagers',kpis.passagers,          'blue',  'fas fa-users')}
+    ${kpiCard('Remplissage', kpis.taux_remplissage + '%', 'gold', 'fas fa-percent')}
+  `;
+
+  /* Lignes */
+  const lignesSection = document.getElementById('rapportLignesSection');
+  const lignesBody    = document.getElementById('rapportLignesBody');
+  if (lignes && lignes.length > 1) {
+    lignesBody.innerHTML = lignes.map(l => `
+      <tr>
+        <td><strong>${l.code}</strong> <span style="color:var(--t3);font-size:11px">${l.nom}</span></td>
+        <td style="text-align:right;font-family:var(--font-mono)">${l.voyages}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${l.passagers}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:var(--ok)">${fmtFCFA(l.recettes)}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:var(--err)">${fmtFCFA(l.depenses)}</td>
+        <td style="text-align:right;font-family:var(--font-mono);font-weight:600;
+                   color:${l.marge >= 0 ? 'var(--gold)' : 'var(--err)'}">
+          ${l.marge >= 0 ? '+' : ''}${fmtFCFA(l.marge)}
+        </td>
+      </tr>
+    `).join('');
+    lignesSection.style.display = 'block';
+  } else {
+    lignesSection.style.display = 'none';
+  }
+
+  /* Rows journaliers */
+  const tbody = document.getElementById('rapportTableBody');
+  if (rows && rows.length > 0) {
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td style="font-family:var(--font-mono);font-size:12px">${r.date}</td>
+        <td>
+          <span class="status-badge status-active" style="font-size:10px">${r.ligne_code}</span>
+        </td>
+        <td style="text-align:right;font-family:var(--font-mono)">${r.voyages}</td>
+        <td style="text-align:right;font-family:var(--font-mono)">${r.passagers}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:var(--ok)">${fmtFCFA(r.recettes)}</td>
+        <td style="text-align:right;font-family:var(--font-mono);color:var(--err)">${fmtFCFA(r.depenses)}</td>
+        <td style="text-align:right;font-family:var(--font-mono);font-weight:600;
+                   color:${r.marge >= 0 ? 'var(--gold)' : 'var(--err)'}">
+          ${r.marge >= 0 ? '+' : ''}${fmtFCFA(r.marge)}
+        </td>
+        <td style="text-align:right">
+          <span class="status-badge ${r.satisfaction >= 80 ? 'status-operationnel' : r.satisfaction >= 60 ? 'status-pending' : 'status-panne'}"
+                style="font-size:10px">
+            ${Math.round(r.satisfaction)}%
+          </span>
+        </td>
+      </tr>
+    `).join('');
+  } else {
+    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:24px">
+      Aucune donnée pour cette période</td></tr>`;
+  }
+
+  /* Afficher la zone résultat + boutons export */
+  document.getElementById('rapportResult').style.display = 'block';
+  document.getElementById('rapportResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  ['btnExportPDF','btnExportCSV','btnEnvoyerEmail','btnEnvoyerWhatsApp'].forEach(id => {
+    document.getElementById(id).style.display = 'inline-flex';
+  });
+}
+
+/* ── KPI card helper ─────────────────────────────────────── */
+function kpiCard(label, value, color, icon) {
+  const colors = {
+    gold:  { bg: 'rgba(201,168,76,.1)',  border: 'rgba(201,168,76,.2)',  text: 'var(--gold)' },
+    green: { bg: 'rgba(34,197,94,.1)',   border: 'rgba(34,197,94,.2)',   text: 'var(--ok)' },
+    red:   { bg: 'rgba(239,68,68,.1)',   border: 'rgba(239,68,68,.2)',   text: 'var(--err)' },
+    blue:  { bg: 'rgba(96,165,250,.1)',  border: 'rgba(96,165,250,.2)',  text: 'var(--info)' },
+  };
+  const c = colors[color] || colors.gold;
+  return `
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:10px;
+                padding:14px 16px;display:flex;align-items:center;gap:12px">
+      <div style="width:40px;height:40px;border-radius:8px;background:${c.bg};border:1px solid ${c.border};
+                  display:flex;align-items:center;justify-content:center;color:${c.text};flex-shrink:0">
+        <i class="${icon}"></i>
+      </div>
+      <div>
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:800;color:var(--t)">${value}</div>
+        <div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px">${label}</div>
+      </div>
+    </div>`;
+}
+
+/* ── Export PDF ──────────────────────────────────────────── */
+async function telechargerPDF() {
+  if (!_donneesRapport) return;
+  const btn = document.getElementById('btnExportPDF');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> PDF…';
+  try {
+    const resp = await fetch(PDF_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+      body: JSON.stringify(_paramsRapport),
+    });
+    if (!resp.ok) throw new Error('Erreur génération PDF');
+    const blob = await resp.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = Object.assign(document.createElement('a'), {
+      href:     url,
+      download: `rapport_voyageiq_${new Date().toISOString().slice(0,10)}.pdf`,
+    });
+    a.click();
+    URL.revokeObjectURL(url);
+    showNotif('PDF téléchargé.', 'success');
+  } catch (e) {
+    showNotif('Erreur PDF : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-file-pdf"></i> Télécharger PDF';
+  }
+}
+
+/* ── Export CSV rapport généré ───────────────────────────── */
+function exporterCSVRapport() {
+  if (!_donneesRapport?.rows) return;
+  const headers = ['Date','Ligne','Voyages','Passagers','Recettes','Dépenses','Marge','Satisfaction'];
+  const rows    = _donneesRapport.rows.map(r =>
+    [r.date, r.ligne_code, r.voyages, r.passagers, r.recettes, r.depenses, r.marge, r.satisfaction]
+    .map(v => `"${String(v).replace(/"/g,'""')}"`)
+    .join(',')
+  );
+  const csv  = [headers.join(','), ...rows].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const a    = Object.assign(document.createElement('a'), {
+    href:     URL.createObjectURL(blob),
+    download: `rapport_${new Date().toISOString().slice(0,10)}.csv`,
+  });
+  a.click();
+  showNotif('CSV exporté.', 'success');
+}
+
+/* ── Envoyer par email ───────────────────────────────────── */
+async function envoyerEmail() {
+  const btn = document.getElementById('btnEnvoyerEmail');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Envoi…';
+  try {
+    const resp = await fetch("{{ url_for('rapports.envoyer_email') }}", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+      body: JSON.stringify(_paramsRapport),
+    });
+    const data = await resp.json();
+    if (!resp.ok) throw new Error(data.message || 'Erreur');
+    showNotif(`Email envoyé à ${MAIL_DEST}`, 'success');
+  } catch (e) {
+    showNotif('Erreur email : ' + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-envelope"></i> Envoyer par email';
+  }
+}
+
+/* ── Envoyer sur WhatsApp (lien wa.me) ───────────────────── */
+function envoyerWhatsApp() {
+  if (!_donneesRapport) return;
+  const { meta, kpis } = _donneesRapport;
+  const msg = `📊 *Rapport VoyageIQ Pro*\n\n`
+    + `📅 Période : ${meta.debut} → ${meta.fin}\n`
+    + `💰 Recettes : ${fmtFCFA(kpis.recettes)} FCFA\n`
+    + `📉 Dépenses : ${fmtFCFA(kpis.depenses)} FCFA\n`
+    + `✅ Marge : ${kpis.marge >= 0 ? '+' : ''}${fmtFCFA(kpis.marge)} FCFA\n`
+    + `🚌 Voyages : ${kpis.voyages} | Passagers : ${kpis.passagers}\n`
+    + `📈 Taux remplissage : ${kpis.taux_remplissage}%\n\n`
+    + `_Généré le ${meta.genere_le} — VoyageIQ Pro_`;
+
+  const numero = WHATSAPP_NUM.replace('+','').replace(/\s/g,'');
+  const url    = `https://wa.me/${numero}?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+  showNotif('WhatsApp ouvert.', 'success');
+}
+
+/* ── Export CSV historique ───────────────────────────────── */
+function exportCSVHistorique() {
+  const table = document.getElementById('historique-table');
+  if (!table) return;
+  const rows = Array.from(table.querySelectorAll('tr'));
+  const csv  = rows.map(r =>
+    Array.from(r.querySelectorAll('th,td')).slice(0, 7)
+      .map(c => `"${c.textContent.trim().replace(/"/g,'""')}"`)
+      .join(',')
+  ).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+  const a    = Object.assign(document.createElement('a'), {
+    href:     URL.createObjectURL(blob),
+    download: `historique_saisies_${new Date().toISOString().slice(0,10)}.csv`,
+  });
+  a.click();
+  showNotif('CSV historique exporté.', 'success');
+}
+
+/* ── Filtres historique ──────────────────────────────────── */
+function applyHistoriqueFilters() {
+  const q    = (document.getElementById('search-input')?.value   || '').toLowerCase();
+  const lig  = (document.getElementById('filter-ligne')?.value   || '');
+  const sat  = (document.getElementById('filter-satisfaction')?.value || '');
+
+  document.querySelectorAll('#historique-tbody tr').forEach(row => {
+    if (!row.dataset.ligne && row.dataset.ligne !== '') return; // ligne vide = aucune donnée
+
+    const text   = row.textContent.toLowerCase();
+    const rLigne = row.dataset.ligne || '';
+    const rSat   = parseFloat(row.dataset.satisfaction) || 0;
+
+    let satOk = true;
+    if (sat === 'high') satOk = rSat >= 80;
+    else if (sat === 'mid')  satOk = rSat >= 60 && rSat < 80;
+    else if (sat === 'low')  satOk = rSat < 60;
+
+    const visible = (!q   || text.includes(q))
+                 && (!lig || rLigne === lig)
+                 && satOk;
+
+    row.style.display = visible ? '' : 'none';
+  });
+}
+
+['search-input','filter-ligne','filter-satisfaction'].forEach(id => {
+  document.getElementById(id)?.addEventListener('input',  applyHistoriqueFilters);
+  document.getElementById(id)?.addEventListener('change', applyHistoriqueFilters);
+});
+
+/* ── Helpers ─────────────────────────────────────────────── */
+function fmtFCFA(n) {
+  return Number(n || 0).toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+
+function showNotif(message, type = 'info') {
+  let zone = document.getElementById('notif-zone');
+  if (!zone) {
+    zone = document.createElement('div');
+    zone.id = 'notif-zone';
+    zone.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;'
+      + 'display:flex;flex-direction:column;gap:10px;pointer-events:none';
+    document.body.appendChild(zone);
+  }
+  const colors = { success:'var(--ok)', error:'var(--err)', warning:'var(--warn)', info:'var(--info)' };
+  const icons  = { success:'check-circle', error:'times-circle', warning:'exclamation-triangle', info:'info-circle' };
+  const c = colors[type] || colors.info;
+  const n = document.createElement('div');
+  n.style.cssText = `pointer-events:auto;display:flex;align-items:center;gap:10px;padding:12px 18px;`
+    + `background:var(--card2);border:1px solid ${c};border-left:4px solid ${c};border-radius:8px;`
+    + `color:var(--t);font-size:13px;box-shadow:0 8px 24px rgba(0,0,0,.4);`
+    + `opacity:0;transform:translateX(20px);transition:opacity .28s,transform .28s;min-width:240px`;
+  n.innerHTML = `<i class="fas fa-${icons[type]||'info-circle'}" style="color:${c}"></i><span>${message}</span>`;
+  zone.appendChild(n);
+  requestAnimationFrame(() => { n.style.opacity = '1'; n.style.transform = 'translateX(0)'; });
+  setTimeout(() => {
+    n.style.opacity = '0'; n.style.transform = 'translateX(20px)';
+    setTimeout(() => n.remove(), 300);
+  }, 3800);
+}
+</script>
+{% endblock %}

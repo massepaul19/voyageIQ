@@ -1,0 +1,203 @@
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Buttons
+═══════════════════════════════════════════════════════════ */
+
+/* ── Base ───────────────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: var(--font-main);
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background: var(--card2);
+  color: var(--t2);
+  transition: all var(--dur-fast) var(--ease);
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  letter-spacing: .2px;
+  text-decoration: none;
+}
+
+.btn:hover  { border-color: var(--gold); color: var(--gold); }
+.btn:active { transform: scale(.98); }
+
+/* ── Gold (primary) ─────────────────────────────────────── */
+.btn--gold,
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold3) 0%, var(--gold) 60%, var(--gold2) 100%);
+  color: #0A0A0A;
+  border-color: transparent;
+  font-weight: 700;
+  box-shadow: 0 2px 10px rgba(201,168,76,.2);
+}
+
+.btn--gold:hover,
+.btn-gold:hover {
+  box-shadow: var(--shadow-gold);
+  color: #000;
+  transform: translateY(-1px);
+  border-color: transparent;
+}
+
+/* ── Ghost ──────────────────────────────────────────────── */
+.btn--ghost,
+.btn-ghost {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--t2);
+}
+
+.btn--ghost:hover,
+.btn-ghost:hover {
+  background: var(--glass);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── Outline gold ───────────────────────────────────────── */
+.btn--outline,
+.btn-outline {
+  background: transparent;
+  border-color: var(--gold3);
+  color: var(--gold);
+}
+
+.btn--outline:hover,
+.btn-outline:hover {
+  background: var(--gold-bg);
+  border-color: var(--gold);
+  color: var(--gold2);
+}
+
+/* ── Marine ─────────────────────────────────────────────── */
+.btn-marine {
+  background: linear-gradient(135deg, var(--marine2) 0%, var(--marine3) 100%);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.btn-marine:hover {
+  box-shadow: 0 4px 14px var(--marine-glow);
+  transform: translateY(-1px);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── Orange ─────────────────────────────────────────────── */
+.btn-orange {
+  background: linear-gradient(135deg, var(--orange3) 0%, var(--orange2) 100%);
+  color: #fff;
+  border-color: transparent;
+  font-weight: 600;
+}
+
+.btn-orange:hover {
+  box-shadow: 0 4px 14px rgba(224,120,32,.35);
+  transform: translateY(-1px);
+  color: #fff;
+  border-color: transparent;
+}
+
+/* ── Danger ─────────────────────────────────────────────── */
+.btn-err,
+.btn-danger {
+  background: rgba(239,68,68,.08);
+  color: var(--err);
+  border-color: rgba(239,68,68,.2);
+}
+
+.btn-err:hover,
+.btn-danger:hover {
+  background: rgba(239,68,68,.15);
+  border-color: rgba(239,68,68,.4);
+  color: var(--err);
+}
+
+/* ── Success ────────────────────────────────────────────── */
+.btn-success {
+  background: rgba(34,197,94,.08);
+  color: var(--ok);
+  border-color: rgba(34,197,94,.2);
+}
+
+.btn-success:hover {
+  background: rgba(34,197,94,.14);
+  border-color: rgba(34,197,94,.4);
+  color: var(--ok);
+}
+
+/* ── Info ───────────────────────────────────────────────── */
+.btn-info {
+  background: rgba(96,165,250,.08);
+  color: var(--info);
+  border-color: rgba(96,165,250,.2);
+}
+
+.btn-info:hover {
+  background: rgba(96,165,250,.14);
+  border-color: rgba(96,165,250,.4);
+  color: var(--info);
+}
+
+/* ── Tailles ────────────────────────────────────────────── */
+.btn-sm,
+.btn--sm   { padding: 4px 10px; font-size: 11px; }
+.btn-lg,
+.btn--lg   { padding: 10px 24px; font-size: 14px; border-radius: var(--radius); }
+.btn-xl    { padding: 13px 32px; font-size: 15px; border-radius: var(--radius); font-weight: 700; }
+.btn-full,
+.btn--full { width: 100%; }
+
+/* ── Icon only ──────────────────────────────────────────── */
+.btn-icon {
+  padding: 6px;
+  min-width: 30px;
+  min-height: 30px;
+  gap: 0;
+}
+
+.btn-icon.btn-sm { padding: 4px; min-width: 26px; min-height: 26px; }
+
+/* ── Loading state ──────────────────────────────────────── */
+.btn.loading {
+  pointer-events: none;
+  opacity: .7;
+}
+
+.btn.loading::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin .6s linear infinite;
+  flex-shrink: 0;
+}
+
+/* ── Disabled ───────────────────────────────────────────── */
+.btn:disabled,
+.btn[disabled] {
+  opacity: .35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* ── Groupe ─────────────────────────────────────────────── */
+.btn-group {
+  display: inline-flex;
+}
+
+.btn-group .btn                 { border-radius: 0; }
+.btn-group .btn:first-child     { border-radius: var(--radius-sm) 0 0 var(--radius-sm); }
+.btn-group .btn:last-child      { border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
+.btn-group .btn + .btn          { border-left: none; }
+.btn-group .btn:hover           { z-index: 1; }

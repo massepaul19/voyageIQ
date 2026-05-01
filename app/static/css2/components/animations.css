@@ -1,0 +1,231 @@
+/* ═══════════════════════════════════════════════════════════
+   VoyageIQ-Pro — Animations CSS
+   Tous les keyframes référencés dans le projet
+═══════════════════════════════════════════════════════════ */
+
+/* ── Fade ───────────────────────────────────────────────── */
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInLeft {
+  from { opacity: 0; transform: translateX(-16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes fadeInRight {
+  from { opacity: 0; transform: translateX(16px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Slide ──────────────────────────────────────────────── */
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Scale ──────────────────────────────────────────────── */
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes popIn {
+  0%   { opacity: 0; transform: scale(.80); }
+  65%  { transform: scale(1.04); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Flash / Toast ──────────────────────────────────────── */
+
+@keyframes flashIn {
+  from { opacity: 0; transform: translateX(30px) scale(.97); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+
+@keyframes flashOut {
+  from { opacity: 1; max-height: 100px; margin-bottom: 6px; }
+  to   { opacity: 0; max-height: 0;     margin-bottom: 0; }
+}
+
+/* ── Modal ──────────────────────────────────────────────── */
+
+@keyframes modalOverlayIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes modalContentIn {
+  from { opacity: 0; transform: translateY(24px) scale(.96); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+/* ── Pulse / Glow ───────────────────────────────────────── */
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: .5; }
+}
+
+@keyframes pulseDot {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.6); opacity: .5; }
+}
+
+@keyframes glowGold {
+  0%, 100% { box-shadow: 0 0 6px  rgba(201,168,76,.15); }
+  50%       { box-shadow: 0 0 22px rgba(201,168,76,.5);  }
+}
+
+@keyframes glowMarine {
+  0%, 100% { box-shadow: 0 0 6px  rgba(66,133,244,.15); }
+  50%       { box-shadow: 0 0 22px rgba(66,133,244,.5);  }
+}
+
+@keyframes glowOrange {
+  0%, 100% { box-shadow: 0 0 6px  rgba(224,120,32,.15); }
+  50%       { box-shadow: 0 0 22px rgba(224,120,32,.5);  }
+}
+
+/* ── Badge pop ──────────────────────────────────────────── */
+
+@keyframes badgePop {
+  0%   { transform: scale(0); }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+/* ── Spin ───────────────────────────────────────────────── */
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes spinReverse {
+  to { transform: rotate(-360deg); }
+}
+
+/* ── KPI count-up ───────────────────────────────────────── */
+
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Progress / Bar fill ────────────────────────────────── */
+
+@keyframes progressFill {
+  from { width: 0; }
+  to   { width: var(--progress, 100%); }
+}
+
+@keyframes barFill {
+  from { transform: scaleY(0); transform-origin: bottom; }
+  to   { transform: scaleY(1); transform-origin: bottom; }
+}
+
+@keyframes barFillH {
+  from { width: 0; }
+  to   { width: var(--bar-w, 100%); }
+}
+
+/* ── Skeleton ───────────────────────────────────────────── */
+
+@keyframes skeletonWave {
+  0%   { background-position: -400px 0; }
+  100% { background-position:  400px 0; }
+}
+
+/* ── Bounce ─────────────────────────────────────────────── */
+
+@keyframes bounceSubtle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-5px); }
+}
+
+/* ── Shimmer ────────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+/* ── Road stripe (décoration) ───────────────────────────── */
+
+@keyframes roadStripe {
+  from { background-position: 0 0; }
+  to   { background-position: 0 40px; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Utility classes
+═══════════════════════════════════════════════════════════ */
+
+/* Skeleton loader */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--card2) 25%,
+    var(--card3) 50%,
+    var(--card2) 75%
+  );
+  background-size: 800px 100%;
+  animation: skeletonWave 1.4s ease infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* Helpers */
+.spin          { animation: spin 1s linear infinite; }
+.pulse         { animation: pulse 2s ease infinite; }
+.bounce        { animation: bounceSubtle 2s ease infinite; }
+.glow-gold     { animation: glowGold 2.5s ease infinite; }
+.glow-marine   { animation: glowMarine 2.5s ease infinite; }
+
+/* Entrance classes */
+.anim-fade-in      { animation: fadeIn      var(--dur-mid) var(--ease) both; }
+.anim-fade-in-up   { animation: fadeInUp    var(--dur-mid) var(--ease) both; }
+.anim-fade-in-down { animation: fadeInDown  var(--dur-mid) var(--ease) both; }
+.anim-fade-in-left { animation: fadeInLeft  var(--dur-mid) var(--ease) both; }
+.anim-slide-in     { animation: slideIn     var(--dur-mid) var(--ease) both; }
+.anim-scale-in     { animation: scaleIn     var(--dur-mid) var(--ease) both; }
+.anim-pop-in       { animation: popIn      .28s var(--ease-back) both; }
+
+/* Stagger delays */
+.anim-d1 { animation-delay: .06s; }
+.anim-d2 { animation-delay: .12s; }
+.anim-d3 { animation-delay: .18s; }
+.anim-d4 { animation-delay: .24s; }
+.anim-d5 { animation-delay: .30s; }
+.anim-d6 { animation-delay: .36s; }
+.anim-d7 { animation-delay: .42s; }
+.anim-d8 { animation-delay: .48s; }
+
+/* Page transition */
+.page-enter { animation: fadeInUp .25s var(--ease) both; }
+
+/* fade-in-down alias (compatibilité ancienne syntaxe) */
+.fade-in-down { animation: fadeInDown .6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }

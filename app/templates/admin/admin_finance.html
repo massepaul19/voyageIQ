@@ -1,0 +1,382 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Finance — VoyageIQ{% endblock %}
+{% block breadcrumb %}Finance{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/finance.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+        Finance
+      </h1>
+      <p class="page-subtitle">Tableau de bord financier — données réelles</p>
+    </div>
+    <div class="page-actions">
+      <a href="{{ url_for('rapports.index') }}" class="btn btn--ghost btn--sm">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Exporter
+      </a>
+    </div>
+  </div>
+
+  <!-- ── KPIs ──────────────────────────────────────────────── -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr)">
+
+    <div class="kpi-card kpi-card--eco">
+      <div class="kpi-icon kpi-icon--eco">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/>
+          <polyline points="17 6 23 6 23 12"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ "{:,.0f}".format(finance.revenus_mensuels) }}</div>
+        <div class="kpi-label">Revenus du mois (FCFA)</div>
+        <div class="kpi-sub {% if finance.evolution_revenus >= 0 %}positive{% else %}negative{% endif %}">
+          {{ "{:+.1f}".format(finance.evolution_revenus) }}% vs mois préc.
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card--err">
+      <div class="kpi-icon kpi-icon--err">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+          <polyline points="17 18 23 18 23 12"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ "{:,.0f}".format(finance.depenses_mensuelles) }}</div>
+        <div class="kpi-label">Dépenses du mois (FCFA)</div>
+        <div class="kpi-sub neutral">
+          {{ "{:+.1f}".format(finance.evolution_depenses) }}% vs mois préc.
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card--gold">
+      <div class="kpi-icon kpi-icon--gold">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value {% if finance.profit_mensuel >= 0 %}text-ok{% else %}text-err{% endif %}">
+          {{ "{:,.0f}".format(finance.profit_mensuel) }}
+        </div>
+        <div class="kpi-label">Bénéfice net (FCFA)</div>
+        <div class="kpi-sub {% if finance.marge_beneficiaire >= 0 %}positive{% else %}negative{% endif %}">
+          Marge : {{ "{:.1f}".format(finance.marge_beneficiaire) }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="kpi-card kpi-card--marine">
+      <div class="kpi-icon kpi-icon--marine">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+        </svg>
+      </div>
+      <div class="kpi-body">
+        <div class="kpi-value">{{ finance.passagers_mensuels }}</div>
+        <div class="kpi-label">Passagers du mois</div>
+        <div class="kpi-sub neutral">
+          Rev/passager :
+          {{ "{:,.0f}".format(finance.revenus_mensuels / finance.passagers_mensuels
+             if finance.passagers_mensuels else 0) }} FCFA
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Graphiques ─────────────────────────────────────────── -->
+  <div class="dash-grid" style="margin-bottom:14px">
+
+    {# Canvas ID  →  profitabilityChart  (lu par finance.js : initProfitabilityChart) #}
+    <div class="dash-col-8">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Revenus vs Dépenses — 6 derniers mois
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="profitabilityChart"></canvas>
+        </div>
+        <div class="chart-legend" style="display:flex;gap:16px;justify-content:center;padding:8px 0;font-size:11px;color:var(--t3)">
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--ok);margin-right:4px;vertical-align:middle"></span>Revenus</span>
+          <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--err);margin-right:4px;vertical-align:middle"></span>Dépenses</span>
+        </div>
+      </div>
+    </div>
+
+    {# Canvas ID  →  budgetChart  (lu par finance.js : initBudgetChart) #}
+    <div class="dash-col-4">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21.21 15.89A10 10 0 118 2.83"/>
+              <path d="M22 12A10 10 0 0012 2v10z"/>
+            </svg>
+            Répartition des charges
+          </div>
+        </div>
+        <div class="chart-wrap" style="height:220px">
+          <canvas id="budgetChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Budget par catégorie ──────────────────────────────── -->
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-header">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="2" y="7" width="20" height="14" rx="2"/>
+          <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/>
+        </svg>
+        Suivi budgétaire — mois courant
+      </div>
+      <span style="font-size:11px;color:var(--t3)">
+        Budget annuel estimé : {{ "{:,.0f}".format(finance.budget_annuel) }} FCFA
+      </span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px;padding:4px 0">
+      {% for cat in finance.budget_categories %}
+      <div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:5px">
+          <span style="font-size:12px;color:var(--t2)">{{ cat.nom }}</span>
+          <div style="display:flex;gap:16px;align-items:center">
+            <span style="font-family:var(--font-mono);font-size:11px;color:var(--t3)">
+              {{ "{:,.0f}".format(cat.utilise) }} / {{ "{:,.0f}".format(cat.alloue) }} FCFA
+            </span>
+            <span class="badge {% if cat.pct_utilise >= 90 %}badge--err{% elif cat.pct_utilise >= 70 %}badge--warn{% else %}badge--ok{% endif %}">
+              {{ cat.pct_utilise }}%
+            </span>
+          </div>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-bar__fill
+               {% if cat.pct_utilise >= 90 %}progress-bar__fill--err
+               {% elif cat.pct_utilise >= 70 %}progress-bar__fill--warn
+               {% else %}progress-bar__fill--ok{% endif %}"
+               style="width:{{ cat.pct_utilise }}%">
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── Trésorerie + Détail dépenses ──────────────────────── -->
+  <div class="dash-grid" style="margin-bottom:14px">
+
+    <div class="dash-col-6">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Trésorerie du mois</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px">
+
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Encaissements</div>
+            <div style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--ok)">
+              {{ "{:,.0f}".format(finance.tresorerie.encaissements) }}
+            </div>
+            <div style="font-size:10px;color:var(--t3);margin-top:2px">FCFA</div>
+          </div>
+
+          <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Décaissements</div>
+            <div style="font-family:var(--font-mono);font-size:16px;font-weight:700;color:var(--err)">
+              {{ "{:,.0f}".format(finance.tresorerie.decaissements) }}
+            </div>
+            <div style="font-size:10px;color:var(--t3);margin-top:2px">FCFA</div>
+          </div>
+
+          <div style="grid-column:1/-1;background:var(--gold-bg);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:14px">
+            <div style="font-size:11px;color:var(--gold3);margin-bottom:4px">Solde net</div>
+            <div style="font-family:var(--font-mono);font-size:20px;font-weight:800;
+                        color:{% if finance.tresorerie.solde >= 0 %}var(--gold){% else %}var(--err){% endif %}">
+              {{ "{:+,.0f}".format(finance.tresorerie.solde) }}
+            </div>
+            <div style="font-size:10px;color:var(--t3);margin-top:2px">FCFA — mois courant</div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div class="dash-col-6">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">Détail des dépenses</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">
+          <div class="stat-row">
+            <span class="stat-label">Carburant</span>
+            <span style="font-family:var(--font-mono);font-size:12px;color:var(--orange)">
+              {{ "{:,.0f}".format(finance.depenses_carburant) }} FCFA
+            </span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Maintenance (est.)</span>
+            <span style="font-family:var(--font-mono);font-size:12px;color:var(--warn)">
+              {{ "{:,.0f}".format(finance.depenses_maintenance) }} FCFA
+            </span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Personnel (est.)</span>
+            <span style="font-family:var(--font-mono);font-size:12px;color:var(--marine-light)">
+              {{ "{:,.0f}".format(finance.depenses_salaires) }} FCFA
+            </span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Autres</span>
+            <span style="font-family:var(--font-mono);font-size:12px;color:var(--t2)">
+              {{ "{:,.0f}".format(finance.depenses_autres) }} FCFA
+            </span>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px" class="stat-row">
+            <span class="stat-label" style="font-weight:600;color:var(--t)">Total dépenses</span>
+            <span style="font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--err)">
+              {{ "{:,.0f}".format(finance.depenses_mensuelles) }} FCFA
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Tableau saisies du mois ───────────────────────────── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="card-title">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+        </svg>
+        Détail revenus — mois courant
+      </div>
+      <span style="font-size:11px;color:var(--t3)">{{ saisies | length }} entrée(s)</span>
+    </div>
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Ligne</th>
+            <th class="text-right">Guichet</th>
+            <th class="text-right">Réservation</th>
+            <th class="text-right">Digital</th>
+            <th class="text-right">Total recettes</th>
+            <th class="text-right">Carburant</th>
+            <th class="text-right">Autres dép.</th>
+            <th class="text-right">Bénéfice</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in saisies %}
+          {% set rec = (s.rec_guichet or 0) + (s.rec_reservation or 0) + (s.rec_digital or 0) %}
+          {% set dep = (s.dep_carburant or 0) + (s.dep_autres or 0) %}
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:11px">
+              {{ s.date.strftime('%d/%m/%Y') }}
+            </td>
+            <td>
+              {% if s.ligne %}
+                <span class="badge badge--marine">{{ s.ligne.code }}</span>
+              {% else %}
+                <span style="color:var(--t3)">—</span>
+              {% endif %}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-size:11px">
+              {{ "{:,.0f}".format(s.rec_guichet or 0) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-size:11px">
+              {{ "{:,.0f}".format(s.rec_reservation or 0) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-size:11px">
+              {{ "{:,.0f}".format(s.rec_digital or 0) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-weight:600;color:var(--ok)">
+              {{ "{:,.0f}".format(rec) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-size:11px;color:var(--orange)">
+              {{ "{:,.0f}".format(s.dep_carburant or 0) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-size:11px;color:var(--t2)">
+              {{ "{:,.0f}".format(s.dep_autres or 0) }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right;font-weight:700;
+                       color:{% if rec - dep >= 0 %}var(--gold){% else %}var(--err){% endif %}">
+              {{ "{:+,.0f}".format(rec - dep) }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" style="text-align:center;color:var(--t3);padding:40px">
+              Aucune saisie ce mois-ci
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block page_js %}
+{#
+   Mapping window.FINANCE → finance.js
+   ─────────────────────────────────────────────────────────
+   F.profitability   →  profitabilityChart  (double ligne rev/dep)
+   F.budget          →  budgetChart         (doughnut répartition)
+   F.revenus_chart   →  revenusLineChart    (canvas optionnel)
+#}
+<script>
+window.FINANCE = {
+  profitability: {
+    labels  : {{ finance.profitability_chart.labels   | tojson }},
+    revenus : {{ finance.profitability_chart.revenus   | tojson }},
+    depenses: {{ finance.profitability_chart.depenses  | tojson }},
+  },
+  budget: {
+    labels: {{ finance.budget_chart.labels | tojson }},
+    data  : {{ finance.budget_chart.data   | tojson }},
+  },
+  revenus_chart: {
+    labels: {{ finance.revenus_chart.labels | tojson }},
+    data  : {{ finance.revenus_chart.data   | tojson }},
+  },
+};
+</script>
+<script src="{{ url_for('static', filename='js/modules/finance.js') }}"></script>
+{% endblock %}

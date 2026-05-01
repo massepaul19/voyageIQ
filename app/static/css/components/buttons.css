@@ -2,3 +2,55 @@
    Styles du composant réutilisable : buttons
 ──────────────────────────────────────────────────────────── */
 
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--dur-mid) var(--ease);
+  border: 1px solid transparent;
+}
+
+.btn--gold {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.btn--gold:hover {
+  background: var(--gold2);
+  transform: translateY(-2px);
+  box-shadow: var(--gold-glow);
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--t);
+  border-color: var(--border);
+}
+
+.btn--ghost:hover {
+  background: var(--glass);
+  border-color: var(--gold);
+}
+
+.btn--lg {
+  padding: 14px 32px;
+  font-size: 16px;
+  border-radius: var(--radius);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--gold);
+  border-color: var(--gold);
+}
+
+.btn--outline:hover {
+  background: var(--gold-bg);
+}

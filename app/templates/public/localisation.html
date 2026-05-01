@@ -1,0 +1,124 @@
+{% extends "base/base_public.html" %}
+{% block title %}Nos Agences — VoyageIQ Transport{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/localisation.css') }}">
+{% endblock %}
+
+{% block content %}
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero__content">
+      <div class="section__tag">Où nous trouver</div>
+      <h1 class="page-hero__title">Nos Agences</h1>
+      <p class="page-hero__subtitle">
+        Retrouvez nos points de départ et d'arrivée dans les grandes villes du Cameroun.
+      </p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="localisation-layout">
+
+      <!-- Liste des agences -->
+      <div class="agences-list">
+        <h2>Points de service</h2>
+        {% set agences = [
+          ('Yaoundé',    'Siège Principal',  '3.8480, 11.5021',  '+237 655 000 100', 'Lun–Sam 5h30–21h'),
+          ('Douala',     'Agence Douala',    '4.0483, 9.7043',   '+237 666 000 200', 'Lun–Sam 5h30–21h'),
+          ('Bafoussam',  'Agence Bafoussam', '5.4737, 10.4175',  '+237 677 000 300', 'Lun–Sam 6h00–20h'),
+          ('Kribi',      'Point Kribi',      '2.9393, 9.9089',   '+237 699 000 400', 'Lun–Sam 7h00–18h'),
+          ('Ebolowa',    'Point Ebolowa',    '2.9000, 11.1500',  '+237 655 000 500', 'Lun–Sam 7h00–18h'),
+          ('Bertoua',    'Point Bertoua',    '4.5833, 13.6833',  '+237 677 000 600', 'Lun–Ven 7h00–17h'),
+        ] %}
+
+        {% for ville, nom, coords, tel, horaires in agences %}
+        <div class="agence-card" data-lat="{{ coords.split(',')[0] }}"
+             data-lng="{{ coords.split(',')[1] }}" data-ville="{{ ville }}">
+          <div class="agence-card__header">
+            <div class="agence-card__icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
+            <div>
+              <strong class="agence-card__ville">{{ ville }}</strong>
+              <span class="agence-card__nom">{{ nom }}</span>
+            </div>
+          </div>
+          <div class="agence-card__details">
+            <span>📞 {{ tel }}</span>
+            <span>🕐 {{ horaires }}</span>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Carte -->
+      <div class="localisation-map-wrap">
+        <div id="agencesMap" class="localisation-map"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const map = L.map('agencesMap').setView([4.5, 11.5], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Icône custom dorée
+  const goldIcon = L.divIcon({
+    className: 'map-marker-gold',
+    html: `<div class="map-pin">
+             <svg width="14" height="14" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1">
+               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/>
+               <circle cx="12" cy="10" r="3" fill="#1C1C1F"/>
+             </svg>
+           </div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36],
+  });
+
+  // Ajouter les marqueurs depuis les cartes agences
+  document.querySelectorAll('.agence-card').forEach(card => {
+    const lat    = parseFloat(card.dataset.lat);
+    const lng    = parseFloat(card.dataset.lng);
+    const ville  = card.dataset.ville;
+    const nom    = card.querySelector('.agence-card__nom').textContent;
+    const tel    = card.querySelectorAll('.agence-card__details span')[0].textContent;
+    const horaires = card.querySelectorAll('.agence-card__details span')[1].textContent;
+
+    L.marker([lat, lng], { icon: goldIcon })
+      .addTo(map)
+      .bindPopup(`
+        <div class="map-popup">
+          <strong>${ville}</strong>
+          <span>${nom}</span>
+          <span>${tel}</span>
+          <span>${horaires}</span>
+        </div>
+      `);
+
+    // Click sur la carte agence → centre la carte
+    card.addEventListener('click', () => {
+      map.setView([lat, lng], 12);
+      document.querySelectorAll('.agence-card').forEach(c => c.classList.remove('agence-card--active'));
+      card.classList.add('agence-card--active');
+    });
+  });
+});
+</script>
+{% endblock %}

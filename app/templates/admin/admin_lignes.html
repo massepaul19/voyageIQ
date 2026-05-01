@@ -1,0 +1,246 @@
+{% extends "base/base_admin.html" %}
+
+{% block title %}Lignes — VoyageIQ{% endblock %}
+{% block breadcrumb %}Lignes{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/pages/lignes.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        Gestion des Lignes
+      </h1>
+      <p class="page-subtitle">{{ lignes.total }} ligne(s) enregistrée(s)</p>
+    </div>
+    <div class="page-actions">
+      <button class="btn btn--gold btn--sm" onclick="modalOpen('modalAjoutLigne')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Nouvelle ligne
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Tableau lignes ───────────────────────────────────── -->
+  <div class="card">
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Code</th>
+            <th>Nom / Itinéraire</th>
+            <th>Départ</th>
+            <th>Arrivée</th>
+            <th class="text-right">Distance (km)</th>
+            <th class="text-right">Tarif (FCFA)</th>
+            <th>Fréquence</th>
+            <th>Heure dép.</th>
+            <th>Statut</th>
+            <th class="text-right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for l in lignes.items %}
+          <tr>
+            <td>
+              <span class="ligne-code" style="background:{{ l.couleur or '#C9A84C' }}22;color:{{ l.couleur or '#C9A84C' }};border:1px solid {{ l.couleur or '#C9A84C' }}44;padding:3px 8px;border-radius:4px;font-family:var(--font-mono);font-size:11px;font-weight:700">
+                {{ l.code }}
+              </span>
+            </td>
+            <td>
+              <span style="font-weight:600;color:var(--t)">{{ l.nom }}</span>
+            </td>
+            <td style="color:var(--t2)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><circle cx="12" cy="12" r="3"/></svg>
+              {{ l.depart }}
+            </td>
+            <td style="color:var(--t2)">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              {{ l.arrivee }}
+            </td>
+            <td style="font-family:var(--font-mono);text-align:right">{{ "{:,.0f}".format(l.km or 0) }}</td>
+            <td style="font-family:var(--font-mono);text-align:right;color:var(--gold)">{{ "{:,.0f}".format(l.tarif or 0) }}</td>
+            <td style="font-family:var(--font-mono);text-align:center">{{ l.frequence }}×/j</td>
+            <td style="font-family:var(--font-mono);font-size:11px">
+              {{ l.heure_depart.strftime('%H:%M') if l.heure_depart else '—' }}
+            </td>
+            <td>
+              {% if l.actif %}
+                <span class="badge badge--ok">Active</span>
+              {% else %}
+                <span class="badge badge--err">Inactive</span>
+              {% endif %}
+            </td>
+            <td style="text-align:right">
+              <div style="display:flex;gap:4px;justify-content:flex-end">
+                <button class="btn btn--ghost btn--xs"
+                        onclick="modalModifierLigne({{ l.id }}, '{{ l.code }}', {{ l.nom|tojson }}, {{ l.depart|tojson }}, {{ l.arrivee|tojson }}, {{ l.km or 0 }}, {{ l.tarif or 0 }}, {{ l.frequence }}, '{{ l.heure_depart.strftime('%H:%M') if l.heure_depart else '' }}', {{ l.actif | tojson }})"
+                        title="Modifier">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                </button>
+                {% if current_user.role == 'admin' %}
+                <form action="{{ url_for('lignes.supprimer', lid=l.id) }}" method="POST"
+                      onsubmit="return confirm('Supprimer la ligne {{ l.code }} ? Cette action est irréversible.')">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="btn btn--ghost btn--xs btn--danger" title="Supprimer">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+                  </button>
+                </form>
+                {% endif %}
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="10" style="text-align:center;padding:40px;color:var(--t3)">Aucune ligne enregistrée</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if lignes.pages > 1 %}
+    <div class="pagination" style="padding:12px 16px">
+      {% if lignes.has_prev %}
+      <a href="{{ url_for('lignes.index', page=lignes.prev_num) }}" class="btn btn--ghost btn--sm">← Précédent</a>
+      {% endif %}
+      <span style="font-size:12px;color:var(--t3)">Page {{ lignes.page }} / {{ lignes.pages }}</span>
+      {% if lignes.has_next %}
+      <a href="{{ url_for('lignes.index', page=lignes.next_num) }}" class="btn btn--ghost btn--sm">Suivant →</a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ══ Modal : Ajouter ligne ═══════════════════════════════ -->
+<div class="modal-overlay" id="modalAjoutLigne">
+  <div class="modal modal--lg">
+    <div class="modal__header">
+      <h3 class="modal__title">Nouvelle ligne</h3>
+      <button class="modal__close" onclick="modalClose('modalAjoutLigne')">×</button>
+    </div>
+    <form action="{{ url_for('lignes.ajouter') }}" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid form-grid--2">
+        <div class="form-group">
+          <label class="form-label form-label--required">Code ligne</label>
+          <input type="text" name="code" class="form-input" placeholder="YDE-DLA" required style="text-transform:uppercase">
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Nom complet</label>
+          <input type="text" name="nom" class="form-input" placeholder="Yaoundé — Douala" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Ville de départ</label>
+          <input type="text" name="depart" class="form-input" placeholder="Yaoundé" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Ville d'arrivée</label>
+          <input type="text" name="arrivee" class="form-input" placeholder="Douala" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distance (km)</label>
+          <input type="number" name="km" class="form-input" value="0" min="0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tarif (FCFA)</label>
+          <input type="number" name="tarif" class="form-input" value="0" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fréquence (voyages/jour)</label>
+          <input type="number" name="frequence" class="form-input" value="1" min="1" max="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure de départ</label>
+          <input type="time" name="heure_depart" class="form-input" value="06:00">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Couleur</label>
+          <input type="color" name="couleur" class="form-input" value="#C9A84C" style="height:40px;padding:4px">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" onclick="modalClose('modalAjoutLigne')">Annuler</button>
+        <button type="submit" class="btn btn--gold">Créer la ligne</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ══ Modal : Modifier ligne ══════════════════════════════ -->
+<div class="modal-overlay" id="modalModifierLigne">
+  <div class="modal modal--lg">
+    <div class="modal__header">
+      <h3 class="modal__title">Modifier la ligne <span id="modLigneCodeLabel"></span></h3>
+      <button class="modal__close" onclick="modalClose('modalModifierLigne')">×</button>
+    </div>
+    <form id="formModifierLigne" method="POST">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid form-grid--2">
+        <div class="form-group">
+          <label class="form-label form-label--required">Nom complet</label>
+          <input type="text" name="nom" id="modLigneNom" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Ville de départ</label>
+          <input type="text" name="depart" id="modLigneDepart" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label form-label--required">Ville d'arrivée</label>
+          <input type="text" name="arrivee" id="modLigneArrivee" class="form-input" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distance (km)</label>
+          <input type="number" name="km" id="modLigneKm" class="form-input" min="0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tarif (FCFA)</label>
+          <input type="number" name="tarif" id="modLigneTarif" class="form-input" min="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Fréquence (voyages/jour)</label>
+          <input type="number" name="frequence" id="modLigneFreq" class="form-input" min="1" max="20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Heure de départ</label>
+          <input type="time" name="heure_depart" id="modLigneHeure" class="form-input">
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
+          <label class="form-label" style="margin:0">Active</label>
+          <input type="checkbox" name="actif" id="modLigneActif" style="width:18px;height:18px;accent-color:var(--gold)">
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button type="button" class="btn btn--ghost" onclick="modalClose('modalModifierLigne')">Annuler</button>
+        <button type="submit" class="btn btn--gold">Enregistrer</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script>
+function modalModifierLigne(id, code, nom, depart, arrivee, km, tarif, freq, heure, actif) {
+  document.getElementById('modLigneCodeLabel').textContent = code;
+  document.getElementById('modLigneNom').value    = nom;
+  document.getElementById('modLigneDepart').value = depart;
+  document.getElementById('modLigneArrivee').value= arrivee;
+  document.getElementById('modLigneKm').value     = km;
+  document.getElementById('modLigneTarif').value  = tarif;
+  document.getElementById('modLigneFreq').value   = freq;
+  document.getElementById('modLigneHeure').value  = heure;
+  document.getElementById('modLigneActif').checked= actif;
+  document.getElementById('formModifierLigne').action = '/lignes/modifier/' + id;
+  modalOpen('modalModifierLigne');
+}
+</script>
+<script src="{{ url_for('static', filename='js/modules/lignes.js') }}"></script>
+{% endblock %}

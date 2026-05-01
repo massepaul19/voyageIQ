@@ -1,0 +1,38 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Mes Courses — VoyageIQ{% endblock %}
+
+{% block content %}
+<div class="chauf-page-header">
+  <h1 class="chauf-page-title">Historique des Courses</h1>
+  <p class="chauf-page-subtitle">Retrouvez le détail de vos trajets effectués</p>
+</div>
+
+<div class="courses-list">
+  {% for course in chauffeur.courses %}
+  <div class="course-card">
+    <div class="course-card__date">
+      <span class="course-card__date-day">{{ course.date.day }}</span>
+      <span class="course-card__date-mon">{{ course.date.strftime('%b') }}</span>
+    </div>
+    <div class="course-card__info">
+      <span class="course-card__route">{{ course.ligne.depart }} ➔ {{ course.ligne.arrivee }}</span>
+      <div class="course-card__meta">
+        <span>🕒 Départ: {{ course.heure_depart }}</span>
+        <span>🏁 Arrivée: {{ course.heure_arrivee or '--:--' }}</span>
+        <span>🚐 {{ course.vehicule.immatriculation }}</span>
+      </div>
+    </div>
+    <div class="course-card__right">
+      <span class="course-card__km">{{ course.km }}</span>
+      <span class="course-card__km-sub">KM</span>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">🚐</div>
+    <p>Aucune course enregistrée pour le moment.</p>
+    <a href="{{ url_for('chauffeur.index') }}" class="btn btn--outline btn--sm">Retour au dashboard</a>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

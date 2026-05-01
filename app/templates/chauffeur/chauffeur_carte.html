@@ -1,0 +1,42 @@
+{% extends "base/base_chauffeur.html" %}
+{% block title %}Carte des Itinéraires{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<style>#mainMap { height: 70vh; border-radius: 12px; border: 1px solid var(--border); }</style>
+{% endblock %}
+
+{% block content %}
+<div class="chauf-page-header">
+  <h1 class="chauf-page-title">Mes Itinéraires</h1>
+  <p class="chauf-page-subtitle">Visualisez vos lignes habituelles</p>
+</div>
+
+<div id="mainMap"></div>
+
+<div class="card" style="margin-top: 15px;">
+    <div class="section-header"><h3>Légende</h3></div>
+    <div style="display: flex; gap: 20px; font-size: 12px;">
+        <span><i class="fas fa-circle" style="color: var(--orange);"></i> Ma position</span>
+        <span><i class="fas fa-map-marker-alt" style="color: var(--gold);"></i> Agences</span>
+    </div>
+</div>
+{% endblock %}
+
+{% block page_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const map = L.map('mainMap').setView([3.848, 11.502], 7);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    // Simulation de points d'agences
+    const agences = [[3.848, 11.502, 'Yaoundé'], [4.048, 9.704, 'Douala'], [5.473, 10.417, 'Bafoussam']];
+    agences.forEach(a => {
+        L.marker([a[0], a[1]]).addTo(map).bindPopup(`<b>Agence ${a[2]}</b>`);
+    });
+    
+    if (navigator.geolocation) navigator.geolocation.getCurrentPosition(p => map.setView([p.coords.latitude, p.coords.longitude], 10));
+});
+</script>
+{% endblock %}
