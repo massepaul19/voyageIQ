@@ -1,0 +1,239 @@
+.
+├── app
+│   ├── blueprints
+│   │   ├── bp_admin.py
+│   │   ├── bp_alertes.py
+│   │   ├── bp_analytique.py
+│   │   ├── bp_api.py
+│   │   ├── bp_auth_chauffeur.py
+│   │   ├── bp_auth.py
+│   │   ├── bp_carte.py
+│   │   ├── bp_chauffeur.py
+│   │   ├── bp_clientele.py
+│   │   ├── bp_dashboard.py
+│   │   ├── bp_finance.py
+│   │   ├── bp_flotte.py
+│   │   ├── bp_lignes.py
+│   │   ├── bp_operations.py
+│   │   ├── bp_public.py
+│   │   ├── bp_rapports.py
+│   │   ├── bp_saisie.py
+│   │   ├── decorators.py
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       ├── bp_admin.cpython-310.pyc
+│   │       ├── bp_alertes.cpython-310.pyc
+│   │       ├── bp_analytique.cpython-310.pyc
+│   │       ├── bp_api.cpython-310.pyc
+│   │       ├── bp_auth_chauffeur.cpython-310.pyc
+│   │       ├── bp_auth.cpython-310.pyc
+│   │       ├── bp_carte.cpython-310.pyc
+│   │       ├── bp_chauffeur.cpython-310.pyc
+│   │       ├── bp_clientele.cpython-310.pyc
+│   │       ├── bp_dashboard.cpython-310.pyc
+│   │       ├── bp_finance.cpython-310.pyc
+│   │       ├── bp_flotte.cpython-310.pyc
+│   │       ├── bp_lignes.cpython-310.pyc
+│   │       ├── bp_operations.cpython-310.pyc
+│   │       ├── bp_public.cpython-310.pyc
+│   │       ├── bp_rapports.cpython-310.pyc
+│   │       ├── bp_saisie.cpython-310.pyc
+│   │       └── __init__.cpython-310.pyc
+│   ├── extensions
+│   │   ├── __init__.py
+│   │   └── __pycache__
+│   │       └── __init__.cpython-310.pyc
+│   ├── __init__.py
+│   ├── models
+│   │   ├── alerte.py
+│   │   ├── chauffeur.py
+│   │   ├── __init__.py
+│   │   ├── ligne.py
+│   │   ├── __pycache__
+│   │   │   ├── alerte.cpython-310.pyc
+│   │   │   ├── chauffeur.cpython-310.pyc
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── ligne.cpython-310.pyc
+│   │   │   ├── saisie.cpython-310.pyc
+│   │   │   ├── utilisateur.cpython-310.pyc
+│   │   │   └── vehicule.cpython-310.pyc
+│   │   ├── saisie.py
+│   │   ├── utilisateur.py
+│   │   └── vehicule.py
+│   ├── __pycache__
+│   │   └── __init__.cpython-310.pyc
+│   ├── services
+│   │   ├── alerte_service.py
+│   │   ├── email_service.py
+│   │   ├── __init__.py
+│   │   ├── kpi_service.py
+│   │   ├── __pycache__
+│   │   │   ├── alerte_service.cpython-310.pyc
+│   │   │   ├── __init__.cpython-310.pyc
+│   │   │   ├── kpi_service.cpython-310.pyc
+│   │   │   └── rapport_service.cpython-310.pyc
+│   │   └── rapport_service.py
+│   ├── static
+│   │   ├── css
+│   │   │   ├── base
+│   │   │   │   ├── animations.css
+│   │   │   │   ├── main.css
+│   │   │   │   ├── reset.css
+│   │   │   │   ├── style_admin.css
+│   │   │   │   └── variables.css
+│   │   │   ├── base.zip
+│   │   │   ├── components
+│   │   │   │   ├── alerts.css
+│   │   │   │   ├── buttons.css
+│   │   │   │   ├── cards.css
+│   │   │   │   ├── chauffeur_nav.css
+│   │   │   │   ├── footer.css
+│   │   │   │   ├── forms.css
+│   │   │   │   ├── kpi.css
+│   │   │   │   ├── modals.css
+│   │   │   │   ├── navbar.css
+│   │   │   │   ├── sidebar.css
+│   │   │   │   └── tables.css
+│   │   │   └── pages
+│   │   │       ├── admin.css
+│   │   │       ├── alertes.css
+│   │   │       ├── analytique.css
+│   │   │       ├── avis.css
+│   │   │       ├── carte.css
+│   │   │       ├── chauffeur.css
+│   │   │       ├── chauffeurs_admin.css
+│   │   │       ├── clientele.css
+│   │   │       ├── dashboard.css
+│   │   │       ├── finance.css
+│   │   │       ├── flotte.css
+│   │   │       ├── lignes.css
+│   │   │       ├── localisation.css
+│   │   │       ├── login.css
+│   │   │       ├── operations.css
+│   │   │       ├── public.css
+│   │   │       ├── rapports.css
+│   │   │       └── saisie.css
+│   │   ├── fonts
+│   │   ├── images
+│   │   │   ├── avatars
+│   │   │   ├── chauffeurs
+│   │   │   │   ├── 124afbc9548a4507b64d85b81e58fa56.jpg
+│   │   │   │   ├── 308374ee56734bba86889d87c5fa9a52.jpeg
+│   │   │   │   └── 4503afab2cbd4896b7b5cd0e0cac1e76.png
+│   │   │   ├── icons
+│   │   │   ├── logo.jpeg
+│   │   │   ├── logos
+│   │   │   └── vehicules
+│   │   └── js
+│   │       ├── main.js
+│   │       └── modules
+│   │           ├── admin.js
+│   │           ├── alertes.js
+│   │           ├── analytique.js
+│   │           ├── avis.js
+│   │           ├── carte.js
+│   │           ├── chauffeur.js
+│   │           ├── clientele.js
+│   │           ├── dashboard.js
+│   │           ├── finance.js
+│   │           ├── flotte.js
+│   │           ├── lignes.js
+│   │           ├── localisation.js
+│   │           ├── operations.js
+│   │           ├── public.js
+│   │           ├── rapports.js
+│   │           └── saisie.js
+│   ├── templates
+│   │   ├── admin
+│   │   │   ├── admin_alertes.html
+│   │   │   ├── admin_analytique.html
+│   │   │   ├── admin_avis.html
+│   │   │   ├── admin_carte.html
+│   │   │   ├── admin_chauffeurs.html
+│   │   │   ├── admin_clientele.html
+│   │   │   ├── admin_dashboard.html
+│   │   │   ├── admin_finance.html
+│   │   │   ├── admin_flotte.html
+│   │   │   ├── admin_lignes.html
+│   │   │   ├── admin_localisation.html
+│   │   │   ├── admin_operations.html
+│   │   │   ├── admin_rapports.html
+│   │   │   ├── admin_saisie.html
+│   │   │   ├── admin_utilisateurs.html
+│   │   │   ├── modifier_chauffeur.html
+│   │   │   ├── modifier_profil.html
+│   │   │   ├── modifier_utilisateur.html
+│   │   │   └── modifier_vehicule.html
+│   │   ├── auth
+│   │   │   ├── admin_login.html
+│   │   │   └── chauffeur_login.html
+│   │   ├── base
+│   │   │   ├── base_admin.html
+│   │   │   ├── base_chauffeur.html
+│   │   │   └── base_public.html
+│   │   ├── chauffeur
+│   │   │   ├── chauffeur_carte.html
+│   │   │   ├── chauffeur_courses.html
+│   │   │   ├── chauffeur_dashboard.html
+│   │   │   ├── chauffeur_inscription_attente.html
+│   │   │   ├── chauffeur_inscription.html
+│   │   │   ├── chauffeur_localisation.html
+│   │   │   ├── chauffeur_maintenance.html
+│   │   │   ├── chauffeur_modifier_profil.html
+│   │   │   ├── chauffeur_profil.html
+│   │   │   └── chauffeur_stats.html
+│   │   ├── components
+│   │   │   ├── alerte_card.html
+│   │   │   ├── carte_mini.html
+│   │   │   ├── course_card.html
+│   │   │   ├── kpi_card.html
+│   │   │   ├── nav_chauffeur.html
+│   │   │   └── pagination.html
+│   │   ├── errors
+│   │   │   ├── 404.html
+│   │   │   └── 500.html
+│   │   └── public
+│   │       ├── about.html
+│   │       ├── contact.html
+│   │       ├── index.html
+│   │       └── localisation.html
+│   └── utils
+│       ├── decorators.py
+│       ├── helpers.py
+│       ├── __init__.py
+│       └── __pycache__
+│           ├── decorators.cpython-310.pyc
+│           └── __init__.cpython-310.pyc
+├── backups
+├── config
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-310.pyc
+│   │   └── settings.cpython-310.pyc
+│   └── settings.py
+├── database
+│   ├── migrations
+│   ├── rapports
+│   │   ├── rapport_20260501_054204.pdf
+│   │   ├── rapport_20260501_060627.pdf
+│   │   ├── rapport_20260501_061259.pdf
+│   │   └── rapport_20260501_162628.pdf
+│   ├── seeds
+│   │   ├── init_db.py
+│   │   └── __init__.py
+│   └── voyageiq.db
+├── docs
+│   ├── guide-developpement.md
+│   └── projet.tex
+├── instance
+├── logs
+├── __pycache__
+│   └── run.cpython-310.pyc
+├── README.md
+├── reorganise.sh
+├── requete.txt
+├── requirements.txt
+├── run.py
+└── struc.txt
+
+45 directories, 191 files
